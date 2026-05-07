@@ -1,47 +1,75 @@
 'use client';
-import { useState, useEffect } from 'react';
-import { supabase } from '../supabase';
+import { useState } from 'react';
 
-export default function Tienda() {
-  const [armazones, setArmazones] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [filtro, setFiltro] = useState('Todo');
+const visionOpts = [
+  { id: 'mono', nombre: 'Monofocal', desc: 'Para ver de lejos o cerca (una sola distancia).', precio: 5 },
+  { id: 'bi', nombre: 'Bifocal', desc: 'Con línea visible, para lejos y cerca.', precio: 13 },
+  { id: 'prog', nombre: 'Progresivo', desc: 'Sin línea, ve lejos, intermedio y cerca.', precio: 48 },
+];
 
-  useEffect(() => {
-    loadArmazones();
-  }, []);
+const materialOpts = [
+  { id: 'cr39', nombre: 'CR-39', desc: 'Plástico básico, económico.', precio: 0 },
+  { id: 'poly', nombre: 'PolyPlus', desc: 'Policarbonato, más resistente.', precio: 29 },
+  { id: 'hd', nombre: 'HD Vision', desc: 'Más claro y delgado que CR-39.', precio: 39 },
+  { id: 'hi', nombre: 'Hi-Index 1.67', desc: 'Para graduaciones altas.', precio: 59 },
+  { id: 'shi', nombre: 'Súper Hi-Index 1.74', desc: 'El más delgado y estético.', precio: 89 },
+];
 
-  const loadArmazones = async () => {
+const filtroOpts = [
+  { id: 'ar', nombre: 'AR Normal', desc: 'Antirreflejante estándar.', precio: 9 },
+  { id: 'blue', nombre: 'Blue Light', desc: 'Protección contra pantallas.', precio: 17 },
+  { id: 'foto', nombre: 'Fotocromático', desc: 'Se oscurece con el sol.', precio: 39 },
+  { id: 'anti', nombre: 'Antiempañante', desc: 'Evita que se empañen.', precio: 15 },
+  { id: 'pol', nombre: 'Polarizado', desc: 'Ideal para manejar.', precio: 89 },
+  { id: 'tinte', nombre: 'Tinte estético', desc: 'Colores (gris, café, etc.)', precio: 28 },
+];
+
+export default function Configurador() {
+  const [paso, setPaso] = useState(1);
+  const [vision, setVision] = useState('');
+  const [material, setMaterial] = useState('');
+  const [filtros, setFiltros] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const precioArmazon = 43;
+  const precioVision = visionOpts.find(v => v.id === vision)?.precio || 0;
+  const precioMaterial = materialOpts.find(m => m.id === material)?.precio || 0;
+  const precioFiltros = filtroOpts.filter(f => filtros.includes(f.id)).reduce((a, f) => a + f.precio, 0);
+  const total = precioArmazon + precioVision + precioMaterial + precioFiltros;
+
+  const toggleFiltro = (id: string) => {
+    setFiltros(prev => prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id]);
+  };
+
+  const handlePago = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from('armazones')
-      .select('*')
-      .eq('activo', true)
-      .order('id');
-    if (data) setArmazones(data);
-    if (error) console.error(error);
-    setLoading(false);
+    try {
+      const v = visionOpts.find(x => x.id === vision)?.nombre || '';
+      const m = materialOpts.find(x => x.id === material)?.nombre || '';
+      const fs = filtroOpts.filter(f => filtros.includes(f.id)).map(f => f.nombre).join(', ');
+      const items = `${v} + ${m}${fs ? ' + ' + fs : ''}`;
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items, total }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        alert('Error al procesar el pago. Intenta de nuevo.');
+        setLoading(false);
+      }
+    } catch (error) {
+      alert('Error al procesar el pago. Intenta de nuevo.');
+      setLoading(false);
+    }
   };
 
-  const filtros = ['Todo', 'Mujer', 'Hombre', 'Unisex', 'Redondo', 'Cuadrado', 'Cat-Eye', 'Aviador'];
-
-  const filtrados = armazones.filter(a => {
-    if (filtro === 'Todo') return true;
-    return a.genero === filtro || a.forma === filtro;
-  });
-
-  const badgeColor: Record<string, string> = {
-    'Novedad': '#2BBFB3',
-    'Bestseller': '#FF9F1C',
-    'Oferta': '#E53E3E',
-  };
-
-  const bgColors = ['#FFE4E8', '#FFF3CC', '#E8F4FF', '#E0F7F4'];
+  const pasos = ['Visión', 'Material', 'Filtros', 'Resumen'];
 
   return (
     <main style={{fontFamily: 'sans-serif', background: '#FAF7F2', minHeight: '100vh'}}>
-
-      {/* NAV */}
       <nav style={{background: 'white', borderBottom: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 2rem', height: '66px', position: 'sticky', top: 0, zIndex: 100}}>
         <a href="/" style={{textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px'}}>
           <span style={{fontSize: '20px', fontWeight: 800, color: '#2BBFB3'}}>Verly</span>
@@ -49,70 +77,114 @@ export default function Tienda() {
         </a>
         <div style={{display: 'flex', gap: '2rem'}}>
           <a href="/" style={{color: '#2BBFB3', textDecoration: 'none', fontWeight: 500}}>Inicio</a>
-          <a href="/Tienda" style={{color: '#2BBFB3', textDecoration: 'none', fontWeight: 700, borderBottom: '2px solid #2BBFB3'}}>Tienda</a>
-          <a href="#" style={{color: '#2BBFB3', textDecoration: 'none', fontWeight: 500}}>FAQ</a>
+          <a href="/Tienda" style={{color: '#2BBFB3', textDecoration: 'none', fontWeight: 500}}>Tienda</a>
         </div>
       </nav>
 
-      {/* HEADER */}
-      <div style={{padding: '3rem 2rem 1rem', textAlign: 'center'}}>
-        <h1 style={{fontSize: '2rem', fontWeight: 800, color: '#2BBFB3', marginBottom: '0.5rem'}}>Nuestra Tienda</h1>
-        <p style={{color: '#4A5568', fontSize: '15px'}}>Elige tu armazón favorito y arma tus lentes a tu medida</p>
-      </div>
+      <div style={{maxWidth: '700px', margin: '0 auto', padding: '2rem'}}>
+        <h1 style={{fontSize: '1.8rem', fontWeight: 800, color: '#2BBFB3', textAlign: 'center', marginBottom: '0.5rem'}}>Arma tus Lentes</h1>
+        <p style={{color: '#4A5568', textAlign: 'center', marginBottom: '2rem'}}>Paso a paso — elige lo que mejor te quede</p>
 
-      {/* FILTROS */}
-      <div style={{display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center', padding: '1rem 2rem'}}>
-        {filtros.map(f => (
-          <button key={f} onClick={() => setFiltro(f)} style={{padding: '8px 18px', borderRadius: '20px', border: `1.5px solid ${filtro === f ? '#2BBFB3' : '#E2E8F0'}`, background: filtro === f ? '#2BBFB3' : 'white', color: filtro === f ? 'white' : '#4A5568', fontSize: '13px', fontWeight: 600, cursor: 'pointer', fontFamily: 'sans-serif', transition: 'all 0.2s'}}>
-            {f}
-          </button>
-        ))}
-      </div>
-
-      {/* PRODUCTOS */}
-      <div style={{padding: '1.5rem 2rem', maxWidth: '1200px', margin: '0 auto'}}>
-        {loading && (
-          <div style={{textAlign: 'center', padding: '4rem', color: '#8A97A8'}}>
-            <div style={{fontSize: '2rem', marginBottom: '1rem'}}>👓</div>
-            <div>Cargando armazones...</div>
-          </div>
-        )}
-        {!loading && filtrados.length === 0 && (
-          <div style={{textAlign: 'center', padding: '4rem', color: '#8A97A8'}}>
-            <div style={{fontSize: '2rem', marginBottom: '1rem'}}>😕</div>
-            <div style={{fontWeight: 600, marginBottom: '8px'}}>No hay armazones disponibles</div>
-            <div style={{fontSize: '13px'}}>Pronto agregaremos nuevos modelos</div>
-          </div>
-        )}
-        <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.5rem'}}>
-          {filtrados.map((a, i) => (
-            <div key={a.id} style={{background: 'white', borderRadius: '18px', overflow: 'hidden', border: '1px solid #E2E8F0', cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s'}}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(-4px)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 12px 32px rgba(43,191,179,.15)'; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; (e.currentTarget as HTMLElement).style.boxShadow = 'none'; }}>
-
-              {/* IMAGEN */}
-              <div style={{height: '200px', background: bgColors[i % bgColors.length], display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative'}}>
-                <span style={{fontSize: '4rem'}}>👓</span>
-                {a.badge && (
-                  <div style={{position: 'absolute', top: '10px', left: '10px', background: badgeColor[a.badge] || '#2BBFB3', color: 'white', fontSize: '11px', fontWeight: 700, padding: '3px 10px', borderRadius: '20px'}}>
-                    {a.badge}
-                  </div>
-                )}
+        <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '2rem'}}>
+          {pasos.map((p, i) => (
+            <div key={i} style={{display: 'flex', alignItems: 'center'}}>
+              <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px'}}>
+                <div style={{width: '36px', height: '36px', borderRadius: '50%', background: paso > i + 1 ? '#2BBFB3' : 'white', border: paso >= i + 1 ? '2.5px solid #2BBFB3' : '2.5px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '14px', color: paso > i + 1 ? 'white' : paso === i + 1 ? '#2BBFB3' : '#8A97A8'}}>
+                  {paso > i + 1 ? '✓' : i + 1}
+                </div>
+                <span style={{fontSize: '10px', fontWeight: 600, color: paso >= i + 1 ? '#2BBFB3' : '#8A97A8'}}>{p}</span>
               </div>
-
-              {/* INFO */}
-              <div style={{padding: '1.1rem'}}>
-                <div style={{fontSize: '16px', fontWeight: 700, marginBottom: '4px'}}>{a.nombre}</div>
-                <div style={{fontSize: '12px', color: '#8A97A8', marginBottom: '14px'}}>{a.forma} · {a.genero}</div>
-                <a href="/configurador2" style={{display: 'block', width: '100%', background: '#2BBFB3', color: 'white', border: 'none', borderRadius: '20px', padding: '10px', fontSize: '13px', fontWeight: 700, cursor: 'pointer', fontFamily: 'sans-serif', textAlign: 'center', textDecoration: 'none'}}>
-                  Elegir este armazón →
-                </a>
-              </div>
+              {i < pasos.length - 1 && <div style={{width: '60px', height: '2px', background: paso > i + 1 ? '#2BBFB3' : '#E2E8F0', marginBottom: '18px'}}></div>}
             </div>
           ))}
         </div>
-      </div>
 
+        {paso === 1 && (
+          <div style={{background: 'white', borderRadius: '16px', border: '1px solid #E2E8F0', padding: '1.5rem'}}>
+            <h2 style={{fontSize: '16px', fontWeight: 700, marginBottom: '4px'}}>Paso 1: Tipo de Visión</h2>
+            <p style={{fontSize: '13px', color: '#4A5568', marginBottom: '1.25rem'}}>¿Cómo ves? Elige la opción que mejor te describe.</p>
+            <div style={{display: 'flex', flexDirection: 'column', gap: '0.75rem'}}>
+              {visionOpts.map(o => (
+                <div key={o.id} onClick={() => setVision(o.id)} style={{border: vision === o.id ? '2px solid #2BBFB3' : '2px solid #E2E8F0', borderRadius: '12px', padding: '1rem', cursor: 'pointer', background: vision === o.id ? '#E0F7F4' : 'white'}}>
+                  <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                    <div><div style={{fontSize: '15px', fontWeight: 700}}>{o.nombre}</div><div style={{fontSize: '12px', color: '#4A5568', marginTop: '2px'}}>{o.desc}</div></div>
+                    <div style={{fontSize: '15px', fontWeight: 700, color: '#2BBFB3'}}>+${o.precio}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div style={{display: 'flex', justifyContent: 'flex-end', marginTop: '1.5rem'}}>
+              <button onClick={() => vision && setPaso(2)} style={{background: vision ? '#2BBFB3' : '#E2E8F0', color: vision ? 'white' : '#8A97A8', border: 'none', borderRadius: '24px', padding: '11px 28px', fontSize: '14px', fontWeight: 700, cursor: vision ? 'pointer' : 'not-allowed', fontFamily: 'sans-serif'}}>Siguiente →</button>
+            </div>
+          </div>
+        )}
+
+        {paso === 2 && (
+          <div style={{background: 'white', borderRadius: '16px', border: '1px solid #E2E8F0', padding: '1.5rem'}}>
+            <h2 style={{fontSize: '16px', fontWeight: 700, marginBottom: '4px'}}>Paso 2: Material de la Mica</h2>
+            <p style={{fontSize: '13px', color: '#4A5568', marginBottom: '1.25rem'}}>El material afecta el grosor y peso de tu lente.</p>
+            <div style={{display: 'flex', flexDirection: 'column', gap: '0.75rem'}}>
+              {materialOpts.map(o => (
+                <div key={o.id} onClick={() => setMaterial(o.id)} style={{border: material === o.id ? '2px solid #2BBFB3' : '2px solid #E2E8F0', borderRadius: '12px', padding: '1rem', cursor: 'pointer', background: material === o.id ? '#E0F7F4' : 'white'}}>
+                  <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                    <div><div style={{fontSize: '15px', fontWeight: 700}}>{o.nombre}</div><div style={{fontSize: '12px', color: '#4A5568', marginTop: '2px'}}>{o.desc}</div></div>
+                    <div style={{fontSize: '15px', fontWeight: 700, color: '#2BBFB3'}}>{o.precio === 0 ? 'Incluido' : `+$${o.precio}`}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div style={{display: 'flex', justifyContent: 'space-between', marginTop: '1.5rem'}}>
+              <button onClick={() => setPaso(1)} style={{background: 'none', border: '1.5px solid #E2E8F0', borderRadius: '24px', padding: '10px 22px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', color: '#4A5568', fontFamily: 'sans-serif'}}>← Atrás</button>
+              <button onClick={() => material && setPaso(3)} style={{background: material ? '#2BBFB3' : '#E2E8F0', color: material ? 'white' : '#8A97A8', border: 'none', borderRadius: '24px', padding: '11px 28px', fontSize: '14px', fontWeight: 700, cursor: material ? 'pointer' : 'not-allowed', fontFamily: 'sans-serif'}}>Siguiente →</button>
+            </div>
+          </div>
+        )}
+
+        {paso === 3 && (
+          <div style={{background: 'white', borderRadius: '16px', border: '1px solid #E2E8F0', padding: '1.5rem'}}>
+            <h2 style={{fontSize: '16px', fontWeight: 700, marginBottom: '4px'}}>Paso 3: Filtros y Protecciones</h2>
+            <p style={{fontSize: '13px', color: '#4A5568', marginBottom: '1.25rem'}}>Opcionales. Puedes elegir uno o más.</p>
+            <div style={{display: 'flex', flexDirection: 'column', gap: '0.75rem'}}>
+              {filtroOpts.map(o => (
+                <div key={o.id} onClick={() => toggleFiltro(o.id)} style={{border: filtros.includes(o.id) ? '2px solid #2BBFB3' : '2px solid #E2E8F0', borderRadius: '12px', padding: '1rem', cursor: 'pointer', background: filtros.includes(o.id) ? '#E0F7F4' : 'white'}}>
+                  <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                    <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
+                      <div style={{width: '20px', height: '20px', borderRadius: '4px', border: '2px solid', borderColor: filtros.includes(o.id) ? '#2BBFB3' : '#E2E8F0', background: filtros.includes(o.id) ? '#2BBFB3' : 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '12px', fontWeight: 700}}>
+                        {filtros.includes(o.id) ? '✓' : ''}
+                      </div>
+                      <div><div style={{fontSize: '14px', fontWeight: 700}}>{o.nombre}</div><div style={{fontSize: '12px', color: '#4A5568'}}>{o.desc}</div></div>
+                    </div>
+                    <div style={{fontSize: '14px', fontWeight: 700, color: '#2BBFB3'}}>+${o.precio}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div style={{display: 'flex', justifyContent: 'space-between', marginTop: '1.5rem'}}>
+              <button onClick={() => setPaso(2)} style={{background: 'none', border: '1.5px solid #E2E8F0', borderRadius: '24px', padding: '10px 22px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', color: '#4A5568', fontFamily: 'sans-serif'}}>← Atrás</button>
+              <button onClick={() => setPaso(4)} style={{background: '#2BBFB3', color: 'white', border: 'none', borderRadius: '24px', padding: '11px 28px', fontSize: '14px', fontWeight: 700, cursor: 'pointer', fontFamily: 'sans-serif'}}>Ver Resumen →</button>
+            </div>
+          </div>
+        )}
+
+        {paso === 4 && (
+          <div style={{background: 'white', borderRadius: '16px', border: '1px solid #E2E8F0', padding: '1.5rem'}}>
+            <h2 style={{fontSize: '16px', fontWeight: 700, marginBottom: '1.25rem'}}>Paso 4: Resumen de tu Pedido</h2>
+            <div style={{display: 'flex', flexDirection: 'column'}}>
+              <div style={{display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #E2E8F0', fontSize: '14px'}}><span>Armazón</span><span style={{fontWeight: 600}}>${precioArmazon}</span></div>
+              <div style={{display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #E2E8F0', fontSize: '14px'}}><span>Visión: {visionOpts.find(v => v.id === vision)?.nombre}</span><span style={{fontWeight: 600}}>+${precioVision}</span></div>
+              <div style={{display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #E2E8F0', fontSize: '14px'}}><span>Material: {materialOpts.find(m => m.id === material)?.nombre}</span><span style={{fontWeight: 600}}>{precioMaterial === 0 ? 'Incluido' : `+$${precioMaterial}`}</span></div>
+              {filtroOpts.filter(f => filtros.includes(f.id)).map(f => (
+                <div key={f.id} style={{display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #E2E8F0', fontSize: '14px'}}><span>{f.nombre}</span><span style={{fontWeight: 600}}>+${f.precio}</span></div>
+              ))}
+              <div style={{display: 'flex', justifyContent: 'space-between', padding: '14px 0', fontSize: '18px', fontWeight: 800, color: '#2BBFB3'}}><span>TOTAL</span><span>${total} USD</span></div>
+            </div>
+            <button onClick={handlePago} disabled={loading} style={{width: '100%', background: loading ? '#8A97A8' : '#2BBFB3', color: 'white', border: 'none', borderRadius: '28px', padding: '15px', fontSize: '15px', fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer', fontFamily: 'sans-serif', marginTop: '0.5rem'}}>
+              {loading ? 'Procesando...' : '💳 Pagar con Tarjeta →'}
+            </button>
+            <button onClick={() => setPaso(3)} style={{width: '100%', background: 'none', border: '1.5px solid #E2E8F0', borderRadius: '28px', padding: '13px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', color: '#4A5568', marginTop: '10px', fontFamily: 'sans-serif'}}>← Volver</button>
+          </div>
+        )}
+      </div>
     </main>
   );
 }

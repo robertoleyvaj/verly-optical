@@ -1,6 +1,6 @@
 'use client';
-import Navbar from './components/navbar';
-import { useLang } from './components/LanguageContext';
+import Navbar from '../components/Navbar';
+import { useLang } from '../components/LanguageContext';
 
 export default function Home() {
   const { t } = useLang();
@@ -8,7 +8,7 @@ export default function Home() {
   return (
     <main style={{fontFamily: 'var(--font-jakarta), sans-serif', margin: 0, padding: 0, background: '#FAFAFA', color: '#1A1A2E'}}>
 
-      <Navbar />
+      <navbar />
 
       {/* HERO */}
       <section style={{minHeight: '92vh', display: 'flex', alignItems: 'center', background: 'linear-gradient(160deg, #F0FDFB 0%, #FAFAFA 50%, #FFF8E7 100%)', padding: '0 2rem', position: 'relative', overflow: 'hidden'}}>

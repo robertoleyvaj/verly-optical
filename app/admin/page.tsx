@@ -1,244 +1,240 @@
 'use client';
-import Navbar from '../components/Navbar';
-import { useLang } from '../components/LanguageContext';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { supabase } from '../supabase';
 
-export default function Home() {
-  const { t } = useLang();
+export default function Admin() {
+  const router = useRouter();
+  const [autenticado, setAutenticado] = useState(false);
+  const [usuario, setUsuario] = useState('');
+  const [password, setPassword] = useState('');
+  const [armazones, setArmazones] = useState<any[]>([]);
+  const [pedidos, setPedidos] = useState<any[]>([]);
+  const [tab, setTab] = useState('armazones');
+  const [loading, setLoading] = useState(false);
+
+  // Form nuevo armazón
+  const [form, setForm] = useState({ nombre: '', forma: '', genero: '', stock: 10, badge: '', activo: true, precio: 43, color: '#1A1A2E' });
+  const [editId, setEditId] = useState<number | null>(null);
+
+  const login = () => {
+    if (usuario === 'admin@verlyoptical.com' && password === 'verly2024') {
+      setAutenticado(true);
+      cargarDatos();
+    } else {
+      alert('Credenciales incorrectas');
+    }
+  };
+
+  const cargarDatos = async () => {
+    setLoading(true);
+    const { data: a } = await supabase.from('armazones').select('*').order('id');
+    const { data: p } = await supabase.from('pedidos').select('*').order('created_at', { ascending: false });
+    setArmazones(a || []);
+    setPedidos(p || []);
+    setLoading(false);
+  };
+
+  const guardarArmazon = async () => {
+    if (!form.nombre) return alert('El nombre es requerido');
+    if (editId) {
+      await supabase.from('armazones').update(form).eq('id', editId);
+    } else {
+      await supabase.from('armazones').insert(form);
+    }
+    setForm({ nombre: '', forma: '', genero: '', stock: 10, badge: '', activo: true, precio: 43, color: '#1A1A2E' });
+    setEditId(null);
+    cargarDatos();
+  };
+
+  const eliminarArmazon = async (id: number) => {
+    if (!confirm('¿Eliminar este armazón?')) return;
+    await supabase.from('armazones').delete().eq('id', id);
+    cargarDatos();
+  };
+
+  const editarArmazon = (a: any) => {
+    setForm({ nombre: a.nombre, forma: a.forma, genero: a.genero, stock: a.stock, badge: a.badge || '', activo: a.activo, precio: a.precio, color: a.color || '#1A1A2E' });
+    setEditId(a.id);
+    setTab('armazones');
+  };
+
+  const inputStyle: React.CSSProperties = {
+    width: '100%', padding: '8px 12px', borderRadius: '6px',
+    border: '1.5px solid #E2E8F0', fontSize: '14px',
+    fontFamily: 'sans-serif', outline: 'none', boxSizing: 'border-box',
+  };
+
+  if (!autenticado) return (
+    <main style={{ fontFamily: 'sans-serif', background: '#F8FAFC', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ background: 'white', borderRadius: '16px', padding: '2.5rem', width: '360px', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '2rem' }}>
+          <span style={{ fontSize: '20px', fontWeight: 800, color: '#2BBFB3' }}>Verly</span>
+          <span style={{ fontSize: '9px', fontWeight: 700, color: '#F5C518', letterSpacing: '2px' }}>ADMIN</span>
+        </div>
+        <h2 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '1.5rem', color: '#1A1A2E' }}>Panel de administración</h2>
+        <div style={{ marginBottom: '1rem' }}>
+          <label style={{ fontSize: '12px', fontWeight: 600, color: '#5A6478', display: 'block', marginBottom: '4px' }}>USUARIO</label>
+          <input type="email" value={usuario} onChange={e => setUsuario(e.target.value)} style={inputStyle} placeholder="admin@verlyoptical.com"/>
+        </div>
+        <div style={{ marginBottom: '1.5rem' }}>
+          <label style={{ fontSize: '12px', fontWeight: 600, color: '#5A6478', display: 'block', marginBottom: '4px' }}>CONTRASEÑA</label>
+          <input type="password" value={password} onChange={e => setPassword(e.target.value)} onKeyDown={e => e.key === 'Enter' && login()} style={inputStyle} placeholder="••••••••"/>
+        </div>
+        <button onClick={login} style={{ width: '100%', background: '#2BBFB3', color: 'white', border: 'none', borderRadius: '8px', padding: '12px', fontSize: '14px', fontWeight: 700, cursor: 'pointer', fontFamily: 'sans-serif' }}>
+          Entrar
+        </button>
+      </div>
+    </main>
+  );
 
   return (
-    <main style={{fontFamily: 'var(--font-jakarta), sans-serif', margin: 0, padding: 0, background: '#FAFAFA', color: '#1A1A2E'}}>
+    <main style={{ fontFamily: 'sans-serif', background: '#F8FAFC', minHeight: '100vh' }}>
+      {/* NAVBAR ADMIN */}
+      <div style={{ background: 'white', borderBottom: '1px solid #E2E8F0', padding: '0 2rem', height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{ fontSize: '18px', fontWeight: 800, color: '#2BBFB3' }}>Verly</span>
+          <span style={{ fontSize: '9px', fontWeight: 700, color: '#F5C518', letterSpacing: '2px' }}>ADMIN</span>
+        </div>
+        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+          <a href="/" style={{ fontSize: '13px', color: '#5A6478', textDecoration: 'none' }}>← Ver sitio</a>
+          <button onClick={() => setAutenticado(false)} style={{ fontSize: '13px', color: '#E05A5A', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'sans-serif' }}>Salir</button>
+        </div>
+      </div>
 
-      <navbar />
+      <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '2rem' }}>
+        {/* TABS */}
+        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '2rem' }}>
+          {['armazones', 'pedidos'].map(t => (
+            <button key={t} onClick={() => setTab(t)} style={{
+              padding: '8px 20px', borderRadius: '6px', border: '1.5px solid',
+              borderColor: tab === t ? '#2BBFB3' : '#E2E8F0',
+              background: tab === t ? '#2BBFB3' : 'white',
+              color: tab === t ? 'white' : '#5A6478',
+              fontSize: '13px', fontWeight: 700, cursor: 'pointer', fontFamily: 'sans-serif',
+              textTransform: 'capitalize',
+            }}>
+              {t === 'armazones' ? `Armazones (${armazones.length})` : `Pedidos (${pedidos.length})`}
+            </button>
+          ))}
+        </div>
 
-      {/* HERO */}
-      <section style={{minHeight: '92vh', display: 'flex', alignItems: 'center', background: 'linear-gradient(160deg, #F0FDFB 0%, #FAFAFA 50%, #FFF8E7 100%)', padding: '0 2rem', position: 'relative', overflow: 'hidden'}}>
-        
-        {/* Fondo decorativo */}
-        <div style={{position: 'absolute', top: '-100px', right: '-100px', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(43,191,179,0.08) 0%, transparent 70%)', pointerEvents: 'none'}} />
-        <div style={{position: 'absolute', bottom: '-80px', left: '-80px', width: '400px', height: '400px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(245,197,24,0.06) 0%, transparent 70%)', pointerEvents: 'none'}} />
-
-        <div style={{maxWidth: '1100px', margin: '0 auto', width: '100%', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4rem', alignItems: 'center'}}>
-          
-          {/* LEFT */}
-          <div>
-            <div style={{display: 'inline-block', background: '#E0F7F4', color: '#1a9990', fontSize: '12px', fontWeight: 700, padding: '6px 16px', borderRadius: '20px', letterSpacing: '0.5px', marginBottom: '1.5rem', textTransform: 'uppercase'}}>
-              {t('Lentes desde $5 USD — Sin aseguranza', 'Lenses from $5 USD — No insurance needed')}
+        {/* ARMAZONES */}
+        {tab === 'armazones' && (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: '2rem', alignItems: 'start' }}>
+            {/* Lista */}
+            <div>
+              <table style={{ width: '100%', borderCollapse: 'collapse', background: 'white', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+                <thead>
+                  <tr style={{ background: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
+                    {['ID', 'Nombre', 'Forma', 'Género', 'Precio', 'Stock', 'Activo', 'Acciones'].map(h => (
+                      <th key={h} style={{ padding: '12px 16px', fontSize: '11px', fontWeight: 700, color: '#5A6478', textAlign: 'left', letterSpacing: '0.5px' }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {armazones.map((a, i) => (
+                    <tr key={a.id} style={{ borderBottom: '1px solid #F0F0F0', background: i % 2 === 0 ? 'white' : '#FAFAFA' }}>
+                      <td style={{ padding: '12px 16px', fontSize: '13px', color: '#7A8494' }}>{a.id}</td>
+                      <td style={{ padding: '12px 16px', fontSize: '13px', fontWeight: 600 }}>{a.nombre}</td>
+                      <td style={{ padding: '12px 16px', fontSize: '13px', color: '#5A6478', textTransform: 'capitalize' }}>{a.forma}</td>
+                      <td style={{ padding: '12px 16px', fontSize: '13px', color: '#5A6478', textTransform: 'capitalize' }}>{a.genero}</td>
+                      <td style={{ padding: '12px 16px', fontSize: '13px', fontWeight: 700, color: '#2BBFB3' }}>${a.precio}</td>
+                      <td style={{ padding: '12px 16px', fontSize: '13px' }}>{a.stock}</td>
+                      <td style={{ padding: '12px 16px' }}>
+                        <span style={{ background: a.activo ? '#E0F7F4' : '#FFE8E8', color: a.activo ? '#2BBFB3' : '#E05A5A', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 700 }}>
+                          {a.activo ? 'Sí' : 'No'}
+                        </span>
+                      </td>
+                      <td style={{ padding: '12px 16px' }}>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <button onClick={() => editarArmazon(a)} style={{ fontSize: '12px', color: '#2BBFB3', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600, fontFamily: 'sans-serif' }}>Editar</button>
+                          <button onClick={() => eliminarArmazon(a.id)} style={{ fontSize: '12px', color: '#E05A5A', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600, fontFamily: 'sans-serif' }}>Eliminar</button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-            <h1 style={{fontSize: 'clamp(2.2rem, 4vw, 3.6rem)', fontWeight: 800, lineHeight: 1.05, marginBottom: '1.5rem', letterSpacing: '-1px'}}>
-              {t('Los lentes que', 'The glasses')} <br/>
-              <span style={{color: '#2BBFB3'}}>{t('te quedan perfectos,', 'that fit you perfectly,')}</span><br/>
-              {t('al precio que mereces.', 'at the price you deserve.')}
-            </h1>
-            <p style={{fontSize: '17px', color: '#4A5568', lineHeight: 1.8, marginBottom: '2.5rem', maxWidth: '440px', fontWeight: 400}}>
-              {t('Elige tu armazón, ingresa tu receta y recibe tus lentes en casa. Simple, rápido y accesible.', 'Choose your frame, enter your prescription and receive your lenses at home. Simple, fast and affordable.')}
-            </p>
-            <div style={{display: 'flex', gap: '1rem', flexWrap: 'wrap'}}>
-              <a href="/Tienda" style={{background: '#2BBFB3', color: 'white', borderRadius: '14px', padding: '16px 32px', fontSize: '15px', fontWeight: 700, textDecoration: 'none', display: 'inline-block', transition: 'all 0.2s', boxShadow: '0 4px 20px rgba(43,191,179,0.3)'}}>
-                {t('Ver armazones', 'Shop frames')}
-              </a>
-              <a href="/receta" style={{background: 'transparent', color: '#1A1A2E', border: '1.5px solid #E2E8F0', borderRadius: '14px', padding: '15px 32px', fontSize: '15px', fontWeight: 600, textDecoration: 'none', display: 'inline-block'}}>
-                {t('Ingresar mi receta', 'Enter my prescription')}
-              </a>
-            </div>
-            {/* TRUST */}
-            <div style={{display: 'flex', gap: '2rem', marginTop: '2.5rem', flexWrap: 'wrap'}}>
+
+            {/* Formulario */}
+            <div style={{ background: 'white', borderRadius: '12px', padding: '1.5rem', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+              <h3 style={{ fontSize: '15px', fontWeight: 700, marginBottom: '1.25rem', color: '#1A1A2E' }}>
+                {editId ? `Editando #${editId}` : 'Nuevo armazón'}
+              </h3>
               {[
-                { es: 'Entrega 3-5 días', en: '3-5 day delivery' },
-                { es: '30 días de garantía', en: '30-day guarantee' },
-                { es: 'Sin aseguranza', en: 'No insurance' },
-              ].map((item, i) => (
-                <div key={i} style={{display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#4A5568', fontWeight: 500}}>
-                  <div style={{width: '6px', height: '6px', borderRadius: '50%', background: '#2BBFB3', flexShrink: 0}} />
-                  {t(item.es, item.en)}
+                { key: 'nombre', label: 'Nombre', type: 'text', placeholder: 'Ej: Clásico Negro' },
+                { key: 'forma', label: 'Forma', type: 'text', placeholder: 'cuadrada / ovalada / rectangular' },
+                { key: 'genero', label: 'Género', type: 'text', placeholder: 'hombre / mujer / unisex' },
+                { key: 'badge', label: 'Badge (opcional)', type: 'text', placeholder: 'Nuevo / Popular / Favorito' },
+                { key: 'precio', label: 'Precio ($)', type: 'number', placeholder: '43' },
+                { key: 'stock', label: 'Stock', type: 'number', placeholder: '10' },
+                { key: 'color', label: 'Color hex', type: 'text', placeholder: '#1A1A2E' },
+              ].map(f => (
+                <div key={f.key} style={{ marginBottom: '0.75rem' }}>
+                  <label style={{ fontSize: '11px', fontWeight: 700, color: '#5A6478', display: 'block', marginBottom: '3px', letterSpacing: '0.5px' }}>{f.label.toUpperCase()}</label>
+                  <input
+                    type={f.type}
+                    placeholder={f.placeholder}
+                    value={(form as any)[f.key]}
+                    onChange={e => setForm(prev => ({ ...prev, [f.key]: f.type === 'number' ? Number(e.target.value) : e.target.value }))}
+                    style={inputStyle}
+                  />
                 </div>
               ))}
-            </div>
-          </div>
-
-          {/* RIGHT — placeholder elegante */}
-          <div style={{position: 'relative'}}>
-            <div style={{background: 'linear-gradient(135deg, #E0F7F4 0%, #B3EDE8 100%)', borderRadius: '32px', height: '520px', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden'}}>
-              <div style={{position: 'absolute', top: '20px', right: '20px', width: '120px', height: '120px', borderRadius: '50%', background: 'rgba(245,197,24,0.15)'}} />
-              <div style={{position: 'absolute', bottom: '30px', left: '20px', width: '80px', height: '80px', borderRadius: '50%', background: 'rgba(43,191,179,0.2)'}} />
-              <div style={{textAlign: 'center', zIndex: 1}}>
-                <svg width="120" height="60" viewBox="0 0 120 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <ellipse cx="32" cy="30" rx="24" ry="18" stroke="#2BBFB3" strokeWidth="4" fill="rgba(43,191,179,0.1)"/>
-                  <ellipse cx="88" cy="30" rx="24" ry="18" stroke="#2BBFB3" strokeWidth="4" fill="rgba(43,191,179,0.1)"/>
-                  <line x1="56" y1="30" x2="64" y2="30" stroke="#2BBFB3" strokeWidth="4"/>
-                  <line x1="8" y1="28" x2="0" y2="26" stroke="#2BBFB3" strokeWidth="3"/>
-                  <line x1="112" y1="28" x2="120" y2="26" stroke="#2BBFB3" strokeWidth="3"/>
-                </svg>
-                <div style={{marginTop: '1.5rem', fontSize: '14px', fontWeight: 600, color: '#1a9990'}}>
-                  {t('Fotos próximamente', 'Photos coming soon')}
-                </div>
-                <div style={{fontSize: '12px', color: '#4A5568', marginTop: '4px'}}>
-                  {t('Armazones reales en camino', 'Real frames on the way')}
-                </div>
+              <div style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <input type="checkbox" checked={form.activo} onChange={e => setForm(prev => ({ ...prev, activo: e.target.checked }))} id="activo"/>
+                <label htmlFor="activo" style={{ fontSize: '13px', fontWeight: 600, color: '#5A6478' }}>Activo (visible en tienda)</label>
               </div>
-            </div>
-            {/* FLOATING CARD */}
-            <div style={{position: 'absolute', bottom: '-20px', left: '-20px', background: 'white', borderRadius: '16px', padding: '1rem 1.25rem', boxShadow: '0 8px 32px rgba(0,0,0,0.1)', minWidth: '180px'}}>
-              <div style={{fontSize: '11px', fontWeight: 700, color: '#8A97A8', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px'}}>{t('Precio promedio', 'Average price')}</div>
-              <div style={{fontSize: '24px', fontWeight: 800, color: '#2BBFB3'}}>$67 USD</div>
-              <div style={{fontSize: '12px', color: '#4A5568', marginTop: '2px'}}>{t('armazón + micas', 'frame + lenses')}</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* COMO FUNCIONA */}
-      <section style={{padding: '6rem 2rem', background: 'white'}}>
-        <div style={{maxWidth: '1100px', margin: '0 auto'}}>
-          <div style={{textAlign: 'center', marginBottom: '4rem'}}>
-            <div style={{fontSize: '12px', fontWeight: 700, color: '#2BBFB3', textTransform: 'uppercase', letterSpacing: '1.5px', marginBottom: '0.75rem'}}>
-              {t('Así de fácil', 'This easy')}
-            </div>
-            <h2 style={{fontSize: 'clamp(1.8rem, 3vw, 2.8rem)', fontWeight: 800, letterSpacing: '-0.5px'}}>
-              {t('De tu receta a tu puerta', 'From your prescription to your door')}
-            </h2>
-          </div>
-          <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '2rem'}}>
-            {[
-              { num: '01', es: 'Elige tu armazón', en: 'Choose your frame', desc_es: 'Explora nuestra colección y encuentra el estilo que va contigo.', desc_en: 'Explore our collection and find the style that fits you.', link: '/Tienda' },
-              { num: '02', es: 'Ingresa tu receta', en: 'Enter your prescription', desc_es: 'Escribe tus números o sube una foto de tu receta médica.', desc_en: 'Type your numbers or upload a photo of your prescription.', link: '/receta' },
-              { num: '03', es: 'Personaliza tus lentes', en: 'Customize your lenses', desc_es: 'Elige material y filtros. Te guiamos para que elijas lo mejor.', desc_en: 'Choose material and filters. We guide you to choose the best.', link: '/configurador2' },
-              { num: '04', es: 'Recíbelos en casa', en: 'Receive them at home', desc_es: 'Entrega en 3-5 días hábiles a cualquier dirección en California.', desc_en: 'Delivery in 3-5 business days to any address in California.', link: '/Tienda' },
-            ].map((s, i) => (
-              <a key={i} href={s.link} style={{textDecoration: 'none', color: 'inherit'}}>
-                <div style={{padding: '2rem', border: '1px solid #F0F0F0', borderRadius: '20px', height: '100%', transition: 'all 0.2s', cursor: 'pointer'}}>
-                  <div style={{fontSize: '13px', fontWeight: 800, color: '#2BBFB3', marginBottom: '1rem', letterSpacing: '1px'}}>{s.num}</div>
-                  <div style={{fontSize: '17px', fontWeight: 700, marginBottom: '0.75rem', color: '#1A1A2E'}}>{t(s.es, s.en)}</div>
-                  <div style={{fontSize: '14px', color: '#6B7280', lineHeight: 1.7}}>{t(s.desc_es, s.desc_en)}</div>
-                </div>
-              </a>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* COLECCIONES */}
-      <section style={{padding: '6rem 2rem', background: '#FAFAFA'}}>
-        <div style={{maxWidth: '1100px', margin: '0 auto'}}>
-          <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '3rem', flexWrap: 'wrap', gap: '1rem'}}>
-            <div>
-              <div style={{fontSize: '12px', fontWeight: 700, color: '#2BBFB3', textTransform: 'uppercase', letterSpacing: '1.5px', marginBottom: '0.75rem'}}>
-                {t('Colecciones', 'Collections')}
-              </div>
-              <h2 style={{fontSize: 'clamp(1.8rem, 3vw, 2.4rem)', fontWeight: 800, letterSpacing: '-0.5px'}}>
-                {t('Encuentra tu estilo', 'Find your style')}
-              </h2>
-            </div>
-            <a href="/Tienda" style={{fontSize: '14px', fontWeight: 600, color: '#2BBFB3', textDecoration: 'none', borderBottom: '1px solid #2BBFB3', paddingBottom: '2px'}}>
-              {t('Ver todo', 'View all')}
-            </a>
-          </div>
-          <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '1.5rem'}}>
-            {[
-              { es: 'Para ella', en: 'For her', desc_es: 'Elegancia en cada detalle', desc_en: 'Elegance in every detail', bg: '#FDF2F4', accent: '#E8B4BC' },
-              { es: 'Para él', en: 'For him', desc_es: 'Sofisticación y carácter', desc_en: 'Sophistication and character', bg: '#F0FDFB', accent: '#7DE8E0' },
-              { es: 'Nuevos diseños', en: 'New designs', desc_es: 'Lo más reciente', desc_en: 'The latest styles', bg: '#EEF2FF', accent: '#B3C6FF' },
-              { es: 'Los favoritos', en: 'Favorites', desc_es: 'Los más populares', desc_en: 'Most popular', bg: '#FFFBEB', accent: '#FCD34D' },
-            ].map((c, i) => (
-              <a key={i} href="/Tienda" style={{textDecoration: 'none', color: 'inherit'}}>
-                <div style={{background: c.bg, borderRadius: '20px', overflow: 'hidden', cursor: 'pointer', transition: 'transform 0.2s'}}>
-                  <div style={{height: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative'}}>
-                    <svg width="100" height="50" viewBox="0 0 100 50" fill="none">
-                      <ellipse cx="27" cy="25" rx="19" ry="14" stroke={c.accent} strokeWidth="3.5" fill={`${c.accent}30`}/>
-                      <ellipse cx="73" cy="25" rx="19" ry="14" stroke={c.accent} strokeWidth="3.5" fill={`${c.accent}30`}/>
-                      <line x1="46" y1="25" x2="54" y2="25" stroke={c.accent} strokeWidth="3.5"/>
-                      <line x1="8" y1="23" x2="0" y2="21" stroke={c.accent} strokeWidth="2.5"/>
-                      <line x1="92" y1="23" x2="100" y2="21" stroke={c.accent} strokeWidth="2.5"/>
-                    </svg>
-                  </div>
-                  <div style={{padding: '1.25rem 1.5rem 1.5rem'}}>
-                    <div style={{fontSize: '16px', fontWeight: 700, marginBottom: '4px'}}>{t(c.es, c.en)}</div>
-                    <div style={{fontSize: '13px', color: '#6B7280'}}>{t(c.desc_es, c.desc_en)}</div>
-                  </div>
-                </div>
-              </a>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* BANNER */}
-      <section style={{padding: '6rem 2rem', background: '#1A1A2E', color: 'white'}}>
-        <div style={{maxWidth: '700px', margin: '0 auto', textAlign: 'center'}}>
-          <div style={{fontSize: '12px', fontWeight: 700, color: '#2BBFB3', textTransform: 'uppercase', letterSpacing: '1.5px', marginBottom: '1rem'}}>
-            {t('Oferta de bienvenida', 'Welcome offer')}
-          </div>
-          <h2 style={{fontSize: 'clamp(1.8rem, 3vw, 2.8rem)', fontWeight: 800, marginBottom: '1rem', letterSpacing: '-0.5px', lineHeight: 1.1}}>
-            {t('Tu primer par con 10% de descuento', 'Your first pair with 10% off')}
-          </h2>
-          <p style={{color: 'rgba(255,255,255,0.65)', marginBottom: '2rem', fontSize: '16px', lineHeight: 1.7}}>
-            {t('Usa el código ', 'Use code ')}<span style={{color: '#F5C518', fontWeight: 700}}>VERLY10</span>{t(' al momento de pagar.', ' at checkout.')}
-          </p>
-          <a href="/Tienda" style={{background: '#2BBFB3', color: 'white', borderRadius: '14px', padding: '16px 36px', fontSize: '15px', fontWeight: 700, textDecoration: 'none', display: 'inline-block', boxShadow: '0 4px 20px rgba(43,191,179,0.3)'}}>
-            {t('Ir a la tienda', 'Go to store')}
-          </a>
-        </div>
-      </section>
-
-      {/* FAQ */}
-      <section id="faq" style={{padding: '6rem 2rem', background: 'white'}}>
-        <div style={{maxWidth: '700px', margin: '0 auto'}}>
-          <div style={{textAlign: 'center', marginBottom: '3rem'}}>
-            <div style={{fontSize: '12px', fontWeight: 700, color: '#2BBFB3', textTransform: 'uppercase', letterSpacing: '1.5px', marginBottom: '0.75rem'}}>FAQ</div>
-            <h2 style={{fontSize: 'clamp(1.8rem, 3vw, 2.4rem)', fontWeight: 800, letterSpacing: '-0.5px'}}>
-              {t('Preguntas frecuentes', 'Frequently asked questions')}
-            </h2>
-          </div>
-          <div style={{display: 'flex', flexDirection: 'column', gap: '0.75rem'}}>
-            {[
-              { q_es: '¿Necesito aseguranza médica?', q_en: 'Do I need health insurance?', a_es: 'No. Vendemos directamente al público sin necesidad de seguro médico.', a_en: 'No. We sell directly to the public without health insurance.' },
-              { q_es: '¿Cuánto tarda la entrega?', q_en: 'How long does delivery take?', a_es: 'Entre 3 y 5 días hábiles a cualquier dirección en California.', a_en: '3 to 5 business days to any address in California.' },
-              { q_es: '¿Cómo ingreso mi graduación?', q_en: 'How do I enter my prescription?', a_es: 'Puedes ingresar los números manualmente o subir una foto de tu receta médica.', a_en: 'You can enter the numbers manually or upload a photo of your prescription.' },
-              { q_es: '¿Puedo devolver mis lentes?', q_en: 'Can I return my glasses?', a_es: 'Sí, tienes 30 días para hacer una devolución si no estás satisfecho.', a_en: 'Yes, you have 30 days to make a return if you are not satisfied.' },
-              { q_es: '¿Qué métodos de pago aceptan?', q_en: 'What payment methods do you accept?', a_es: 'Aceptamos todas las tarjetas de crédito y débito (Visa, Mastercard, Amex).', a_en: 'We accept all credit and debit cards (Visa, Mastercard, Amex).' },
-            ].map((f, i) => (
-              <div key={i} style={{background: '#FAFAFA', borderRadius: '14px', border: '1px solid #F0F0F0', padding: '1.5rem'}}>
-                <div style={{fontSize: '15px', fontWeight: 700, marginBottom: '8px', color: '#1A1A2E'}}>{t(f.q_es, f.q_en)}</div>
-                <div style={{fontSize: '14px', color: '#6B7280', lineHeight: 1.7}}>{t(f.a_es, f.a_en)}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* FOOTER */}
-      <footer style={{background: '#1A1A2E', color: 'rgba(255,255,255,0.6)', padding: '4rem 2rem 2rem'}}>
-        <div style={{maxWidth: '1100px', margin: '0 auto'}}>
-          <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '3rem', marginBottom: '3rem'}}>
-            <div>
-              <div style={{display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '1rem'}}>
-                <span style={{fontSize: '18px', fontWeight: 800, color: 'white'}}>Verly</span>
-                <span style={{fontSize: '9px', fontWeight: 700, color: '#F5C518', letterSpacing: '2px'}}>OPTICAL</span>
-              </div>
-              <p style={{fontSize: '13px', lineHeight: 1.8}}>{t('Lentes accesibles para todos. Sirviendo a la comunidad latina en California.', 'Affordable lenses for everyone. Serving the Latino community in California.')}</p>
-            </div>
-            <div>
-              <h4 style={{color: 'white', fontSize: '13px', fontWeight: 700, marginBottom: '1rem', textTransform: 'uppercase', letterSpacing: '0.5px'}}>{t('Tienda', 'Store')}</h4>
-              <div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
-                <a href="/Tienda" style={{color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontSize: '14px'}}>{t('Todos los armazones', 'All frames')}</a>
-                <a href="/receta" style={{color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontSize: '14px'}}>{t('Mi receta', 'My prescription')}</a>
-                <a href="/configurador2" style={{color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontSize: '14px'}}>{t('Armar lentes', 'Build lenses')}</a>
-              </div>
-            </div>
-            <div>
-              <h4 style={{color: 'white', fontSize: '13px', fontWeight: 700, marginBottom: '1rem', textTransform: 'uppercase', letterSpacing: '0.5px'}}>{t('Ayuda', 'Help')}</h4>
-              <div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
-                <a href="#faq" style={{color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontSize: '14px'}}>{t('Preguntas frecuentes', 'FAQ')}</a>
-                <a href="mailto:hola@verlyoptical.com" style={{color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontSize: '14px'}}>{t('Contacto', 'Contact')}</a>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button onClick={guardarArmazon} style={{ flex: 1, background: '#2BBFB3', color: 'white', border: 'none', borderRadius: '6px', padding: '10px', fontSize: '13px', fontWeight: 700, cursor: 'pointer', fontFamily: 'sans-serif' }}>
+                  {editId ? 'Guardar cambios' : 'Agregar'}
+                </button>
+                {editId && (
+                  <button onClick={() => { setEditId(null); setForm({ nombre: '', forma: '', genero: '', stock: 10, badge: '', activo: true, precio: 43, color: '#1A1A2E' }); }} style={{ background: 'none', border: '1.5px solid #E2E8F0', borderRadius: '6px', padding: '10px 14px', fontSize: '13px', cursor: 'pointer', fontFamily: 'sans-serif', color: '#5A6478' }}>
+                    Cancelar
+                  </button>
+                )}
               </div>
             </div>
           </div>
-          <div style={{borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem'}}>
-            <div style={{fontSize: '13px'}}>© 2025 Verly Optical — verlyoptical.com</div>
-            <div style={{fontSize: '13px'}}>{t('Hecho con amor en California', 'Made with love in California')}</div>
-          </div>
-        </div>
-      </footer>
+        )}
 
+        {/* PEDIDOS */}
+        {tab === 'pedidos' && (
+          <div style={{ background: 'white', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+            {pedidos.length === 0 ? (
+              <div style={{ padding: '4rem', textAlign: 'center', color: '#7A8494' }}>No hay pedidos aún.</div>
+            ) : (
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr style={{ background: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
+                    {['ID', 'Fecha', 'Items', 'Total', 'Estado'].map(h => (
+                      <th key={h} style={{ padding: '12px 16px', fontSize: '11px', fontWeight: 700, color: '#5A6478', textAlign: 'left' }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {pedidos.map((p, i) => (
+                    <tr key={p.id} style={{ borderBottom: '1px solid #F0F0F0', background: i % 2 === 0 ? 'white' : '#FAFAFA' }}>
+                      <td style={{ padding: '12px 16px', fontSize: '13px', color: '#7A8494' }}>{p.id}</td>
+                      <td style={{ padding: '12px 16px', fontSize: '13px' }}>{new Date(p.created_at).toLocaleDateString('es-MX')}</td>
+                      <td style={{ padding: '12px 16px', fontSize: '13px' }}>{p.items}</td>
+                      <td style={{ padding: '12px 16px', fontSize: '13px', fontWeight: 700, color: '#2BBFB3' }}>${p.total}</td>
+                      <td style={{ padding: '12px 16px' }}>
+                        <span style={{ background: '#E0F7F4', color: '#2BBFB3', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 700 }}>
+                          {p.status || 'pagado'}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        )}
+      </div>
     </main>
   );
 }

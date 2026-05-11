@@ -32,13 +32,10 @@ export default function Navbar() {
           padding: '0 1.25rem', height: '60px',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         }}>
-          {/* Logo */}
-          <a href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px', flexShrink: 0 }}>
-            <span style={{ fontSize: '22px', fontWeight: 800, color: '#2BBFB3', letterSpacing: '-0.5px' }}>Verly</span>
-            <span style={{ fontSize: '11px', fontWeight: 700, color: '#F5C518', letterSpacing: '2px', textTransform: 'uppercase', marginTop: '2px' }}>OPTICAL</span>
+          <a href="/" style={{ textDecoration: 'none', flexShrink: 0 }}>
+            <img src="/logo-trasparente.png.png" alt="Verly Optical" style={{ height: '40px', width: 'auto' }}/>
           </a>
 
-          {/* Links desktop */}
           {!esMobil && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
               {links.map(l => (
@@ -66,17 +63,12 @@ export default function Navbar() {
             </div>
           )}
 
-          {/* Hamburger móvil */}
           {esMobil && (
-            <button
-              onClick={() => setMenuOpen(true)}
-              style={{
-                background: 'none', border: 'none', cursor: 'pointer',
-                padding: '8px', borderRadius: '8px',
-                display: 'flex', flexDirection: 'column', gap: '5px',
-              }}
-              aria-label="Abrir menú"
-            >
+            <button onClick={() => setMenuOpen(true)} style={{
+              background: 'none', border: 'none', cursor: 'pointer',
+              padding: '8px', borderRadius: '8px',
+              display: 'flex', flexDirection: 'column', gap: '5px',
+            }} aria-label="Abrir menú">
               <span style={{ display: 'block', width: '22px', height: '2px', background: '#1A1A2E', borderRadius: '2px' }}/>
               <span style={{ display: 'block', width: '22px', height: '2px', background: '#1A1A2E', borderRadius: '2px' }}/>
               <span style={{ display: 'block', width: '16px', height: '2px', background: '#1A1A2E', borderRadius: '2px' }}/>
@@ -85,18 +77,13 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* Overlay */}
       {menuOpen && (
-        <div
-          onClick={() => setMenuOpen(false)}
-          style={{
-            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)',
-            zIndex: 200, backdropFilter: 'blur(2px)',
-          }}
-        />
+        <div onClick={() => setMenuOpen(false)} style={{
+          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)',
+          zIndex: 200, backdropFilter: 'blur(2px)',
+        }}/>
       )}
 
-      {/* Panel lateral */}
       <div style={{
         position: 'fixed', top: 0, right: 0, bottom: 0,
         width: '280px', maxWidth: '85vw',
@@ -107,16 +94,12 @@ export default function Navbar() {
         display: 'flex', flexDirection: 'column',
         fontFamily: 'var(--font-jakarta), sans-serif',
       }}>
-        {/* Header panel */}
         <div style={{
           padding: '1.25rem 1.5rem',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           borderBottom: '1px solid #EAECF0',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <span style={{ fontSize: '20px', fontWeight: 800, color: '#2BBFB3' }}>Verly</span>
-            <span style={{ fontSize: '10px', fontWeight: 700, color: '#F5C518', letterSpacing: '2px', textTransform: 'uppercase' }}>OPTICAL</span>
-          </div>
+          <img src="/logo-trasparente.png.png" alt="Verly Optical" style={{ height: '36px', width: 'auto' }}/>
           <button onClick={() => setMenuOpen(false)} style={{
             background: '#F5F5F3', border: 'none', borderRadius: '50%',
             width: '32px', height: '32px', cursor: 'pointer',
@@ -125,7 +108,6 @@ export default function Navbar() {
           }}>×</button>
         </div>
 
-        {/* Links */}
         <div style={{ flex: 1, padding: '1rem 0' }}>
           {links.map((l, i) => (
             <a key={l.href} href={l.href} onClick={() => setMenuOpen(false)} style={{
@@ -143,7 +125,6 @@ export default function Navbar() {
           ))}
         </div>
 
-        {/* Toggle idioma */}
         <div style={{ padding: '1.25rem 1.5rem', borderTop: '1px solid #EAECF0' }}>
           <p style={{ fontSize: '11px', fontWeight: 700, color: '#7A8494', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '10px' }}>
             {t('Idioma', 'Language')}

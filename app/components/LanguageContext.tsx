@@ -1,5 +1,5 @@
 'use client';
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 type Lang = 'es' | 'en';
 
@@ -10,18 +10,30 @@ interface LangContextType {
 }
 
 const LangContext = createContext<LangContextType>({
-  lang: 'es',
+  lang: 'en',
   setLang: () => {},
-  t: (es) => es,
+  t: (_, en) => en,
 });
 
 export function LangProvider({ children }: { children: ReactNode }) {
-  const [lang, setLang] = useState<Lang>('es');
+  const [lang, setLang] = useState<Lang>('en');
+
+  // Cargar idioma guardado al montar
+  useEffect(() => {
+    const guardado = localStorage.getItem('verly_lang') as Lang | null;
+    if (guardado === 'es' || guardado === 'en') setLang(guardado);
+  }, []);
+
+  // Guardar cuando cambia
+  const cambiarLang = (l: Lang) => {
+    setLang(l);
+    localStorage.setItem('verly_lang', l);
+  };
 
   const t = (es: string, en: string) => lang === 'es' ? es : en;
 
   return (
-    <LangContext.Provider value={{ lang, setLang, t }}>
+    <LangContext.Provider value={{ lang, setLang: cambiarLang, t }}>
       {children}
     </LangContext.Provider>
   );

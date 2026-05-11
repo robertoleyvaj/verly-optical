@@ -3,30 +3,22 @@ import { useState, useEffect, useRef } from 'react';
 import { useLang } from './LanguageContext';
 
 type Expresion = 'neutral' | 'feliz' | 'pensando' | 'recomendando' | 'sorprendida';
-type TipoCara = 'ovalada' | 'cuadrada' | 'corazon' | 'redonda' | '';
 type Mensaje = { de: 'verly' | 'px'; texto: string; paquete?: Paquete };
+
+interface Paquete {
+  nombre: string; material: string; precioMaterial: number;
+  filtros: { nombre: string; precio: number }[];
+  precioOriginal: number; precioFinal: number; descuento: number;
+  condicion: string; explicacion: string;
+}
 
 interface Receta {
   sph_od: number; cyl_od: number; axis_od: number; add_od: number;
   sph_oi: number; cyl_oi: number; axis_oi: number; add_oi: number;
 }
 
-interface Paquete {
-  nombre: string;
-  material: string; precioMaterial: number;
-  filtros: { nombre: string; precio: number }[];
-  precioOriginal: number;
-  precioFinal: number;
-  descuento: number;
-  condicion: string;
-  explicacion: string;
-}
-
 interface SesionPx {
-  nombre: string;
-  tipoCara: TipoCara;
-  receta: Receta | null;
-  primeraVez: boolean | null;
+  nombre: string; receta: Receta | null;
   estiloVida: Record<string, boolean>;
   paqueteRecomendado: Paquete | null;
 }
@@ -55,45 +47,33 @@ function armarPaquete(receta: Receta, estiloVida: Record<string, boolean>, lang:
     material = 'Súper Hi-Index 1.74';
     condicion = lang === 'es' ? 'Graduación muy alta' : 'Very high prescription';
     explicacion = lang === 'es'
-      ? `Con tu graduación tan alta (SPH ${receta.sph_od > 0 ? '+' : ''}${receta.sph_od}), los lentes convencionales quedarían muy gruesos — casi como "fondos de botella". El Súper Hi-Index 1.74 es el material más delgado del mercado, tus lentes se verán elegantes y ligeros.`
-      : `With your very high prescription (SPH ${receta.sph_od > 0 ? '+' : ''}${receta.sph_od}), regular lenses would be very thick. Super Hi-Index 1.74 is the thinnest material available — your lenses will look elegant and light.`;
+      ? `Con graduación alta, el Súper Hi-Index 1.74 es el material más delgado del mercado.`
+      : `With a high prescription, Super Hi-Index 1.74 is the thinnest material available.`;
   } else if (sph > 3) {
     material = 'Hi-Index 1.67';
     condicion = lang === 'es' ? 'Graduación alta' : 'High prescription';
     explicacion = lang === 'es'
-      ? `Tu graduación (SPH ${receta.sph_od > 0 ? '+' : ''}${receta.sph_od}) requiere un material más delgado. El Hi-Index 1.67 reduce el grosor de tus lentes hasta un 30% — más cómodos y estéticos.`
-      : `Your prescription (SPH ${receta.sph_od > 0 ? '+' : ''}${receta.sph_od}) needs a thinner material. Hi-Index 1.67 reduces lens thickness up to 30% — more comfortable and attractive.`;
+      ? `El Hi-Index 1.67 reduce el grosor hasta un 30%.`
+      : `Hi-Index 1.67 reduces thickness up to 30%.`;
   } else if (sph > 1.5 || tieneAstigmatismo) {
     material = 'PolyPlus';
-    condicion = tieneAstigmatismo
-      ? (lang === 'es' ? 'Astigmatismo' : 'Astigmatism')
-      : (lang === 'es' ? 'Miopía/Hipermetropía leve' : 'Mild Myopia/Hyperopia');
-    explicacion = tieneAstigmatismo
-      ? (lang === 'es'
-        ? `Tienes astigmatismo (CYL ${receta.cyl_od < 0 ? '' : '+'}${receta.cyl_od}). Esto significa que tu córnea tiene una curvatura irregular — como un balón de fútbol americano en lugar de una esfera. Por eso ves borroso y los faroles o pantallas se ven con halos de noche. El PolyPlus mantiene mejor la corrección cilíndrica y es más resistente para uso diario.`
-        : `You have astigmatism (CYL ${receta.cyl_od < 0 ? '' : '+'}${receta.cyl_od}). Your cornea has an irregular shape — like a football instead of a sphere. That's why you see blurry and lights look like halos at night. PolyPlus maintains cylindrical correction better and is more durable for daily use.`)
-      : (lang === 'es'
-        ? `Con tu graduación, el PolyPlus es el punto perfecto entre calidad y precio — más resistente que el básico sin el costo de los premium.`
-        : `With your prescription, PolyPlus hits the sweet spot between quality and price — more durable than basic without the premium cost.`);
+    condicion = tieneAstigmatismo ? (lang === 'es' ? 'Astigmatismo' : 'Astigmatism') : (lang === 'es' ? 'Graduación moderada' : 'Moderate prescription');
+    explicacion = lang === 'es'
+      ? `PolyPlus es el punto perfecto entre calidad y precio.`
+      : `PolyPlus hits the sweet spot between quality and price.`;
   } else {
     material = 'CR-39';
     condicion = lang === 'es' ? 'Graduación baja' : 'Low prescription';
     explicacion = lang === 'es'
-      ? `Tu graduación es baja (SPH ${receta.sph_od > 0 ? '+' : ''}${receta.sph_od}), así que el CR-39 es perfecto — económico, ligero y de excelente calidad óptica.`
-      : `Your prescription is low (SPH ${receta.sph_od > 0 ? '+' : ''}${receta.sph_od}), so CR-39 is perfect — affordable, light and excellent optical quality.`;
+      ? `CR-39 es perfecto — económico, ligero y excelente calidad óptica.`
+      : `CR-39 is perfect — affordable, light and excellent optical quality.`;
   }
 
   const filtrosRec: { nombre: string; precio: number }[] = [];
-
-  if (tieneAstigmatismo) {
-    filtrosRec.push({ nombre: 'AR Premium', precio: PRECIOS_FILTRO['AR Premium'] });
-  } else {
-    filtrosRec.push({ nombre: 'AR Normal', precio: PRECIOS_FILTRO['AR Normal'] });
-  }
+  if (tieneAstigmatismo) filtrosRec.push({ nombre: 'AR Premium', precio: PRECIOS_FILTRO['AR Premium'] });
+  else filtrosRec.push({ nombre: 'AR Normal', precio: PRECIOS_FILTRO['AR Normal'] });
   if (estiloVida.computadora) filtrosRec.push({ nombre: 'Blue Light', precio: PRECIOS_FILTRO['Blue Light'] });
-  if (estiloVida.manejo && !filtrosRec.find(f => f.nombre === 'AR Premium')) {
-    filtrosRec.push({ nombre: 'AR Premium', precio: PRECIOS_FILTRO['AR Premium'] });
-  }
+  if (estiloVida.manejo && !filtrosRec.find(f => f.nombre === 'AR Premium')) filtrosRec.push({ nombre: 'AR Premium', precio: PRECIOS_FILTRO['AR Premium'] });
   if (estiloVida.sol) filtrosRec.push({ nombre: 'Fotocromático', precio: PRECIOS_FILTRO['Fotocromático'] });
   if (estiloVida.exterior && !estiloVida.sol) filtrosRec.push({ nombre: 'Polarizado', precio: PRECIOS_FILTRO['Polarizado'] });
   if (tienePresbicia) filtrosRec.push({ nombre: 'Antiempañante', precio: PRECIOS_FILTRO['Antiempañante'] });
@@ -112,7 +92,7 @@ function VerlyAvatar({ expresion, size = 56 }: { expresion: Expresion; size?: nu
   const sonrisa = expresion === 'feliz' || expresion === 'recomendando';
   const cejas = expresion === 'sorprendida' ? -4 : expresion === 'pensando' ? 2 : 0;
   return (
-    <svg width={size} height={size} viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
+    <svg width={size} height={size} viewBox="0 0 80 80" fill="none" style={{ flexShrink: 0 }}>
       <ellipse cx="40" cy="70" rx="20" ry="12" fill="white" stroke="#E2E8F0" strokeWidth="1.5"/>
       <rect x="34" y="60" width="12" height="16" rx="2" fill="white" stroke="#E2E8F0" strokeWidth="1"/>
       <path d="M34 62 L30 74" stroke="#2BBFB3" strokeWidth="1.5" strokeLinecap="round"/>
@@ -121,8 +101,8 @@ function VerlyAvatar({ expresion, size = 56 }: { expresion: Expresion; size?: nu
       <circle cx="40" cy="71" r="1.5" fill="#2BBFB3"/>
       <ellipse cx="40" cy="36" rx="26" ry="28" fill="white" stroke="#2BBFB3" strokeWidth="2.5"/>
       <ellipse cx="32" cy="22" rx="6" ry="3.5" fill="#E0F7F4" opacity="0.6"/>
-      <path d={`M25 ${26 + cejas} Q29 ${23 + cejas} 33 ${26 + cejas}`} stroke="#1A1A2E" strokeWidth="2" strokeLinecap="round"/>
-      <path d={`M47 ${26 + cejas} Q51 ${23 + cejas} 55 ${26 + cejas}`} stroke="#1A1A2E" strokeWidth="2" strokeLinecap="round"/>
+      <path d={`M25 ${26+cejas} Q29 ${23+cejas} 33 ${26+cejas}`} stroke="#1A1A2E" strokeWidth="2" strokeLinecap="round"/>
+      <path d={`M47 ${26+cejas} Q51 ${23+cejas} 55 ${26+cejas}`} stroke="#1A1A2E" strokeWidth="2" strokeLinecap="round"/>
       <rect x="21" y="29" width="17" height="11" rx="5" fill="white" stroke="#2BBFB3" strokeWidth="2" opacity="0.9"/>
       <rect x="42" y="29" width="17" height="11" rx="5" fill="white" stroke="#2BBFB3" strokeWidth="2" opacity="0.9"/>
       <line x1="38" y1="34.5" x2="42" y2="34.5" stroke="#2BBFB3" strokeWidth="1.5"/>
@@ -167,12 +147,8 @@ function VerlyAvatar({ expresion, size = 56 }: { expresion: Expresion; size?: nu
 function BurbujaPaquete({ paquete, onAceptar, lang }: { paquete: Paquete; onAceptar: () => void; lang: 'es' | 'en' }) {
   return (
     <div style={{ background: 'linear-gradient(135deg, #E0F7F4, #F0FBF8)', border: '2px solid #2BBFB3', borderRadius: '12px', padding: '1rem', marginTop: '8px' }}>
-      <div style={{ fontSize: '11px', fontWeight: 800, color: '#2BBFB3', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '8px' }}>
-        {paquete.nombre}
-      </div>
-      <div style={{ fontSize: '12px', color: '#1A5C58', marginBottom: '10px', lineHeight: 1.6 }}>
-        {paquete.explicacion}
-      </div>
+      <div style={{ fontSize: '11px', fontWeight: 800, color: '#2BBFB3', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '8px' }}>{paquete.nombre}</div>
+      <div style={{ fontSize: '12px', color: '#1A5C58', marginBottom: '10px', lineHeight: 1.6 }}>{paquete.explicacion}</div>
       <div style={{ background: 'white', borderRadius: '8px', padding: '0.75rem', marginBottom: '10px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', padding: '4px 0', borderBottom: '1px solid #F0F0F0' }}>
           <span style={{ color: '#5A6478' }}>{lang === 'es' ? 'Armazón' : 'Frame'}</span>
@@ -194,15 +170,9 @@ function BurbujaPaquete({ paquete, onAceptar, lang }: { paquete: Paquete; onAcep
           <div style={{ fontSize: '11px', color: '#7A8494', textDecoration: 'line-through' }}>${paquete.precioOriginal} USD</div>
           <div style={{ fontSize: '20px', fontWeight: 800, color: '#2BBFB3' }}>${paquete.precioFinal} USD</div>
         </div>
-        <div style={{ background: '#F5C518', color: '#1A1A2E', padding: '6px 12px', borderRadius: '6px', fontSize: '13px', fontWeight: 800 }}>
-          -{paquete.descuento}% OFF
-        </div>
+        <div style={{ background: '#F5C518', color: '#1A1A2E', padding: '6px 12px', borderRadius: '6px', fontSize: '13px', fontWeight: 800 }}>-{paquete.descuento}% OFF</div>
       </div>
-      <button onClick={onAceptar} style={{
-        width: '100%', background: '#1A1A2E', color: 'white', border: 'none',
-        borderRadius: '8px', padding: '10px', fontSize: '13px', fontWeight: 700,
-        cursor: 'pointer', fontFamily: 'var(--font-jakarta), sans-serif',
-      }}>
+      <button onClick={onAceptar} style={{ width: '100%', background: '#1A1A2E', color: 'white', border: 'none', borderRadius: '8px', padding: '10px', fontSize: '13px', fontWeight: 700, cursor: 'pointer', fontFamily: 'var(--font-jakarta), sans-serif' }}>
         {lang === 'es' ? 'Quiero este paquete →' : 'I want this package →'}
       </button>
     </div>
@@ -215,16 +185,66 @@ export default function VerlyBot() {
   const [expresion, setExpresion] = useState<Expresion>('neutral');
   const [mensajes, setMensajes] = useState<Mensaje[]>([]);
   const [input, setInput] = useState('');
-  const [paso, setPaso] = useState(0);
   const [opciones, setOpciones] = useState<string[]>([]);
+  const [burbujaVisible, setBurbujaVisible] = useState(false);
   const [sesion, setSesion] = useState<SesionPx>({
-    nombre: '', tipoCara: '', receta: null,
-    primeraVez: null, estiloVida: {}, paqueteRecomendado: null,
+    nombre: '', receta: null, estiloVida: {}, paqueteRecomendado: null,
   });
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // ── DRAG ──────────────────────────────────────────────────────────────────
+  const [pos, setPos] = useState({ x: 28, y: 28 });
+  const dragRef = useRef<{ dragging: boolean; startX: number; startY: number; startPosX: number; startPosY: number }>({
+    dragging: false, startX: 0, startY: 0, startPosX: 28, startPosY: 28,
+  });
+  const hasDragged = useRef(false);
+
+  const onMouseDown = (e: React.MouseEvent) => {
+    dragRef.current = { dragging: true, startX: e.clientX, startY: e.clientY, startPosX: pos.x, startPosY: pos.y };
+    hasDragged.current = false;
+    e.preventDefault();
+  };
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    const t = e.touches[0];
+    dragRef.current = { dragging: true, startX: t.clientX, startY: t.clientY, startPosX: pos.x, startPosY: pos.y };
+    hasDragged.current = false;
+  };
+
+  useEffect(() => {
+    const onMove = (e: MouseEvent | TouchEvent) => {
+      if (!dragRef.current.dragging) return;
+      const clientX = 'touches' in e ? e.touches[0].clientX : (e as MouseEvent).clientX;
+      const clientY = 'touches' in e ? e.touches[0].clientY : (e as MouseEvent).clientY;
+      const dx = clientX - dragRef.current.startX;
+      const dy = clientY - dragRef.current.startY;
+      if (Math.abs(dx) > 4 || Math.abs(dy) > 4) hasDragged.current = true;
+      const newX = Math.max(8, Math.min(window.innerWidth - 88, dragRef.current.startPosX - dx));
+      const newY = Math.max(8, Math.min(window.innerHeight - 88, dragRef.current.startPosY - dy));
+      setPos({ x: newX, y: newY });
+    };
+    const onUp = () => { dragRef.current.dragging = false; };
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+    window.addEventListener('touchmove', onMove, { passive: true });
+    window.addEventListener('touchend', onUp);
+    return () => {
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+      window.removeEventListener('touchmove', onMove);
+      window.removeEventListener('touchend', onUp);
+    };
+  }, []);
+
+  // ── BURBUJA BIENVENIDA ─────────────────────────────────────────────────────
+  useEffect(() => {
+    const timer = setTimeout(() => setBurbujaVisible(true), 1500);
+    const hide = setTimeout(() => setBurbujaVisible(false), 6000);
+    return () => { clearTimeout(timer); clearTimeout(hide); };
+  }, []);
+
   const cargarSesion = (): SesionPx => {
-    if (typeof window === 'undefined') return { nombre: '', tipoCara: '', receta: null, primeraVez: null, estiloVida: {}, paqueteRecomendado: null };
+    if (typeof window === 'undefined') return { nombre: '', receta: null, estiloVida: {}, paqueteRecomendado: null };
     return JSON.parse(sessionStorage.getItem('verly_sesion') || '{}');
   };
 
@@ -241,7 +261,7 @@ export default function VerlyBot() {
     setMensajes(prev => [...prev, { de, texto, paquete }]);
   };
 
-  // Escuchar cuando se actualiza la receta desde el drawer
+  // ── ESCUCHAR RECETA DESDE DRAWER ──────────────────────────────────────────
   useEffect(() => {
     const onRecetaActualizada = () => {
       const s = cargarSesion();
@@ -251,8 +271,8 @@ export default function VerlyBot() {
         cambiarExpresion('recomendando', 4000);
         agregarMensaje('verly',
           lang === 'es'
-            ? `¡Leí tu receta! Basándome en tu graduación, te armé un paquete personalizado con 10% de descuento:`
-            : `I read your prescription! Based on your prescription, I put together a personalized package with 10% off:`,
+            ? '¡Leí tu receta! Te armé un paquete personalizado con 10% de descuento:'
+            : 'I read your prescription! I put together a personalized package with 10% off:',
           paquete
         );
         const nuevaSesion = { ...s, paqueteRecomendado: paquete };
@@ -278,208 +298,47 @@ export default function VerlyBot() {
   const iniciarConversacion = () => {
     const s = cargarSesion();
     setSesion(s);
-    const path = window.location.pathname;
-
-    if (s.nombre) {
-      agregarMensaje('verly', lang === 'es'
-        ? `¡Hola de nuevo, ${s.nombre}! ¿En qué te puedo ayudar?`
-        : `Welcome back, ${s.nombre}! How can I help you?`);
-      cambiarExpresion('feliz');
-      setPaso(10);
-      mostrarOpcionesPorPagina(path, s);
-    } else {
-      agregarMensaje('verly', lang === 'es'
-        ? '¡Hola! Soy Verly, tu optometrista virtual. Estoy aquí para ayudarte a encontrar los lentes perfectos para tu graduación y estilo de vida. ¿Cómo te llamas?'
-        : "Hi! I'm Verly, your virtual optometrist. I'm here to help you find the perfect lenses for your prescription and lifestyle. What's your name?");
-      cambiarExpresion('feliz', 3000);
-      setPaso(1);
-    }
+    const nombre = s.nombre || '';
+    agregarMensaje('verly',
+      lang === 'es'
+        ? (nombre ? `¡Hola de nuevo, ${nombre}! ¿En qué te puedo ayudar?` : '¡Hola! Soy Verly 👋 Tu asistente virtual de Verly Optical. ¿En qué te puedo ayudar hoy?')
+        : (nombre ? `Welcome back, ${nombre}! How can I help you?` : "Hi! I'm Verly 👋 Your virtual assistant at Verly Optical. How can I help you today?")
+    );
+    cambiarExpresion('feliz', 3000);
   };
 
-  const mostrarOpcionesPorPagina = (path: string, s: SesionPx) => {
-    setTimeout(() => {
-      if (path.includes('/armazon/')) {
-        if (s.receta) {
-          const paquete = armarPaquete(s.receta, s.estiloVida || {}, lang);
-          agregarMensaje('verly',
-            lang === 'es'
-              ? `Tengo tu receta guardada. Aquí está tu paquete personalizado:`
-              : `I have your prescription saved. Here's your personalized package:`,
-            paquete
-          );
-          cambiarExpresion('recomendando', 3000);
-        } else {
-          agregarMensaje('verly', lang === 'es'
-            ? '¡Buen gusto en el armazón! Cuando ingreses tu receta en el formulario de arriba, yo la leo automáticamente y te armo un paquete con 10% de descuento.'
-            : 'Great frame choice! When you enter your prescription in the form above, I\'ll read it automatically and build a package with 10% off.');
-          setOpciones(lang === 'es'
-            ? ['¿Cómo ingreso mi receta?', 'No tengo mi receta', '¿Qué material me recomiendas?']
-            : ['How do I enter my prescription?', "I don't have my prescription", 'What material do you recommend?']);
-        }
-      } else if (path === '/Tienda' || path.includes('/Tienda')) {
-        if (!s.tipoCara) {
-          agregarMensaje('verly', lang === 'es'
-            ? '¿Cuál es la forma de tu cara? Te ayudo a encontrar el armazón ideal.'
-            : 'What is your face shape? I\'ll help you find the ideal frame.');
-          setOpciones(lang === 'es'
-            ? ['Ovalada', 'Cuadrada', 'Corazón', 'Redonda', 'No sé']
-            : ['Oval', 'Square', 'Heart', 'Round', "I don't know"]);
-          setPaso(3);
-        }
-      }
-    }, 600);
-  };
-
-  const darRecomendacionArmazon = (tipoCara: TipoCara) => {
-    const recs: Record<string, { es: string; en: string }> = {
-      ovalada: { es: 'Tu cara ovalada es muy versátil — casi cualquier armazón te queda. Te recomiendo los cuadrados o rectangulares para dar más estructura. ¡Prueba los de forma cuadrada!', en: 'Your oval face is very versatile — almost any frame suits you. I recommend square or rectangular frames for more structure. Try square shapes!' },
-      cuadrada: { es: 'Para cara cuadrada, los armazones ovalados o redondos suavizan los ángulos de tu mandíbula. Evita los muy angulares.', en: 'For a square face, oval or round frames soften your jaw angles. Avoid very angular frames.' },
-      corazon: { es: 'Con cara de corazón, los armazones más anchos abajo equilibran tu frente. Los ovalados y aviator son ideales para ti.', en: 'With a heart-shaped face, frames wider at the bottom balance your forehead. Oval and aviator styles are ideal.' },
-      redonda: { es: 'Para cara redonda, los armazones rectangulares alargan visualmente el rostro. Evita los redondos que acentúan la forma circular.', en: 'For a round face, rectangular frames visually elongate the face. Avoid round frames that emphasize the circular shape.' },
-    };
-    const rec = recs[tipoCara as string] || recs['ovalada'];
-    agregarMensaje('verly', lang === 'es' ? rec.es : rec.en);
-    cambiarExpresion('recomendando', 3000);
-    setTimeout(() => {
-      agregarMensaje('verly', lang === 'es'
-        ? '¿Ya tienes tu receta óptica? Con ella te armo un paquete completo con 10% de descuento.'
-        : 'Do you have your optical prescription? With it I\'ll build a complete package with 10% off.');
-      setOpciones(lang === 'es'
-        ? ['Sí, la tengo', 'No la tengo aún', 'Ver armazones primero']
-        : ['Yes, I have it', 'Not yet', 'Browse frames first']);
-      setPaso(5);
-    }, 1800);
-  };
-
-  const procesarRespuesta = (texto: string) => {
+  // ── IA: PROCESAR RESPUESTA ─────────────────────────────────────────────────
+  const procesarRespuesta = async (texto: string) => {
     agregarMensaje('px', texto);
     setOpciones([]);
-    cambiarExpresion('pensando', 1200);
+    cambiarExpresion('pensando', 2000);
 
-    setTimeout(() => {
-      const s = cargarSesion();
-      const tl = texto.toLowerCase();
+    const historial = [...mensajes, { de: 'px' as const, texto }].map(m => ({
+      role: m.de === 'verly' ? 'assistant' : 'user',
+      content: m.texto,
+    }));
 
-      if (paso === 1) {
-        const nombre = texto.trim().split(' ')[0];
-        const nuevaSesion = { ...s, nombre };
-        setSesion(nuevaSesion);
-        guardarSesion(nuevaSesion);
-        agregarMensaje('verly', lang === 'es'
-          ? `¡Mucho gusto, ${nombre}! ¿Es tu primera vez comprando lentes en línea?`
-          : `Nice to meet you, ${nombre}! Is this your first time buying glasses online?`);
-        cambiarExpresion('feliz');
-        setOpciones(lang === 'es' ? ['Sí, primera vez', 'Ya he comprado antes', 'Solo explorando'] : ['Yes, first time', "I've bought before", 'Just browsing']);
-        setPaso(2);
+    const s = cargarSesion();
+    if (s.nombre !== sesion.nombre && texto.length < 30 && mensajes.length <= 2) {
+      const nuevaSesion = { ...s, nombre: texto.trim().split(' ')[0] };
+      setSesion(nuevaSesion);
+      guardarSesion(nuevaSesion);
+    }
 
-      } else if (paso === 2) {
-        const esPrimera = tl.includes('primera') || tl.includes('first') || tl.includes('sí');
-        const nuevaSesion = { ...s, primeraVez: esPrimera };
-        setSesion(nuevaSesion);
-        guardarSesion(nuevaSesion);
-        agregarMensaje('verly', esPrimera
-          ? (lang === 'es' ? '¡No te preocupes! Estoy aquí para guiarte. Primero: ¿cuál es la forma de tu cara?' : "Don't worry! I'm here to guide you. First: what is your face shape?")
-          : (lang === 'es' ? '¡Perfecto! Cuéntame la forma de tu cara para recomendarte armazones.' : 'Perfect! Tell me your face shape so I can recommend frames.'));
-        setOpciones(lang === 'es' ? ['Ovalada', 'Cuadrada', 'Corazón', 'Redonda', 'No sé'] : ['Oval', 'Square', 'Heart', 'Round', "I don't know"]);
-        setPaso(3);
+    const contexto = `Page: ${window.location.pathname}. ${s.nombre ? `Customer: ${s.nombre}.` : ''} ${s.receta ? 'Has prescription saved.' : 'No prescription yet.'}`;
 
-      } else if (paso === 3) {
-        let tc: TipoCara = 'ovalada';
-        if (tl.includes('oval')) tc = 'ovalada';
-        else if (tl.includes('cuadrad') || tl.includes('square')) tc = 'cuadrada';
-        else if (tl.includes('coraz') || tl.includes('heart')) tc = 'corazon';
-        else if (tl.includes('redon') || tl.includes('round')) tc = 'redonda';
-        const nuevaSesion = { ...s, tipoCara: tc };
-        setSesion(nuevaSesion);
-        guardarSesion(nuevaSesion);
-        darRecomendacionArmazon(tc);
-        setPaso(5);
-
-      } else if (paso === 4) {
-        const ev = {
-          computadora: tl.includes('computadora') || tl.includes('pantalla') || tl.includes('computer') || tl.includes('screen'),
-          manejo: tl.includes('manejo') || tl.includes('noche') || tl.includes('drive') || tl.includes('night'),
-          sol: tl.includes('sol') || tl.includes('sun'),
-          exterior: tl.includes('exterior') || tl.includes('outdoor'),
-        };
-        const nuevaSesion = { ...s, estiloVida: ev };
-        setSesion(nuevaSesion);
-        guardarSesion(nuevaSesion);
-        if (s.receta) {
-          const paquete = armarPaquete(s.receta, ev, lang);
-          agregarMensaje('verly', lang === 'es' ? 'Perfecto. Con tu receta y estilo de vida, aquí está tu paquete:' : 'Perfect. Based on your prescription and lifestyle, here\'s your package:', paquete);
-          cambiarExpresion('recomendando', 3000);
-          const np = { ...nuevaSesion, paqueteRecomendado: paquete };
-          setSesion(np);
-          guardarSesion(np);
-        } else {
-          agregarMensaje('verly', lang === 'es'
-            ? 'Guardé tus preferencias. Cuando ingreses tu receta en el drawer, te armo el paquete completo automáticamente.'
-            : 'I saved your preferences. When you enter your prescription in the drawer, I\'ll automatically build the complete package.');
-          setPaso(10);
-        }
-
-      } else if (paso === 5) {
-        if (tl.includes('sí') || tl.includes('yes') || tl.includes('tengo') || tl.includes('have')) {
-          agregarMensaje('verly', lang === 'es'
-            ? 'Perfecto. Ingresa los números en el formulario del drawer (botón "Personalizar mis micas"). En cuanto llenes el SPH, yo lo leo automáticamente y te genero tu paquete con descuento.'
-            : 'Perfect. Enter the numbers in the drawer form (button "Customize my lenses"). As soon as you fill in the SPH, I\'ll read it automatically and generate your package with a discount.');
-          setPaso(10);
-          setOpciones(lang === 'es' ? ['¿Cómo se lee la receta?', 'Ya la ingresé'] : ['How do I read the prescription?', 'I already entered it']);
-        } else if (tl.includes('ver') || tl.includes('browse')) {
-          agregarMensaje('verly', lang === 'es' ? '¡Claro! Explora los armazones con calma. Cuando encuentres uno que te guste, ábrelo y yo te ayudo con la receta y el paquete.' : 'Of course! Browse the frames at your own pace. When you find one you like, open it and I\'ll help you with the prescription and package.');
-          setPaso(10);
-        } else {
-          agregarMensaje('verly', lang === 'es'
-            ? 'No hay problema. Puedes conseguir tu receta con cualquier optometrista o usar la de tus lentes actuales. ¿Te cuento cómo leerla?'
-            : 'No problem. You can get your prescription from any optometrist or use the one from your current glasses. Want me to explain how to read it?');
-          setOpciones(lang === 'es' ? ['Sí, explícame', 'Lo haré después'] : ['Yes, explain it', "I'll do it later"]);
-          setPaso(10);
-        }
-
-      } else {
-        // Conversación libre
-        if (tl.includes('receta') || tl.includes('prescription') || tl.includes('graduac')) {
-          agregarMensaje('verly', lang === 'es'
-            ? 'Para ingresar tu receta, haz clic en "Personalizar mis micas" en cualquier armazón. Ahí verás los campos SPH, CYL, EJE, ADD y DP para cada ojo. En cuanto los llenes, yo los leo automáticamente.'
-            : 'To enter your prescription, click "Customize my lenses" on any frame. There you\'ll see SPH, CYL, AXIS, ADD and PD fields for each eye. As soon as you fill them in, I\'ll read them automatically.');
-        } else if (tl.includes('leer') || tl.includes('read') || tl.includes('significa') || tl.includes('sph') || tl.includes('cyl')) {
-          agregarMensaje('verly', lang === 'es'
-            ? 'En tu receta: **SPH** es la graduación principal (negativo = miopía, positivo = hipermetropía). **CYL** es el astigmatismo. **EJE/AXIS** es la orientación del astigmatismo (0-180°). **ADD** es la adición para presbicia (ver de cerca). **DP** es la distancia pupilar.'
-            : 'In your prescription: **SPH** is the main power (negative = myopia, positive = hyperopia). **CYL** is astigmatism. **AXIS** is the astigmatism direction (0-180°). **ADD** is the addition for presbyopia. **PD** is pupillary distance.');
-          cambiarExpresion('recomendando', 3000);
-        } else if (tl.includes('astigmat')) {
-          agregarMensaje('verly', lang === 'es'
-            ? 'El astigmatismo ocurre cuando tu córnea tiene forma ovalada en lugar de esférica — como un balón de fútbol americano. Esto hace que la luz se enfoque en múltiples puntos, causando visión borrosa y halos nocturnos. Se corrige con lentes cilíndricos y el AR Premium elimina los reflejos molestos.'
-            : 'Astigmatism occurs when your cornea is oval instead of spherical — like a football. This causes light to focus at multiple points, resulting in blurry vision and night halos. It\'s corrected with cylindrical lenses and AR Premium eliminates annoying reflections.');
-          cambiarExpresion('recomendando', 3000);
-        } else if (tl.includes('precio') || tl.includes('costo') || tl.includes('price') || tl.includes('cost')) {
-          agregarMensaje('verly', lang === 'es'
-            ? 'Los armazones arrancan en $43 USD. Las micas se personalizan desde +$5 hasta +$186 según material y filtros. El precio promedio es ~$67 USD. Con mi paquete recomendado obtienes 10% de descuento automático.'
-            : 'Frames start at $43 USD. Lenses are customized from +$5 to +$186 depending on material and filters. Average price is ~$67 USD. With my recommended package you get 10% off automatically.');
-        } else if (tl.includes('entrega') || tl.includes('shipping') || tl.includes('delivery')) {
-          agregarMensaje('verly', lang === 'es'
-            ? 'Entregamos en 3-5 días hábiles a California. Envío gratuito en todos los pedidos. Tienes 30 días para devolverlos sin preguntas.'
-            : 'We deliver in 3-5 business days to California. Free shipping on all orders. You have 30 days to return them no questions asked.');
-        } else if (tl.includes('ya la ingresé') || tl.includes('already entered') || tl.includes('ya llené')) {
-          const sf = cargarSesion();
-          if (sf.receta) {
-            const paquete = armarPaquete(sf.receta, sf.estiloVida || {}, lang);
-            agregarMensaje('verly', lang === 'es' ? '¡La tengo! Aquí está tu paquete personalizado:' : 'Got it! Here\'s your personalized package:', paquete);
-            cambiarExpresion('recomendando', 3000);
-          } else {
-            agregarMensaje('verly', lang === 'es'
-              ? 'Hmm, aún no veo tu receta. Asegúrate de ingresar al menos el SPH en el formulario del drawer y yo la capturo automáticamente.'
-              : 'Hmm, I don\'t see your prescription yet. Make sure to enter at least the SPH in the drawer form and I\'ll capture it automatically.');
-          }
-        } else {
-          const resp = lang === 'es'
-            ? ['¿Hay algo más en lo que te pueda ayudar?', '¿Tienes preguntas sobre materiales o filtros?', '¿Quieres que te explique cómo leer tu receta?']
-            : ['Is there anything else I can help you with?', 'Do you have questions about materials or filters?', 'Want me to explain how to read your prescription?'];
-          agregarMensaje('verly', resp[Math.floor(Math.random() * resp.length)]);
-        }
-      }
-    }, 900);
+    try {
+      const res = await fetch('/api/verly', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: historial, lang, contexto }),
+      });
+      const data = await res.json();
+      agregarMensaje('verly', data.texto);
+      cambiarExpresion('feliz', 2000);
+    } catch {
+      agregarMensaje('verly', lang === 'es' ? 'Lo siento, hubo un error.' : 'Sorry, there was an error.');
+    }
   };
 
   const manejarEnvio = () => {
@@ -488,20 +347,44 @@ export default function VerlyBot() {
     setInput('');
   };
 
+  const handleClick = () => {
+    if (hasDragged.current) return;
+    setBurbujaVisible(false);
+    setAbierto(!abierto);
+  };
+
   return (
     <>
+      {/* BURBUJA BIENVENIDA */}
+      {burbujaVisible && !abierto && (
+        <div style={{
+          position: 'fixed', bottom: `${pos.y + 82}px`, right: `${pos.x}px`, zIndex: 998,
+          background: 'white', borderRadius: '16px 16px 4px 16px',
+          padding: '12px 16px', boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+          border: '1.5px solid #E0F7F4', maxWidth: '220px',
+          animation: 'verlySlideUp 0.4s ease-out',
+          fontFamily: 'var(--font-jakarta), sans-serif',
+        }}>
+          <div style={{ fontSize: '13px', fontWeight: 700, color: '#1A1A2E', marginBottom: '4px' }}>
+            {lang === 'es' ? '¡Hola! Soy Verly 👋' : "Hi! I'm Verly 👋"}
+          </div>
+          <div style={{ fontSize: '12px', color: '#5A6478', lineHeight: 1.5 }}>
+            {lang === 'es'
+              ? 'Tu asistente virtual. ¿Te ayudo a encontrar los lentes perfectos?'
+              : 'Your virtual assistant. Can I help you find the perfect glasses?'}
+          </div>
+          <button onClick={() => setBurbujaVisible(false)} style={{ position: 'absolute', top: '6px', right: '8px', background: 'none', border: 'none', fontSize: '14px', color: '#AAB4C0', cursor: 'pointer', lineHeight: 1 }}>×</button>
+        </div>
+      )}
+
       {/* BOTÓN FLOTANTE */}
-      <div
-        onClick={() => setAbierto(!abierto)}
-        style={{
-          position: 'fixed', bottom: '28px', right: '28px', zIndex: 999,
-          cursor: 'pointer',
-          animation: 'verlyFloat 3s ease-in-out infinite',
-          filter: 'drop-shadow(0 8px 28px rgba(43,191,179,0.45))',
-        }}
-        onMouseEnter={e => (e.currentTarget.style.transform = 'scale(1.08)')}
-        onMouseLeave={e => (e.currentTarget.style.transform = 'scale(1)')}
-      >
+      <div onMouseDown={onMouseDown} onTouchStart={onTouchStart} onClick={handleClick} style={{
+        position: 'fixed', bottom: `${pos.y}px`, right: `${pos.x}px`, zIndex: 999,
+        cursor: 'grab',
+        animation: !abierto ? 'verlyFloat 3s ease-in-out infinite' : 'none',
+        filter: 'drop-shadow(0 8px 28px rgba(43,191,179,0.45))',
+        userSelect: 'none',
+      }}>
         <VerlyAvatar expresion={abierto ? 'feliz' : expresion} size={72}/>
         {!abierto && (
           <div style={{
@@ -516,7 +399,7 @@ export default function VerlyBot() {
       {/* VENTANA DE CHAT */}
       {abierto && (
         <div style={{
-          position: 'fixed', bottom: '116px', right: '28px', zIndex: 998,
+          position: 'fixed', bottom: `${pos.y + 88}px`, right: `${pos.x}px`, zIndex: 998,
           width: '380px', maxWidth: 'calc(100vw - 56px)',
           background: 'white', borderRadius: '20px',
           boxShadow: '0 24px 64px rgba(0,0,0,0.18)',
@@ -526,25 +409,15 @@ export default function VerlyBot() {
           overflow: 'hidden',
         }}>
           {/* Header */}
-          <div style={{
-            background: 'linear-gradient(135deg, #2BBFB3, #1a9990)',
-            padding: '1rem 1.25rem',
-            display: 'flex', alignItems: 'center', gap: '12px',
-            flexShrink: 0,
-          }}>
+          <div style={{ background: 'linear-gradient(135deg, #2BBFB3, #1a9990)', padding: '1rem 1.25rem', display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
             <VerlyAvatar expresion={expresion} size={48}/>
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: '16px', fontWeight: 800, color: 'white' }}>Verly</div>
               <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.8)' }}>
-                {lang === 'es' ? 'Tu optometrista virtual' : 'Your virtual optometrist'}
+                {lang === 'es' ? 'Tu asistente virtual' : 'Your virtual assistant'}
               </div>
             </div>
-            <button onClick={() => setAbierto(false)} style={{
-              background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: '50%',
-              width: '30px', height: '30px', color: 'white', cursor: 'pointer',
-              fontSize: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontFamily: 'inherit',
-            }}>×</button>
+            <button onClick={() => setAbierto(false)} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: '50%', width: '30px', height: '30px', color: 'white', cursor: 'pointer', fontSize: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'inherit' }}>×</button>
           </div>
 
           {/* Mensajes */}
@@ -563,16 +436,12 @@ export default function VerlyBot() {
                     {m.texto}
                   </div>
                   {m.paquete && (
-                    <BurbujaPaquete
-                      paquete={m.paquete}
-                      lang={lang}
-                      onAceptar={() => {
-                        cambiarExpresion('feliz', 2500);
-                        agregarMensaje('verly', lang === 'es'
-                          ? `¡Excelente elección! Selecciona ${m.paquete!.material} como material en el drawer y agrega los filtros recomendados. Tu código VERLY10 también aplica para un 10% adicional.`
-                          : `Excellent choice! Select ${m.paquete!.material} as material in the drawer and add the recommended filters. Your code VERLY10 also applies for an additional 10%.`);
-                      }}
-                    />
+                    <BurbujaPaquete paquete={m.paquete} lang={lang} onAceptar={() => {
+                      cambiarExpresion('feliz', 2500);
+                      agregarMensaje('verly', lang === 'es'
+                        ? `¡Excelente! Selecciona ${m.paquete!.material} en el drawer y agrega los filtros recomendados.`
+                        : `Excellent! Select ${m.paquete!.material} in the drawer and add the recommended filters.`);
+                    }}/>
                   )}
                 </div>
               </div>
@@ -587,9 +456,7 @@ export default function VerlyBot() {
                   }}
                     onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = '#E0F7F4'; }}
                     onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'white'; }}
-                  >
-                    {op}
-                  </button>
+                  >{op}</button>
                 ))}
               </div>
             )}
@@ -598,21 +465,14 @@ export default function VerlyBot() {
 
           {/* Input */}
           <div style={{ padding: '0.75rem', borderTop: '1px solid #EAECF0', display: 'flex', gap: '8px', flexShrink: 0 }}>
-            <input
-              value={input}
-              onChange={e => setInput(e.target.value)}
+            <input value={input} onChange={e => setInput(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && manejarEnvio()}
               placeholder={lang === 'es' ? 'Escribe aquí...' : 'Type here...'}
-              style={{
-                flex: 1, padding: '10px 14px', borderRadius: '20px',
-                border: '1.5px solid #EAECF0', fontSize: '13px',
-                fontFamily: 'inherit', outline: 'none',
-              }}
+              style={{ flex: 1, padding: '10px 14px', borderRadius: '20px', border: '1.5px solid #EAECF0', fontSize: '13px', fontFamily: 'inherit', outline: 'none' }}
             />
             <button onClick={manejarEnvio} style={{
-              background: '#2BBFB3', color: 'white', border: 'none',
-              borderRadius: '50%', width: '40px', height: '40px',
-              cursor: 'pointer', fontSize: '18px', flexShrink: 0,
+              background: '#2BBFB3', color: 'white', border: 'none', borderRadius: '50%',
+              width: '40px', height: '40px', cursor: 'pointer', fontSize: '18px', flexShrink: 0,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>→</button>
           </div>

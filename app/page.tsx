@@ -1,9 +1,18 @@
 'use client';
+import { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import { useLang } from './components/LanguageContext';
 
 export default function Home() {
   const { t } = useLang();
+  const [esMobil, setEsMobil] = useState(false);
+
+  useEffect(() => {
+    const check = () => setEsMobil(window.innerWidth <= 768);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
 
   return (
     <main style={{ fontFamily: 'var(--font-jakarta), sans-serif', margin: 0, padding: 0, background: '#FAFAFA', color: '#1A1A2E' }}>
@@ -14,12 +23,11 @@ export default function Home() {
       <section style={{
         position: 'relative',
         background: '#F5F2EE',
-        minHeight: '88vh',
+        minHeight: esMobil ? '100vh' : '88vh',
         display: 'flex',
         alignItems: 'center',
         overflow: 'hidden',
       }}>
-        {/* Fondo decorativo */}
         <div style={{
           position: 'absolute', inset: 0,
           background: 'radial-gradient(ellipse 70% 80% at 80% 50%, #E0F7F5 0%, transparent 70%)',
@@ -36,10 +44,10 @@ export default function Home() {
         <div style={{
           position: 'relative', zIndex: 1,
           maxWidth: '1180px', margin: '0 auto',
-          padding: '6rem 2rem',
+          padding: esMobil ? '3rem 1.5rem' : '6rem 2rem',
           display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: '4rem',
+          gridTemplateColumns: esMobil ? '1fr' : '1fr 1fr',
+          gap: esMobil ? '2rem' : '4rem',
           alignItems: 'center',
           width: '100%',
         }}>
@@ -56,7 +64,7 @@ export default function Home() {
             </div>
 
             <h1 style={{
-              fontSize: 'clamp(2.4rem, 5vw, 3.6rem)',
+              fontSize: esMobil ? 'clamp(2rem, 8vw, 2.8rem)' : 'clamp(2.4rem, 5vw, 3.6rem)',
               fontWeight: 800,
               lineHeight: 1.08,
               letterSpacing: '-0.03em',
@@ -104,51 +112,53 @@ export default function Home() {
           </div>
 
           {/* Visual lado derecho */}
-          <div style={{
-            position: 'relative',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}>
+          {!esMobil && (
             <div style={{
-              width: '420px', height: '420px',
-              background: 'linear-gradient(145deg, #E0F7F5, #F0FBF8)',
-              borderRadius: '50%',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
               position: 'relative',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
             }}>
-              <svg width="280" height="140" viewBox="0 0 280 140" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="8" y="20" width="108" height="100" rx="32" fill="white" stroke="#2BBFB3" strokeWidth="5"/>
-                <rect x="164" y="20" width="108" height="100" rx="32" fill="white" stroke="#2BBFB3" strokeWidth="5"/>
-                <path d="M116 60 C124 50, 156 50, 164 60" stroke="#2BBFB3" strokeWidth="4" fill="none" strokeLinecap="round"/>
-                <line x1="8" y1="55" x2="-8" y2="48" stroke="#2BBFB3" strokeWidth="4" strokeLinecap="round"/>
-                <line x1="272" y1="55" x2="288" y2="48" stroke="#2BBFB3" strokeWidth="4" strokeLinecap="round"/>
-                <ellipse cx="42" cy="52" rx="14" ry="8" fill="#E0F7F5" opacity="0.7"/>
-                <ellipse cx="198" cy="52" rx="14" ry="8" fill="#E0F7F5" opacity="0.7"/>
-              </svg>
-
               <div style={{
-                position: 'absolute', bottom: '40px', right: '-10px',
-                background: '#F5C518', color: '#1A1A2E',
-                padding: '12px 18px', borderRadius: '12px',
-                fontSize: '13px', fontWeight: 800,
-                boxShadow: '0 8px 24px rgba(245,197,24,0.35)',
+                width: '420px', height: '420px',
+                background: 'linear-gradient(145deg, #E0F7F5, #F0FBF8)',
+                borderRadius: '50%',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                position: 'relative',
               }}>
-                {t('Desde $5 USD', 'From $5 USD')}
-              </div>
+                <svg width="280" height="140" viewBox="0 0 280 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="8" y="20" width="108" height="100" rx="32" fill="white" stroke="#2BBFB3" strokeWidth="5"/>
+                  <rect x="164" y="20" width="108" height="100" rx="32" fill="white" stroke="#2BBFB3" strokeWidth="5"/>
+                  <path d="M116 60 C124 50, 156 50, 164 60" stroke="#2BBFB3" strokeWidth="4" fill="none" strokeLinecap="round"/>
+                  <line x1="8" y1="55" x2="-8" y2="48" stroke="#2BBFB3" strokeWidth="4" strokeLinecap="round"/>
+                  <line x1="272" y1="55" x2="288" y2="48" stroke="#2BBFB3" strokeWidth="4" strokeLinecap="round"/>
+                  <ellipse cx="42" cy="52" rx="14" ry="8" fill="#E0F7F5" opacity="0.7"/>
+                  <ellipse cx="198" cy="52" rx="14" ry="8" fill="#E0F7F5" opacity="0.7"/>
+                </svg>
 
-              <div style={{
-                position: 'absolute', top: '40px', left: '-10px',
-                background: 'white', color: '#1A1A2E',
-                padding: '10px 16px', borderRadius: '12px',
-                fontSize: '12px', fontWeight: 700,
-                boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
-                border: '1px solid #E2E8F0',
-              }}>
-                {t('Entrega 3–5 días', 'Delivery 3–5 days')}
+                <div style={{
+                  position: 'absolute', bottom: '40px', right: '-10px',
+                  background: '#F5C518', color: '#1A1A2E',
+                  padding: '12px 18px', borderRadius: '12px',
+                  fontSize: '13px', fontWeight: 800,
+                  boxShadow: '0 8px 24px rgba(245,197,24,0.35)',
+                }}>
+                  {t('Desde $5 USD', 'From $5 USD')}
+                </div>
+
+                <div style={{
+                  position: 'absolute', top: '40px', left: '-10px',
+                  background: 'white', color: '#1A1A2E',
+                  padding: '10px 16px', borderRadius: '12px',
+                  fontSize: '12px', fontWeight: 700,
+                  boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
+                  border: '1px solid #E2E8F0',
+                }}>
+                  {t('Entrega 3–5 días', 'Delivery 3–5 days')}
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
       </section>
 
@@ -157,8 +167,10 @@ export default function Home() {
         background: 'white',
         borderTop: '1px solid #EAECF0',
         borderBottom: '1px solid #EAECF0',
-        padding: '1.4rem 2rem',
-        display: 'flex', justifyContent: 'center', gap: '4rem', flexWrap: 'wrap',
+        padding: esMobil ? '1rem' : '1.4rem 2rem',
+        display: 'flex', justifyContent: 'center',
+        gap: esMobil ? '0.75rem' : '4rem',
+        flexWrap: 'wrap',
       }}>
         {[
           { es: 'Desde $5 USD', en: 'From $5 USD' },
@@ -167,8 +179,8 @@ export default function Home() {
           { es: '30 días de devolución', en: '30-day free returns' },
         ].map((item, i) => (
           <span key={i} style={{
-            color: '#5A6478', fontSize: '13px', fontWeight: 500,
-            display: 'flex', alignItems: 'center', gap: '8px',
+            color: '#5A6478', fontSize: esMobil ? '11px' : '13px', fontWeight: 500,
+            display: 'flex', alignItems: 'center', gap: '6px',
           }}>
             <span style={{ color: '#2BBFB3', fontWeight: 800 }}>—</span>
             {t(item.es, item.en)}
@@ -177,7 +189,7 @@ export default function Home() {
       </div>
 
       {/* ── COLECCIONES ── */}
-      <section style={{ padding: '6rem 2rem', maxWidth: '1180px', margin: '0 auto' }}>
+      <section style={{ padding: esMobil ? '3rem 1.5rem' : '6rem 2rem', maxWidth: '1180px', margin: '0 auto' }}>
         <div style={{ marginBottom: '3.5rem' }}>
           <p style={{
             fontSize: '11px', fontWeight: 700, letterSpacing: '2px',
@@ -196,7 +208,7 @@ export default function Home() {
 
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
+          gridTemplateColumns: esMobil ? '1fr' : 'repeat(auto-fill, minmax(260px, 1fr))',
           gap: '1.5rem',
         }}>
           {[
@@ -244,7 +256,7 @@ export default function Home() {
       </section>
 
       {/* ── CÓMO FUNCIONA ── */}
-      <section style={{ background: 'white', padding: '6rem 2rem' }}>
+      <section style={{ background: 'white', padding: esMobil ? '3rem 1.5rem' : '6rem 2rem' }}>
         <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
             <p style={{
@@ -261,7 +273,7 @@ export default function Home() {
             </h2>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '2rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: esMobil ? '1fr 1fr' : 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
             {[
               { num: '01', es: 'Elige tu armazón', en: 'Choose your frame', desc_es: 'Más de 60 estilos disponibles.', desc_en: '60+ styles available.', link: '/Tienda' },
               { num: '02', es: 'Ingresa tu receta', en: 'Enter your prescription', desc_es: 'Manual o foto en 1 minuto.', desc_en: 'Manual or photo in 1 minute.', link: '/receta' },
@@ -270,7 +282,7 @@ export default function Home() {
             ].map((s, i) => (
               <a key={i} href={s.link} style={{ textDecoration: 'none' }}>
                 <div style={{
-                  padding: '2rem 1.5rem', border: '1px solid #EAECF0',
+                  padding: '1.5rem 1.25rem', border: '1px solid #EAECF0',
                   borderRadius: '12px', height: '100%',
                   transition: 'border-color 0.2s, box-shadow 0.2s',
                 }}
@@ -285,13 +297,13 @@ export default function Home() {
                 >
                   <div style={{
                     fontSize: '28px', fontWeight: 800, color: '#E8F7F6',
-                    marginBottom: '1.2rem', letterSpacing: '-1px',
+                    marginBottom: '1rem', letterSpacing: '-1px',
                     WebkitTextStroke: '1.5px #2BBFB3',
                   }}>
                     {s.num}
                   </div>
-                  <div style={{ fontSize: '15px', fontWeight: 700, marginBottom: '6px', color: '#1A1A2E' }}>{t(s.es, s.en)}</div>
-                  <div style={{ fontSize: '13px', color: '#7A8494', lineHeight: 1.6 }}>{t(s.desc_es, s.desc_en)}</div>
+                  <div style={{ fontSize: '14px', fontWeight: 700, marginBottom: '6px', color: '#1A1A2E' }}>{t(s.es, s.en)}</div>
+                  <div style={{ fontSize: '12px', color: '#7A8494', lineHeight: 1.6 }}>{t(s.desc_es, s.desc_en)}</div>
                 </div>
               </a>
             ))}
@@ -301,7 +313,7 @@ export default function Home() {
 
       {/* ── BANNER PROMO ── */}
       <section style={{
-        background: '#1A1A2E', padding: '5rem 2rem',
+        background: '#1A1A2E', padding: esMobil ? '3rem 1.5rem' : '5rem 2rem',
         textAlign: 'center', position: 'relative', overflow: 'hidden',
       }}>
         <div style={{
@@ -345,7 +357,7 @@ export default function Home() {
       </section>
 
       {/* ── FAQ ── */}
-      <section id="faq" style={{ padding: '6rem 2rem', maxWidth: '720px', margin: '0 auto' }}>
+      <section id="faq" style={{ padding: esMobil ? '3rem 1.5rem' : '6rem 2rem', maxWidth: '720px', margin: '0 auto' }}>
         <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
           <p style={{
             fontSize: '11px', fontWeight: 700, letterSpacing: '2px',
@@ -389,7 +401,8 @@ export default function Home() {
       {/* ── FOOTER ── */}
       <footer style={{ background: '#111827', color: 'rgba(255,255,255,0.5)', padding: '4rem 2rem 2rem' }}>
         <div style={{
-          display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+          display: 'grid',
+          gridTemplateColumns: esMobil ? '1fr' : 'repeat(auto-fit, minmax(180px, 1fr))',
           gap: '2.5rem', maxWidth: '1100px', margin: '0 auto 3rem',
         }}>
           <div>

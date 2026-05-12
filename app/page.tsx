@@ -5,7 +5,7 @@ import Navbar from './components/Navbar';
 import { useLang } from './components/LanguageContext';
 
 export default function Home() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const [esMobil, setEsMobil] = useState(false);
 
   useEffect(() => {
@@ -73,10 +73,10 @@ export default function Home() {
             marginBottom: '1.25rem',
             maxWidth: esMobil ? '100%' : '560px',
           }}>
-            {t(
-              <>Lentes de calidad<br />que se adaptan<br /><em style={{ fontStyle: 'italic', color: 'var(--sage-light)' }}>a tu vida.</em></>,
-              <>Quality eyewear<br />that fits<br /><em style={{ fontStyle: 'italic', color: 'var(--sage-light)' }}>your life.</em></>
-            )}
+            {lang === 'es'
+              ? <>Lentes de calidad<br />que se adaptan<br /><em style={{ fontStyle: 'italic', color: 'var(--sage-light)' }}>a tu vida.</em></>
+              : <>Quality eyewear<br />that fits<br /><em style={{ fontStyle: 'italic', color: 'var(--sage-light)' }}>your life.</em></>
+            }
           </h1>
 
           <p style={{

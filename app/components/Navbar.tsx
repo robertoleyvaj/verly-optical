@@ -83,7 +83,7 @@ export default function Navbar() {
             maxWidth: "1280px",
             margin: "0 auto",
             padding: "0 2rem",
-            height: scrolled ? "64px" : "80px",
+            height: scrolled ? "60px" : "68px",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
@@ -96,7 +96,7 @@ export default function Navbar() {
               src="/logo-trasparente.png"
               alt="Verly Optical"
               style={{
-                height: scrolled ? "36px" : "44px",
+                height: scrolled ? "32px" : "38px",
                 width: "auto",
                 transition: "height 0.4s ease",
                 objectFit: "contain",

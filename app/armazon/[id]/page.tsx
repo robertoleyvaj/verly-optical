@@ -1260,7 +1260,6 @@ const [posZoom, setPosZoom] = useState({ x: 50, y: 50 });
             </div>
           )}
         </div>
-          )}
         </div>
 
         <div>

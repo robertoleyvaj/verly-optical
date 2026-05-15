@@ -506,6 +506,7 @@ export default function DetalleArmazon() {
   const [fotoActiva, setFotoActiva] = useState(0);
   const [posZoom, setPosZoom] = useState({ x: 50, y: 50 });
   const [zoomActivo, setZoomActivo] = useState(false);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
   const [esMobil, setEsMobil] = useState(false);
 
   useEffect(() => {
@@ -907,6 +908,16 @@ export default function DetalleArmazon() {
                 style={{ background: 'white', borderRadius: esMobil ? '0' : '20px', overflow: 'hidden', position: 'relative', aspectRatio: '1/1', boxShadow: esMobil ? 'none' : '0 2px 40px rgba(0,0,0,0.05)', cursor: fotos.length > 0 ? 'crosshair' : 'default' }}
                 onMouseMove={e => { if (esMobil) return; const rect = e.currentTarget.getBoundingClientRect(); setPosZoom({ x: ((e.clientX - rect.left) / rect.width) * 100, y: ((e.clientY - rect.top) / rect.height) * 100 }); setZoomActivo(true); }}
                 onMouseLeave={() => setZoomActivo(false)}
+                onTouchStart={e => setTouchStart(e.touches[0].clientX)}
+onTouchEnd={e => {
+  if (touchStart === null) return;
+  const diff = touchStart - e.changedTouches[0].clientX;
+  if (Math.abs(diff) > 40) {
+    if (diff > 0) setFotoActiva(prev => Math.min(prev + 1, fotos.length - 1));
+    else setFotoActiva(prev => Math.max(prev - 1, 0));
+  }
+  setTouchStart(null);
+}}
               >
                 {fotos.length > 0 ? (
                   <img src={fotos[fotoActiva] || fotos[0]} alt={armazon.nombre} style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block', padding: esMobil ? '1.5rem' : '3rem', boxSizing: 'border-box', transformOrigin: `${posZoom.x}% ${posZoom.y}%`, transform: zoomActivo ? 'scale(1.9)' : 'scale(1)', transition: zoomActivo ? 'none' : 'transform 0.4s ease' }}/>

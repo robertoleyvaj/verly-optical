@@ -37,7 +37,7 @@ const ARMAZON_VACIO = {
   badge: '', color1: '#1A1A2E', color2: '', color3: '',
   material: '', forma: 'cuadrada', genero: 'unisex', tipo: 'optico',
   descuento: '0', medidas: '', talla: 'M', activo: true,
-  imagen_url: '', imagen2_url: '', imagen3_url: '',
+  imagen_url: '', imagen2_url: '', imagen3_url: '', imagen4_url: '', imagen5_url: '',
 };
 
 const inputStyle: any = { width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid var(--border)', fontSize: '13px', outline: 'none', boxSizing: 'border-box', fontFamily: 'var(--font-sans), sans-serif', background: 'var(--cream)', color: 'var(--charcoal)' };
@@ -47,37 +47,66 @@ const btnGhost: any = { background: 'white', color: 'var(--warm-gray)', border: 
 const btnDanger: any = { background: 'white', color: '#C0392B', border: '1px solid #C0392B', borderRadius: '4px', padding: '6px 14px', fontSize: '12px', fontWeight: 500, cursor: 'pointer', fontFamily: 'var(--font-sans), sans-serif' };
 const btnPrimary: any = { background: 'var(--charcoal)', color: 'white', border: 'none', borderRadius: '4px', padding: '9px 18px', fontSize: '12px', fontWeight: 500, cursor: 'pointer', fontFamily: 'var(--font-sans), sans-serif', letterSpacing: '0.06em' };
 
-// ── FUERA del Admin ───────────────────────────────────────────────────────
-
-function FotoUpload({ campo, valor, onChange, armazonId, onUpload }: {
-  campo: string, valor: string, onChange: (url: string) => void,
-  armazonId?: number, onUpload: (file: File, campo: string, id?: number) => Promise<string | null>
+// ── FOTO UPLOAD con progreso ───────────────────────────────────────────────
+function FotoUpload({ campo, label, valor, onUpload, onClear }: {
+  campo: string;
+  label: string;
+  valor: string;
+  onUpload: (file: File, campo: string) => Promise<void>;
+  onClear: () => void;
 }) {
-  return valor ? (
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleFile = async (file: File) => {
+    setUploading(true);
+    setError('');
+    try {
+      await onUpload(file, campo);
+    } catch {
+      setError('Error al subir. Intenta de nuevo.');
+    }
+    setUploading(false);
+  };
+
+  return (
     <div>
-      <img src={valor} alt="" style={{ width: '100%', height: '120px', objectFit: 'cover', borderRadius: '6px', border: '1px solid var(--border)', marginBottom: '6px' }}/>
-      <div style={{ display: 'flex', gap: '6px' }}>
-        <label style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '5px 10px', borderRadius: '4px', border: '1px solid var(--border)', cursor: 'pointer', fontSize: '11px', color: 'var(--warm-gray)', background: 'var(--cream)' }}>
-          <input type="file" accept="image/*" style={{ display: 'none' }} onChange={async e => {
-            const file = e.target.files?.[0]; if (!file) return;
-            const url = await onUpload(file, campo, armazonId);
-            if (url) onChange(url);
-          }}/>
-          Cambiar
+      <div style={{ fontSize: '10px', color: 'var(--warm-gray)', marginBottom: '4px', textAlign: 'center', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{label}</div>
+      {valor ? (
+        <div>
+          <div style={{ position: 'relative' }}>
+            <img src={valor} alt="" style={{ width: '100%', height: '100px', objectFit: 'cover', borderRadius: '6px', border: '1px solid var(--border)', display: 'block' }}/>
+            <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0)', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', opacity: 0, transition: 'all 0.2s' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = 'rgba(0,0,0,0.4)'; (e.currentTarget as HTMLDivElement).style.opacity = '1'; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = 'rgba(0,0,0,0)'; (e.currentTarget as HTMLDivElement).style.opacity = '0'; }}
+            >
+              <label style={{ background: 'white', color: 'var(--charcoal)', padding: '5px 10px', borderRadius: '4px', fontSize: '11px', cursor: 'pointer', fontWeight: 500 }}>
+                <input type="file" accept="image/*" style={{ display: 'none' }} onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f); }}/>
+                Cambiar
+              </label>
+              <button type="button" onClick={onClear} style={{ background: '#C0392B', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px', fontSize: '11px', cursor: 'pointer' }}>×</button>
+            </div>
+          </div>
+          {uploading && <div style={{ marginTop: '4px', height: '3px', background: '#e5e7eb', borderRadius: '2px', overflow: 'hidden' }}><div style={{ height: '100%', background: 'var(--sage)', animation: 'progress 1s ease-in-out infinite' }}/></div>}
+        </div>
+      ) : (
+        <label style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', padding: '1rem 0.5rem', borderRadius: '6px', border: uploading ? '1.5px solid var(--sage)' : '1.5px dashed var(--border)', cursor: uploading ? 'wait' : 'pointer', background: uploading ? '#f0f4ef' : 'var(--cream)', minHeight: '80px', justifyContent: 'center', transition: 'all 0.2s' }}>
+          <input type="file" accept="image/*" style={{ display: 'none' }} disabled={uploading} onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f); }}/>
+          {uploading ? (
+            <>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--sage)" strokeWidth="2" strokeLinecap="round" style={{ animation: 'spin 1s linear infinite' }}><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+              <span style={{ fontSize: '10px', color: 'var(--sage)', fontWeight: 500 }}>Subiendo...</span>
+            </>
+          ) : (
+            <>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--warm-gray)" strokeWidth="1.5" strokeLinecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              <span style={{ fontSize: '10px', color: 'var(--warm-gray)', textAlign: 'center' }}>Subir foto</span>
+            </>
+          )}
         </label>
-        <button type="button" onClick={() => onChange('')} style={{ ...btnDanger, padding: '5px 10px', fontSize: '11px' }}>Quitar</button>
-      </div>
+      )}
+      {error && <div style={{ fontSize: '10px', color: '#C0392B', marginTop: '3px', textAlign: 'center' }}>{error}</div>}
     </div>
-  ) : (
-    <label style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', padding: '1rem 0.5rem', borderRadius: '6px', border: '1px dashed var(--border)', cursor: 'pointer', background: 'var(--cream)', minHeight: '80px', justifyContent: 'center' }}>
-      <input type="file" accept="image/*" style={{ display: 'none' }} onChange={async e => {
-        const file = e.target.files?.[0]; if (!file) return;
-        const url = await onUpload(file, campo, armazonId);
-        if (url) onChange(url);
-      }}/>
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--warm-gray)" strokeWidth="1.5" strokeLinecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-      <span style={{ fontSize: '11px', color: 'var(--warm-gray)', textAlign: 'center' }}>Subir foto</span>
-    </label>
   );
 }
 
@@ -86,51 +115,50 @@ function ColorPicker({ label, value, onChange }: { label: string, value: string,
     <div>
       <label style={labelStyle}>{label}</label>
       <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-        <input type="color" value={value || '#FFFFFF'} onChange={e => onChange(e.target.value)}
-          style={{ width: '36px', height: '34px', border: '1px solid var(--border)', borderRadius: '4px', cursor: 'pointer', padding: '2px', background: 'white' }}/>
-        <input value={value} onChange={e => onChange(e.target.value)}
-          style={{ ...inputStyle, flex: 1 }} placeholder="#000000"/>
+        <input type="color" value={value || '#FFFFFF'} onChange={e => onChange(e.target.value)} style={{ width: '36px', height: '34px', border: '1px solid var(--border)', borderRadius: '4px', cursor: 'pointer', padding: '2px', background: 'white' }}/>
+        <input value={value} onChange={e => onChange(e.target.value)} style={{ ...inputStyle, flex: 1 }} placeholder="#000000"/>
         {value && <button type="button" onClick={() => onChange('')} style={{ background: 'none', border: 'none', color: 'var(--warm-gray)', cursor: 'pointer', fontSize: '16px', padding: '0 4px' }}>×</button>}
       </div>
     </div>
   );
 }
 
-function ArmazonForm({ data, onChange, armazonId, onUpload }: {
-  data: any,
-  onChange: (field: string, value: any) => void,
-  armazonId?: number,
-  onUpload: (file: File, campo: string, id?: number) => Promise<string | null>
+function ArmazonForm({ data, onChange, onFotoUpload }: {
+  data: any;
+  onChange: (field: string, value: any) => void;
+  onFotoUpload: (file: File, campo: string) => Promise<void>;
 }) {
   const handleMedidas = (val: string) => {
     onChange('medidas', val);
     onChange('talla', tallaDesdeMedias(val));
   };
 
+  const fotos = [
+    { campo: 'imagen_url', label: 'Principal' },
+    { campo: 'imagen2_url', label: 'Foto 2' },
+    { campo: 'imagen3_url', label: 'Foto 3' },
+    { campo: 'imagen4_url', label: 'Foto 4' },
+    { campo: 'imagen5_url', label: 'Lifestyle' },
+  ];
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
 
       {/* FOTOS */}
-      <div>
-        <label style={labelStyle}>Fotos (hasta 3)</label>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
-          {[
-            { campo: 'imagen_url', label: 'Principal' },
-          { campo: 'imagen2_url', label: 'Foto 2' },
-          { campo: 'imagen3_url', label: 'Foto 3' },
-          { campo: 'imagen4_url', label: 'Foto 4' },
-          { campo: 'imagen5_url', label: 'Lifestyle' }
-          ].map(f => (
-            <div key={f.campo}>
-              <div style={{ fontSize: '10px', color: 'var(--warm-gray)', marginBottom: '4px', textAlign: 'center', fontWeight: 500 }}>{f.label}</div>
-              <FotoUpload
-                campo={f.campo}
-                valor={data[f.campo] || ''}
-                onChange={url => onChange(f.campo, url)}
-                armazonId={armazonId}
-                onUpload={onUpload}
-              />
-            </div>
+      <div style={{ background: 'var(--cream)', borderRadius: '8px', padding: '1rem' }}>
+        <div style={{ fontSize: '10px', fontWeight: 600, color: 'var(--warm-gray)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '0.75rem' }}>
+          Fotos <span style={{ fontWeight: 400, color: 'var(--sage)' }}>— se guardan automáticamente al seleccionar</span>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '8px' }}>
+          {fotos.map(f => (
+            <FotoUpload
+              key={f.campo}
+              campo={f.campo}
+              label={f.label}
+              valor={data[f.campo] || ''}
+              onUpload={onFotoUpload}
+              onClear={() => onChange(f.campo, '')}
+            />
           ))}
         </div>
       </div>
@@ -139,37 +167,19 @@ function ArmazonForm({ data, onChange, armazonId, onUpload }: {
       <div style={{ background: 'var(--cream)', borderRadius: '8px', padding: '1rem' }}>
         <div style={{ fontSize: '10px', fontWeight: 600, color: 'var(--warm-gray)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '0.75rem' }}>Información básica</div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr', gap: '8px' }}>
-          <div>
-            <label style={labelStyle}>Nombre / Apodo</label>
-            <input value={data.nombre} onChange={e => onChange('nombre', e.target.value)} style={inputStyle} placeholder="Old Fashion"/>
-          </div>
-          <div>
-            <label style={labelStyle}>Modelo</label>
-            <input value={data.modelo || ''} onChange={e => onChange('modelo', e.target.value)} style={inputStyle} placeholder="VRL-001"/>
-          </div>
-          <div>
-            <label style={labelStyle}>Marca</label>
-            <input value={data.marca} onChange={e => onChange('marca', e.target.value)} style={inputStyle} placeholder="Verly"/>
-          </div>
-          <div>
-            <label style={labelStyle}>Material</label>
+          <div><label style={labelStyle}>Nombre</label><input value={data.nombre} onChange={e => onChange('nombre', e.target.value)} style={inputStyle} placeholder="Old Fashion"/></div>
+          <div><label style={labelStyle}>Modelo</label><input value={data.modelo || ''} onChange={e => onChange('modelo', e.target.value)} style={inputStyle} placeholder="VRL-001"/></div>
+          <div><label style={labelStyle}>Marca</label><input value={data.marca} onChange={e => onChange('marca', e.target.value)} style={inputStyle} placeholder="Verly"/></div>
+          <div><label style={labelStyle}>Material</label>
             <select value={data.material || ''} onChange={e => onChange('material', e.target.value)} style={inputStyle}>
               <option value="">Seleccionar</option>
-              <option value="Acetato">Acetato</option>
-              <option value="Metálico">Metálico</option>
-              <option value="TR-90">TR-90</option>
-              <option value="Tres piezas">Tres piezas</option>
-              <option value="Titanio">Titanio</option>
-              <option value="Mixto">Mixto</option>
+              {['Acetato','Metálico','TR-90','Tres piezas','Titanio','Mixto'].map(m => <option key={m} value={m}>{m}</option>)}
             </select>
           </div>
-          <div>
-            <label style={labelStyle}>Badge</label>
-            <input value={data.badge || ''} onChange={e => onChange('badge', e.target.value)} style={inputStyle} placeholder="Nuevo / Popular"/>
-          </div>
+          <div><label style={labelStyle}>Badge</label><input value={data.badge || ''} onChange={e => onChange('badge', e.target.value)} style={inputStyle} placeholder="Nuevo / Popular"/></div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingTop: '18px' }}>
-            <input type="checkbox" checked={data.activo} onChange={e => onChange('activo', e.target.checked)} id={`activo-${armazonId || 'new'}`}/>
-            <label htmlFor={`activo-${armazonId || 'new'}`} style={{ fontSize: '13px', fontWeight: 500 }}>Activo</label>
+            <input type="checkbox" checked={data.activo} onChange={e => onChange('activo', e.target.checked)} id={`activo-${data.id || 'new'}`}/>
+            <label htmlFor={`activo-${data.id || 'new'}`} style={{ fontSize: '13px', fontWeight: 500 }}>Activo</label>
           </div>
         </div>
       </div>
@@ -178,18 +188,9 @@ function ArmazonForm({ data, onChange, armazonId, onUpload }: {
       <div style={{ background: 'var(--cream)', borderRadius: '8px', padding: '1rem' }}>
         <div style={{ fontSize: '10px', fontWeight: 600, color: 'var(--warm-gray)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '0.75rem' }}>Precio e inventario</div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
-          <div>
-            <label style={labelStyle}>Precio ($)</label>
-            <input type="number" value={data.precio} onChange={e => onChange('precio', e.target.value)} style={inputStyle}/>
-          </div>
-          <div>
-            <label style={labelStyle}>Descuento (%)</label>
-            <input type="number" value={data.descuento || '0'} onChange={e => onChange('descuento', e.target.value)} style={inputStyle} placeholder="0"/>
-          </div>
-          <div>
-            <label style={labelStyle}>Stock</label>
-            <input type="number" value={data.stock} onChange={e => onChange('stock', e.target.value)} style={inputStyle}/>
-          </div>
+          <div><label style={labelStyle}>Precio ($)</label><input type="number" value={data.precio} onChange={e => onChange('precio', e.target.value)} style={inputStyle}/></div>
+          <div><label style={labelStyle}>Descuento (%)</label><input type="number" value={data.descuento || '0'} onChange={e => onChange('descuento', e.target.value)} style={inputStyle} placeholder="0"/></div>
+          <div><label style={labelStyle}>Stock</label><input type="number" value={data.stock} onChange={e => onChange('stock', e.target.value)} style={inputStyle}/></div>
         </div>
       </div>
 
@@ -197,32 +198,26 @@ function ArmazonForm({ data, onChange, armazonId, onUpload }: {
       <div style={{ background: 'var(--cream)', borderRadius: '8px', padding: '1rem' }}>
         <div style={{ fontSize: '10px', fontWeight: 600, color: 'var(--warm-gray)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '0.75rem' }}>Características</div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-          <div>
-            <label style={labelStyle}>Forma</label>
+          <div><label style={labelStyle}>Forma</label>
             <select value={data.forma} onChange={e => onChange('forma', e.target.value)} style={inputStyle}>
-              {['cuadrada', 'ovalada', 'rectangular', 'redonda'].map(f => <option key={f} value={f}>{f}</option>)}
+              {['cuadrada','ovalada','rectangular','redonda'].map(f => <option key={f} value={f}>{f}</option>)}
             </select>
           </div>
-          <div>
-            <label style={labelStyle}>Género</label>
+          <div><label style={labelStyle}>Género</label>
             <select value={data.genero} onChange={e => onChange('genero', e.target.value)} style={inputStyle}>
-              {['hombre', 'mujer', 'unisex'].map(g => <option key={g} value={g}>{g}</option>)}
+              {['hombre','mujer','unisex'].map(g => <option key={g} value={g}>{g}</option>)}
             </select>
           </div>
-          <div>
-            <label style={labelStyle}>Tipo</label>
+          <div><label style={labelStyle}>Tipo</label>
             <select value={data.tipo} onChange={e => onChange('tipo', e.target.value)} style={inputStyle}>
               <option value="optico">Óptico</option>
               <option value="solar">Solar</option>
             </select>
           </div>
-          <div>
-            <label style={labelStyle}>Medidas → Talla auto</label>
+          <div><label style={labelStyle}>Medidas → Talla auto</label>
             <div style={{ display: 'flex', gap: '6px' }}>
               <input value={data.medidas || ''} onChange={e => handleMedidas(e.target.value)} style={{ ...inputStyle, flex: 1 }} placeholder="52-18-140"/>
-              <div style={{ padding: '8px 12px', background: 'white', border: '1px solid var(--border)', borderRadius: '6px', fontSize: '13px', fontWeight: 600, color: 'var(--sage)', whiteSpace: 'nowrap' }}>
-                {data.talla || 'M'}
-              </div>
+              <div style={{ padding: '8px 12px', background: 'white', border: '1px solid var(--border)', borderRadius: '6px', fontSize: '13px', fontWeight: 600, color: 'var(--sage)', whiteSpace: 'nowrap' }}>{data.talla || 'M'}</div>
             </div>
           </div>
         </div>
@@ -242,8 +237,184 @@ function ArmazonForm({ data, onChange, armazonId, onUpload }: {
   );
 }
 
-// ── ADMIN ─────────────────────────────────────────────────────────────────
+// ── MODAL NUEVO ARMAZÓN — flujo de 2 pasos ───────────────────────────────
+function ModalNuevoArmazon({ onClose, onSaved, subirFotoDirecto }: {
+  onClose: () => void;
+  onSaved: () => void;
+  subirFotoDirecto: (file: File, campo: string, id: number) => Promise<string | null>;
+}) {
+  const [data, setData] = useState<any>({ ...ARMAZON_VACIO });
+  const [guardando, setGuardando] = useState(false);
+  const [armazonId, setArmazonId] = useState<number | null>(null);
+  const [guardado, setGuardado] = useState(false);
 
+  const onChange = useCallback((field: string, value: any) => {
+    setData((prev: any) => ({ ...prev, [field]: value }));
+  }, []);
+
+  // Guardar info básica primero (sin fotos)
+  const guardarInfo = async () => {
+    if (!data.nombre.trim()) { alert('El nombre es obligatorio'); return; }
+    setGuardando(true);
+    const payload = {
+      nombre: data.nombre, modelo: data.modelo, marca: data.marca,
+      precio: parseInt(data.precio) || 13, stock: parseInt(data.stock) || 10,
+      badge: data.badge, color1: data.color1, color2: data.color2, color3: data.color3,
+      color: data.color1, material: data.material, forma: data.forma,
+      genero: data.genero, tipo: data.tipo, descuento: parseFloat(data.descuento) || 0,
+      medidas: data.medidas, talla: data.talla, activo: data.activo,
+    };
+    const { data: saved, error } = await supabase.from('armazones').insert(payload).select().single();
+    setGuardando(false);
+    if (error || !saved) { alert('Error al guardar: ' + (error?.message || 'intenta de nuevo')); return; }
+    setArmazonId(saved.id);
+    setGuardado(true);
+  };
+
+  // Upload de foto — solo funciona después de tener ID
+  const onFotoUpload = async (file: File, campo: string) => {
+    if (!armazonId) return;
+    const url = await subirFotoDirecto(file, campo, armazonId);
+    if (url) {
+      setData((prev: any) => ({ ...prev, [campo]: url }));
+      // Actualizar en BD inmediatamente
+      await supabase.from('armazones').update({ [campo]: url }).eq('id', armazonId);
+    }
+  };
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+      <div style={{ background: 'white', borderRadius: '12px', width: '100%', maxWidth: '780px', maxHeight: '90vh', overflowY: 'auto', padding: '2rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+          <div>
+            <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 500 }}>Nuevo armazón</h3>
+            {armazonId && <div style={{ fontSize: '11px', color: 'var(--sage)', marginTop: '2px' }}>✓ Guardado — ID #{armazonId} — ahora puedes subir fotos</div>}
+          </div>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer', color: 'var(--warm-gray)' }}>×</button>
+        </div>
+
+        {!guardado ? (
+          // PASO 1: Solo info básica
+          <div>
+            <div style={{ background: '#fffbeb', border: '1px solid #fcd34d', borderRadius: '8px', padding: '0.75rem 1rem', marginBottom: '1.25rem', fontSize: '12px', color: '#92400e' }}>
+              💡 Primero guarda la info básica, luego podrás subir las fotos sin perder nada.
+            </div>
+            {/* Info básica, características, precios, colores — sin fotos */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              <div style={{ background: 'var(--cream)', borderRadius: '8px', padding: '1rem' }}>
+                <div style={{ fontSize: '10px', fontWeight: 600, color: 'var(--warm-gray)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '0.75rem' }}>Información básica</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr', gap: '8px' }}>
+                  <div><label style={labelStyle}>Nombre *</label><input value={data.nombre} onChange={e => onChange('nombre', e.target.value)} style={{ ...inputStyle, borderColor: !data.nombre ? '#fca5a5' : undefined }} placeholder="Old Fashion"/></div>
+                  <div><label style={labelStyle}>Modelo</label><input value={data.modelo || ''} onChange={e => onChange('modelo', e.target.value)} style={inputStyle} placeholder="VRL-001"/></div>
+                  <div><label style={labelStyle}>Marca</label><input value={data.marca} onChange={e => onChange('marca', e.target.value)} style={inputStyle} placeholder="Verly"/></div>
+                  <div><label style={labelStyle}>Material</label>
+                    <select value={data.material || ''} onChange={e => onChange('material', e.target.value)} style={inputStyle}>
+                      <option value="">Seleccionar</option>
+                      {['Acetato','Metálico','TR-90','Tres piezas','Titanio','Mixto'].map(m => <option key={m} value={m}>{m}</option>)}
+                    </select>
+                  </div>
+                  <div><label style={labelStyle}>Badge</label><input value={data.badge || ''} onChange={e => onChange('badge', e.target.value)} style={inputStyle} placeholder="Nuevo / Popular"/></div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingTop: '18px' }}>
+                    <input type="checkbox" checked={data.activo} onChange={e => onChange('activo', e.target.checked)} id="activo-new"/>
+                    <label htmlFor="activo-new" style={{ fontSize: '13px', fontWeight: 500 }}>Activo</label>
+                  </div>
+                </div>
+              </div>
+              <div style={{ background: 'var(--cream)', borderRadius: '8px', padding: '1rem' }}>
+                <div style={{ fontSize: '10px', fontWeight: 600, color: 'var(--warm-gray)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '0.75rem' }}>Precio e inventario</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
+                  <div><label style={labelStyle}>Precio ($)</label><input type="number" value={data.precio} onChange={e => onChange('precio', e.target.value)} style={inputStyle}/></div>
+                  <div><label style={labelStyle}>Descuento (%)</label><input type="number" value={data.descuento || '0'} onChange={e => onChange('descuento', e.target.value)} style={inputStyle}/></div>
+                  <div><label style={labelStyle}>Stock</label><input type="number" value={data.stock} onChange={e => onChange('stock', e.target.value)} style={inputStyle}/></div>
+                </div>
+              </div>
+              <div style={{ background: 'var(--cream)', borderRadius: '8px', padding: '1rem' }}>
+                <div style={{ fontSize: '10px', fontWeight: 600, color: 'var(--warm-gray)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '0.75rem' }}>Características</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '10px' }}>
+                  <div><label style={labelStyle}>Forma</label>
+                    <select value={data.forma} onChange={e => onChange('forma', e.target.value)} style={inputStyle}>
+                      {['cuadrada','ovalada','rectangular','redonda'].map(f => <option key={f} value={f}>{f}</option>)}
+                    </select>
+                  </div>
+                  <div><label style={labelStyle}>Género</label>
+                    <select value={data.genero} onChange={e => onChange('genero', e.target.value)} style={inputStyle}>
+                      {['hombre','mujer','unisex'].map(g => <option key={g} value={g}>{g}</option>)}
+                    </select>
+                  </div>
+                  <div><label style={labelStyle}>Tipo</label>
+                    <select value={data.tipo} onChange={e => onChange('tipo', e.target.value)} style={inputStyle}>
+                      <option value="optico">Óptico</option>
+                      <option value="solar">Solar</option>
+                    </select>
+                  </div>
+                  <div><label style={labelStyle}>Medidas</label>
+                    <div style={{ display: 'flex', gap: '6px' }}>
+                      <input value={data.medidas || ''} onChange={e => { onChange('medidas', e.target.value); onChange('talla', tallaDesdeMedias(e.target.value)); }} style={{ ...inputStyle, flex: 1 }} placeholder="52-18-140"/>
+                      <div style={{ padding: '8px 10px', background: 'white', border: '1px solid var(--border)', borderRadius: '6px', fontSize: '12px', fontWeight: 600, color: 'var(--sage)' }}>{data.talla || 'M'}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div style={{ background: 'var(--cream)', borderRadius: '8px', padding: '1rem' }}>
+                <div style={{ fontSize: '10px', fontWeight: 600, color: 'var(--warm-gray)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '0.75rem' }}>Colores</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
+                  <ColorPicker label="Color 1 (principal)" value={data.color1 || ''} onChange={v => onChange('color1', v)}/>
+                  <ColorPicker label="Color 2" value={data.color2 || ''} onChange={v => onChange('color2', v)}/>
+                  <ColorPicker label="Color 3" value={data.color3 || ''} onChange={v => onChange('color3', v)}/>
+                </div>
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '1.5rem' }}>
+              <button onClick={onClose} style={btnGhost}>Cancelar</button>
+              <button onClick={guardarInfo} disabled={guardando} style={{ ...btnSage, opacity: guardando ? 0.6 : 1 }}>
+                {guardando ? 'Guardando...' : 'Guardar y continuar con fotos →'}
+              </button>
+            </div>
+          </div>
+        ) : (
+          // PASO 2: Subir fotos
+          <div>
+            <div style={{ background: '#f0f4ef', border: '1px solid #c8dbc4', borderRadius: '8px', padding: '0.75rem 1rem', marginBottom: '1.25rem', fontSize: '12px', color: '#3a4f33' }}>
+              ✓ Armazón <strong>{data.nombre}</strong> guardado. Ahora sube las fotos — cada una se guarda automáticamente al seleccionarla.
+            </div>
+            <div style={{ background: 'var(--cream)', borderRadius: '8px', padding: '1rem' }}>
+              <div style={{ fontSize: '10px', fontWeight: 600, color: 'var(--warm-gray)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '0.75rem' }}>Fotos del armazón</div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px' }}>
+                {[
+                  { campo: 'imagen_url', label: 'Principal' },
+                  { campo: 'imagen2_url', label: 'Foto 2' },
+                  { campo: 'imagen3_url', label: 'Foto 3' },
+                  { campo: 'imagen4_url', label: 'Foto 4' },
+                  { campo: 'imagen5_url', label: 'Lifestyle' },
+                ].map(f => (
+                  <FotoUpload
+                    key={f.campo}
+                    campo={f.campo}
+                    label={f.label}
+                    valor={data[f.campo] || ''}
+                    onUpload={onFotoUpload}
+                    onClear={async () => {
+                      onChange(f.campo, '');
+                      if (armazonId) await supabase.from('armazones').update({ [f.campo]: null }).eq('id', armazonId);
+                    }}
+                  />
+                ))}
+              </div>
+              <p style={{ fontSize: '11px', color: 'var(--warm-gray)', marginTop: '0.75rem', marginBottom: 0 }}>
+                Las fotos son opcionales — puedes agregarlas después editando el armazón.
+              </p>
+            </div>
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '1.5rem' }}>
+              <button onClick={() => { onSaved(); onClose(); }} style={btnSage}>Listo, cerrar</button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── ADMIN ─────────────────────────────────────────────────────────────────
 export default function Admin() {
   const [authed, setAuthed] = useState(false);
   const [user, setUser] = useState('');
@@ -271,7 +442,6 @@ export default function Admin() {
     finanzas: { costo_armazon: '', costo_laboratorio: '', otros_costos: '' },
   });
   const [newCliente, setNewCliente] = useState({ nombre: '', email: '', telefono: '', direccion: '', notas: '' });
-  const [newArmazon, setNewArmazon] = useState<any>({ ...ARMAZON_VACIO });
 
   useEffect(() => { if (authed) cargarTodo(); }, [authed]);
 
@@ -288,22 +458,28 @@ export default function Admin() {
     setFinanzas(f || []);
   }
 
-  const subirFoto = useCallback(async (file: File, campo: string, armazonId?: number): Promise<string | null> => {
-    const ext = file.name.split('.').pop();
-    const nombre = `armazon-${armazonId || Date.now()}-${campo}-${Date.now()}.${ext}`;
+  const subirFotoDirecto = useCallback(async (file: File, campo: string, id: number): Promise<string | null> => {
+    const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+    const nombre = `armazon-${id}-${campo}-${Date.now()}.${ext}`;
     const { error } = await supabase.storage.from('armazones').upload(nombre, file, { upsert: true });
-    if (error) return null;
+    if (error) { console.error('Upload error:', error); return null; }
     const { data } = supabase.storage.from('armazones').getPublicUrl(nombre);
     return data.publicUrl;
-  }, []);
-
-  const handleNewArmazonChange = useCallback((field: string, value: any) => {
-    setNewArmazon((prev: any) => ({ ...prev, [field]: value }));
   }, []);
 
   const handleEditArmazonChange = useCallback((field: string, value: any) => {
     setEditArmazon((prev: any) => ({ ...prev, [field]: value }));
   }, []);
+
+  // Upload para armazón en edición — sube y guarda en BD inmediatamente
+  const onFotoUploadEdit = useCallback(async (file: File, campo: string) => {
+    if (!editArmazon?.id) return;
+    const url = await subirFotoDirecto(file, campo, editArmazon.id);
+    if (url) {
+      setEditArmazon((prev: any) => ({ ...prev, [campo]: url }));
+      await supabase.from('armazones').update({ [campo]: url }).eq('id', editArmazon.id);
+    }
+  }, [editArmazon?.id, subirFotoDirecto]);
 
   const totalVentas = pedidos.reduce((s, p) => s + (p.precio_venta || 0), 0);
   const totalCostos = finanzas.reduce((s, f) => s + (f.costo_armazon || 0) + (f.costo_laboratorio || 0) + (f.otros_costos || 0), 0);
@@ -355,9 +531,9 @@ export default function Admin() {
       {/* CONTENIDO */}
       <div style={{ flex: 1, overflow: 'auto' }}>
         <div style={{ background: 'white', borderBottom: '1px solid var(--border)', padding: '0.85rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 10 }}>
-          <h2 style={{ margin: 0, fontFamily: 'var(--font-sans)', fontSize: '14px', fontWeight: 500, color: 'var(--charcoal)', letterSpacing: '0.02em' }}>{MENU.find(m => m.id === modulo)?.label}</h2>
+          <h2 style={{ margin: 0, fontSize: '14px', fontWeight: 500, color: 'var(--charcoal)', letterSpacing: '0.02em' }}>{MENU.find(m => m.id === modulo)?.label}</h2>
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-            <a href="/" target="_blank" style={{ fontFamily: 'var(--font-sans)', color: 'var(--warm-gray)', fontSize: '12px', textDecoration: 'none' }}>Ver sitio →</a>
+            <a href="/" target="_blank" style={{ color: 'var(--warm-gray)', fontSize: '12px', textDecoration: 'none' }}>Ver sitio →</a>
             <button onClick={() => setAuthed(false)} style={{ ...btnGhost, padding: '6px 12px', fontSize: '11px' }}>Salir</button>
           </div>
         </div>
@@ -412,7 +588,6 @@ export default function Admin() {
                 <p style={{ margin: 0, fontSize: '13px', color: 'var(--warm-gray)' }}>{pedidos.length} pedidos</p>
                 <button onClick={() => setShowNewPedido(true)} style={btnPrimary}>+ Nuevo pedido</button>
               </div>
-
               {showNewPedido && (
                 <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
                   <div style={{ background: 'white', borderRadius: '12px', width: '100%', maxWidth: '680px', maxHeight: '90vh', overflowY: 'auto', padding: '2rem' }}>
@@ -460,7 +635,6 @@ export default function Admin() {
                   </div>
                 </div>
               )}
-
               <div style={{ background: 'white', borderRadius: '8px', border: '1px solid var(--border)', overflow: 'hidden' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead><tr style={{ background: 'var(--cream)' }}>{['#','Cliente','Armazón','Total','Estado','Dirección','Tracking','Fecha',''].map(h => <th key={h} style={{ padding: '10px 16px', textAlign: 'left', fontSize: '10px', fontWeight: 600, color: 'var(--warm-gray)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{h}</th>)}</tr></thead>
@@ -486,7 +660,6 @@ export default function Admin() {
                   </tbody>
                 </table>
               </div>
-
               {editPedido && (
                 <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
                   <div style={{ background: 'white', borderRadius: '12px', width: '100%', maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto', padding: '2rem' }}>
@@ -500,22 +673,12 @@ export default function Admin() {
                       <div><span style={labelStyle}>Total</span><p style={{ margin: 0, fontSize: '16px', fontWeight: 600 }}>${editPedido.precio_venta}</p></div>
                       <div><label style={labelStyle}>Estado</label><select value={editPedido.estado} onChange={async e => { await supabase.from('pedidos').update({ estado: e.target.value }).eq('id', editPedido.id); setEditPedido({...editPedido, estado: e.target.value}); cargarTodo(); }} style={inputStyle}>{ESTADOS.map(s => <option key={s} value={s}>{s}</option>)}</select></div>
                     </div>
-                    {editPedido.clientes?.direccion && (
-                      <div style={{ background: 'var(--cream)', borderRadius: '8px', padding: '0.75rem 1rem', marginBottom: '1rem' }}>
-                        <span style={labelStyle}>Dirección de envío</span>
-                        <p style={{ margin: 0, fontSize: '13px' }}>{editPedido.clientes.direccion}</p>
-                      </div>
-                    )}
+                    {editPedido.clientes?.direccion && <div style={{ background: 'var(--cream)', borderRadius: '8px', padding: '0.75rem 1rem', marginBottom: '1rem' }}><span style={labelStyle}>Dirección de envío</span><p style={{ margin: 0, fontSize: '13px' }}>{editPedido.clientes.direccion}</p></div>}
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
                       <div><label style={labelStyle}>Tracking</label><input value={editPedido.tracking || ''} onChange={e => setEditPedido({...editPedido, tracking: e.target.value})} style={inputStyle} placeholder="Número de tracking"/></div>
                       <div><label style={labelStyle}>Paquetería</label><input value={editPedido.paqueteria || ''} onChange={e => setEditPedido({...editPedido, paqueteria: e.target.value})} style={inputStyle} placeholder="FedEx, DHL..."/></div>
                     </div>
-                    {editPedido.notas_cliente && (
-                      <div style={{ background: 'var(--cream)', borderRadius: '8px', padding: '0.75rem 1rem', marginBottom: '1rem' }}>
-                        <span style={labelStyle}>Detalle del pedido</span>
-                        <p style={{ margin: 0, fontSize: '12px', color: 'var(--warm-gray)', lineHeight: 1.6 }}>{editPedido.notas_cliente}</p>
-                      </div>
-                    )}
+                    {editPedido.notas_cliente && <div style={{ background: 'var(--cream)', borderRadius: '8px', padding: '0.75rem 1rem', marginBottom: '1rem' }}><span style={labelStyle}>Detalle del pedido</span><p style={{ margin: 0, fontSize: '12px', color: 'var(--warm-gray)', lineHeight: 1.6 }}>{editPedido.notas_cliente}</p></div>}
                     {editPedido.recetas?.[0] && (
                       <div style={{ background: 'var(--cream)', borderRadius: '8px', padding: '1rem', marginBottom: '1rem' }}>
                         <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--warm-gray)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '8px' }}>Receta óptica</div>
@@ -637,26 +800,15 @@ export default function Admin() {
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
                 <p style={{ margin: 0, fontSize: '13px', color: 'var(--warm-gray)' }}>{armazones.length} armazones</p>
-                <button onClick={() => { setNewArmazon({...ARMAZON_VACIO}); setShowNewArmazon(true); }} style={btnPrimary}>+ Nuevo armazón</button>
+                <button onClick={() => setShowNewArmazon(true)} style={btnPrimary}>+ Nuevo armazón</button>
               </div>
 
               {showNewArmazon && (
-                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
-                  <div style={{ background: 'white', borderRadius: '12px', width: '100%', maxWidth: '640px', maxHeight: '90vh', overflowY: 'auto', padding: '2rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
-                      <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 500 }}>Nuevo armazón</h3>
-                      <button onClick={() => setShowNewArmazon(false)} style={{ background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer', color: 'var(--warm-gray)' }}>×</button>
-                    </div>
-                    <ArmazonForm data={newArmazon} onChange={handleNewArmazonChange} onUpload={subirFoto}/>
-                    <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '1.5rem' }}>
-                      <button onClick={() => setShowNewArmazon(false)} style={btnGhost}>Cancelar</button>
-                      <button onClick={async () => {
-                        await supabase.from('armazones').update({ ...editArmazon, precio: parseInt(editArmazon.precio), stock: parseInt(editArmazon.stock), descuento: parseFloat(editArmazon.descuento)||0, color: editArmazon.color1||editArmazon.color }).eq('id', editArmazon.id);
-                        setShowNewArmazon(false); cargarTodo();
-                      }} style={btnSage}>Guardar</button>
-                    </div>
-                  </div>
-                </div>
+                <ModalNuevoArmazon
+                  onClose={() => setShowNewArmazon(false)}
+                  onSaved={cargarTodo}
+                  subirFotoDirecto={subirFotoDirecto}
+                />
               )}
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '1rem' }}>
@@ -670,7 +822,6 @@ export default function Admin() {
                       <div style={{ position: 'absolute', top: '8px', right: '8px', background: a.activo ? '#D1FAE5' : '#FEE2E2', color: a.activo ? '#065F46' : '#991B1B', borderRadius: '20px', padding: '2px 8px', fontSize: '10px', fontWeight: 500 }}>{a.activo ? 'Activo' : 'Inactivo'}</div>
                       {a.tipo === 'solar' && <div style={{ position: 'absolute', top: '8px', left: '8px', background: 'var(--charcoal)', color: 'white', borderRadius: '20px', padding: '2px 8px', fontSize: '10px', fontWeight: 500 }}>Solar</div>}
                       {a.descuento > 0 && <div style={{ position: 'absolute', bottom: '8px', left: '8px', background: '#C0392B', color: 'white', borderRadius: '20px', padding: '2px 8px', fontSize: '10px', fontWeight: 600 }}>-{a.descuento}%</div>}
-                      {/* Colores */}
                       <div style={{ position: 'absolute', bottom: '8px', right: '8px', display: 'flex', gap: '4px' }}>
                         {[a.color1||a.color, a.color2, a.color3].filter(Boolean).map((c, i) => (
                           <div key={i} style={{ width: '14px', height: '14px', borderRadius: '50%', background: c, border: '1.5px solid white' }}/>
@@ -696,20 +847,32 @@ export default function Admin() {
                 ))}
               </div>
 
+              {/* MODAL EDITAR */}
               {editArmazon && (
                 <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
-                  <div style={{ background: 'white', borderRadius: '12px', width: '100%', maxWidth: '640px', maxHeight: '90vh', overflowY: 'auto', padding: '2rem' }}>
+                  <div style={{ background: 'white', borderRadius: '12px', width: '100%', maxWidth: '780px', maxHeight: '90vh', overflowY: 'auto', padding: '2rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
                       <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 500 }}>Editando: {editArmazon.nombre}</h3>
                       <button onClick={() => setEditArmazon(null)} style={{ background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer', color: 'var(--warm-gray)' }}>×</button>
                     </div>
-                    <ArmazonForm data={editArmazon} onChange={handleEditArmazonChange} armazonId={editArmazon.id} onUpload={subirFoto}/>
+                    <ArmazonForm
+                      data={editArmazon}
+                      onChange={handleEditArmazonChange}
+                      onFotoUpload={onFotoUploadEdit}
+                    />
                     <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '1.5rem' }}>
                       <button onClick={() => setEditArmazon(null)} style={btnGhost}>Cancelar</button>
                       <button onClick={async () => {
-                        await supabase.from('armazones').update({ ...editArmazon, precio: parseInt(editArmazon.precio), stock: parseInt(editArmazon.stock), descuento: parseFloat(editArmazon.descuento)||0, color: editArmazon.color1||editArmazon.color }).eq('id', editArmazon.id);
-                        setEditArmazon(null); cargarTodo();
-                      }} style={btnSage}>Guardar</button>
+                        await supabase.from('armazones').update({
+                          ...editArmazon,
+                          precio: parseInt(editArmazon.precio),
+                          stock: parseInt(editArmazon.stock),
+                          descuento: parseFloat(editArmazon.descuento) || 0,
+                          color: editArmazon.color1 || editArmazon.color,
+                        }).eq('id', editArmazon.id);
+                        setEditArmazon(null);
+                        cargarTodo();
+                      }} style={btnSage}>Guardar cambios</button>
                     </div>
                   </div>
                 </div>
@@ -773,6 +936,11 @@ export default function Admin() {
 
         </div>
       </div>
+
+      <style>{`
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes progress { 0% { width: 0%; margin-left: 0; } 50% { width: 60%; margin-left: 20%; } 100% { width: 0%; margin-left: 100%; } }
+      `}</style>
     </div>
   );
 }

@@ -116,8 +116,10 @@ function ArmazonForm({ data, onChange, armazonId, onUpload }: {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
           {[
             { campo: 'imagen_url', label: 'Principal' },
-            { campo: 'imagen2_url', label: 'Foto 2' },
-            { campo: 'imagen3_url', label: 'Foto 3' },
+          { campo: 'imagen2_url', label: 'Foto 2' },
+          { campo: 'imagen3_url', label: 'Foto 3' },
+          { campo: 'imagen4_url', label: 'Foto 4' },
+          { campo: 'imagen5_url', label: 'Lifestyle' }
           ].map(f => (
             <div key={f.campo}>
               <div style={{ fontSize: '10px', color: 'var(--warm-gray)', marginBottom: '4px', textAlign: 'center', fontWeight: 500 }}>{f.label}</div>
@@ -136,7 +138,7 @@ function ArmazonForm({ data, onChange, armazonId, onUpload }: {
       {/* INFO BÁSICA */}
       <div style={{ background: 'var(--cream)', borderRadius: '8px', padding: '1rem' }}>
         <div style={{ fontSize: '10px', fontWeight: 600, color: 'var(--warm-gray)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '0.75rem' }}>Información básica</div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr', gap: '8px' }}>
           <div>
             <label style={labelStyle}>Nombre / Apodo</label>
             <input value={data.nombre} onChange={e => onChange('nombre', e.target.value)} style={inputStyle} placeholder="Old Fashion"/>

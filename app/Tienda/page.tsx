@@ -1,6 +1,6 @@
 // app/Tienda/page.tsx
 'use client';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Navbar from '../components/Navbar';
@@ -18,12 +18,11 @@ const FORMAS = ['Rectangle', 'Round', 'Square', 'Oval', 'Aviator'];
 const MATERIALES = ['Acetato', 'Metálico', 'TR-90', 'Titanio', 'Mixto'];
 const TALLAS = ['S', 'M', 'L', 'XL'];
 
-// Config de branding por género/tipo
 const HERO_CONFIG: Record<string, { img: string; label: string; titulo_es: string; titulo_en: string; sub_es: string; sub_en: string; acento: string }> = {
-  'optico-hombre': { img: '/hero-hombre.jpg', label: "MEN'S OPTICAL", titulo_es: 'Para él.', titulo_en: 'For him.', sub_es: 'Armazones clásicos, cómodos y resistentes. Hechos para el día a día.', sub_en: 'Timeless frames. Made for everyday confidence.', acento: '#3a4f33' },
-  'optico-mujer':  { img: '/hero-mujer.jpg',  label: "WOMEN'S OPTICAL", titulo_es: 'Para ella.', titulo_en: 'For her.', sub_es: 'Estilos modernos, ligeros y fáciles de combinar. Diseñados para ti.', sub_en: 'Modern styles, lightweight and versatile. Designed for you.', acento: '#6B7A5E' },
+  'optico-hombre': { img: '/hero-hombre.jpg', label: "MEN'S OPTICAL", titulo_es: 'Para él.', titulo_en: 'For him.', sub_es: 'Armazones clásicos, cómodos y resistentes.', sub_en: 'Timeless frames. Made for everyday confidence.', acento: '#3a4f33' },
+  'optico-mujer':  { img: '/hero-mujer.jpg', label: "WOMEN'S OPTICAL", titulo_es: 'Para ella.', titulo_en: 'For her.', sub_es: 'Estilos modernos, ligeros y fáciles de combinar.', sub_en: 'Modern styles, lightweight and versatile.', acento: '#6B7A5E' },
   'solar-hombre':  { img: '/hero-hombre-solar.jpg', label: "MEN'S SUNGLASSES", titulo_es: 'Sol para él.', titulo_en: 'Sun styles for him.', sub_es: 'Protección UV y estilo sin compromiso.', sub_en: 'UV protection and style without compromise.', acento: '#3a4f33' },
-  'solar-mujer':   { img: '/hero-mujer-solar.jpg',  label: "WOMEN'S SUNGLASSES", titulo_es: 'Sol para ella.', titulo_en: 'Sun styles for her.', sub_es: 'Protección UV y estilo sin compromiso.', sub_en: 'UV protection and style without compromise.', acento: '#6B7A5E' },
+  'solar-mujer':   { img: '/hero-mujer-solar.jpg', label: "WOMEN'S SUNGLASSES", titulo_es: 'Sol para ella.', titulo_en: 'Sun styles for her.', sub_es: 'Protección UV y estilo sin compromiso.', sub_en: 'UV protection and style without compromise.', acento: '#6B7A5E' },
   'optico-all':    { img: '/hero-tienda.jpg', label: 'EYEGLASSES', titulo_es: 'Encuentra tu par.', titulo_en: 'Find your pair.', sub_es: 'Diseño atemporal. Comodidad diaria. Precios justos.', sub_en: 'Timeless design. Everyday comfort. Fair prices.', acento: '#4A5940' },
   'solar-all':     { img: '/hero-tienda.jpg', label: 'SUNGLASSES', titulo_es: 'Lentes solares.', titulo_en: 'Sunglasses.', sub_es: 'Protección UV y estilo sin compromiso.', sub_en: 'UV protection and style without compromise.', acento: '#4A5940' },
 };
@@ -33,11 +32,8 @@ function ArmazonCard({ a, esMobil, t }: { a: Armazon; esMobil: boolean; t: (es: 
   const [hovered, setHovered] = useState(false);
   return (
     <Link href={`/armazon/${a.id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
-      <div
-        style={{ background: 'white', borderRadius: '12px', overflow: 'hidden', border: `1px solid ${hovered ? 'rgba(85,98,76,0.2)' : 'rgba(0,0,0,0.04)'}`, transition: 'all 0.4s ease', cursor: 'pointer', transform: hovered ? 'translateY(-4px)' : 'translateY(0)', boxShadow: hovered ? '0 16px 48px rgba(0,0,0,0.09)' : 'none' }}
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
-      >
+      <div style={{ background: 'white', borderRadius: '12px', overflow: 'hidden', border: `1px solid ${hovered ? 'rgba(85,98,76,0.2)' : 'rgba(0,0,0,0.04)'}`, transition: 'all 0.4s ease', cursor: 'pointer', transform: hovered ? 'translateY(-4px)' : 'translateY(0)', boxShadow: hovered ? '0 16px 48px rgba(0,0,0,0.09)' : 'none' }}
+        onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
         <div style={{ aspectRatio: '4/3', background: '#f5f2ed', overflow: 'hidden', position: 'relative' }}>
           {a.imagen_url ? (
             <img src={a.imagen_url} alt={a.nombre} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', transition: 'transform 0.5s ease', display: 'block', transform: hovered ? 'scale(1.05)' : 'scale(1)' }}/>
@@ -50,22 +46,11 @@ function ArmazonCard({ a, esMobil, t }: { a: Armazon; esMobil: boolean; t: (es: 
               </svg>
             </div>
           )}
-          {a.badge && (
-            <div style={{ position: 'absolute', top: '10px', left: '10px', fontSize: '0.58rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', padding: '3px 9px', borderRadius: '3px', background: a.badge?.toLowerCase() === 'nuevo' || a.badge?.toLowerCase() === 'new' ? '#55624c' : '#1d1d1d', color: 'white' }}>
-              {a.badge}
-            </div>
-          )}
-          <button
-            onClick={e => { e.preventDefault(); e.stopPropagation(); setLiked(l => !l); }}
-            style={{ position: 'absolute', top: '10px', right: '10px', width: '30px', height: '30px', borderRadius: '50%', background: 'white', border: `1px solid ${liked ? 'rgba(192,57,43,0.25)' : 'rgba(0,0,0,0.06)'}`, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', transition: 'all 0.2s', transform: liked ? 'scale(1.1)' : 'scale(1)' }}
-          >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill={liked ? '#c0392b' : 'none'} stroke={liked ? '#c0392b' : '#6f6a63'} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-            </svg>
+          {a.badge && <div style={{ position: 'absolute', top: '10px', left: '10px', fontSize: '0.58rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', padding: '3px 9px', borderRadius: '3px', background: a.badge?.toLowerCase() === 'nuevo' || a.badge?.toLowerCase() === 'new' ? '#55624c' : '#1d1d1d', color: 'white' }}>{a.badge}</div>}
+          <button onClick={e => { e.preventDefault(); e.stopPropagation(); setLiked(l => !l); }} style={{ position: 'absolute', top: '10px', right: '10px', width: '30px', height: '30px', borderRadius: '50%', background: 'white', border: `1px solid ${liked ? 'rgba(192,57,43,0.25)' : 'rgba(0,0,0,0.06)'}`, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', transition: 'all 0.2s', transform: liked ? 'scale(1.1)' : 'scale(1)' }}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill={liked ? '#c0392b' : 'none'} stroke={liked ? '#c0392b' : '#6f6a63'} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
           </button>
-          {a.descuento && a.descuento > 0 && (
-            <div style={{ position: 'absolute', bottom: '10px', left: '10px', fontSize: '0.6rem', fontWeight: 700, padding: '3px 8px', borderRadius: '3px', background: '#c0392b', color: 'white' }}>-{a.descuento}%</div>
-          )}
+          {a.descuento && a.descuento > 0 && <div style={{ position: 'absolute', bottom: '10px', left: '10px', fontSize: '0.6rem', fontWeight: 700, padding: '3px 8px', borderRadius: '3px', background: '#c0392b', color: 'white' }}>-{a.descuento}%</div>}
         </div>
         <div style={{ padding: esMobil ? '0.75rem' : '1rem 1.25rem 1.25rem' }}>
           <div style={{ fontFamily: 'var(--font-serif)', fontSize: esMobil ? '0.95rem' : '1.1rem', fontWeight: 400, color: '#1d1d1d', marginBottom: '2px', letterSpacing: '-0.01em' }}>{a.nombre}</div>
@@ -82,7 +67,7 @@ function ArmazonCard({ a, esMobil, t }: { a: Armazon; esMobil: boolean; t: (es: 
   );
 }
 
-export default function Tienda() {
+function TiendaContent() {
   const { t, lang } = useLang() as any;
   const searchParams = useSearchParams();
   const [armazones, setArmazones] = useState<Armazon[]>([]);
@@ -152,42 +137,9 @@ export default function Tienda() {
   const SidebarContent = () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
       {[
-        {
-          id: 'shape', label: t('Forma', 'Shape'),
-          content: (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', paddingBottom: '1rem' }}>
-              {FORMAS.map(f => (
-                <label key={f} style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '13px', color: '#1d1d1d' }}>
-                  <Checkbox checked={filtroForma.includes(f)} onClick={() => setFiltroForma(prev => toggleArr(prev, f))}/>
-                  {f}
-                </label>
-              ))}
-            </div>
-          )
-        },
-        {
-          id: 'material', label: 'Material',
-          content: (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', paddingBottom: '1rem' }}>
-              {MATERIALES.map(m => (
-                <label key={m} style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '13px', color: '#1d1d1d' }}>
-                  <Checkbox checked={filtroMaterial.includes(m)} onClick={() => setFiltroMaterial(prev => toggleArr(prev, m))}/>
-                  {m}
-                </label>
-              ))}
-            </div>
-          )
-        },
-        {
-          id: 'size', label: t('Talla', 'Size'),
-          content: (
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', paddingBottom: '1rem' }}>
-              {TALLAS.map(s => (
-                <button key={s} onClick={() => setFiltroTalla(prev => toggleArr(prev, s))} style={{ padding: '6px 14px', borderRadius: '4px', border: `1.5px solid ${filtroTalla.includes(s) ? '#55624c' : '#e2ddd6'}`, background: filtroTalla.includes(s) ? '#55624c' : 'white', color: filtroTalla.includes(s) ? 'white' : '#1d1d1d', fontSize: '12px', fontWeight: 500, cursor: 'pointer', transition: 'all 0.15s', fontFamily: 'var(--font-sans)' }}>{s}</button>
-              ))}
-            </div>
-          )
-        },
+        { id: 'shape', label: t('Forma', 'Shape'), content: (<div style={{ display: 'flex', flexDirection: 'column', gap: '10px', paddingBottom: '1rem' }}>{FORMAS.map(f => (<label key={f} style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '13px', color: '#1d1d1d' }}><Checkbox checked={filtroForma.includes(f)} onClick={() => setFiltroForma(prev => toggleArr(prev, f))}/>{f}</label>))}</div>) },
+        { id: 'material', label: 'Material', content: (<div style={{ display: 'flex', flexDirection: 'column', gap: '10px', paddingBottom: '1rem' }}>{MATERIALES.map(m => (<label key={m} style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '13px', color: '#1d1d1d' }}><Checkbox checked={filtroMaterial.includes(m)} onClick={() => setFiltroMaterial(prev => toggleArr(prev, m))}/>{m}</label>))}</div>) },
+        { id: 'size', label: t('Talla', 'Size'), content: (<div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', paddingBottom: '1rem' }}>{TALLAS.map(s => (<button key={s} onClick={() => setFiltroTalla(prev => toggleArr(prev, s))} style={{ padding: '6px 14px', borderRadius: '4px', border: `1.5px solid ${filtroTalla.includes(s) ? '#55624c' : '#e2ddd6'}`, background: filtroTalla.includes(s) ? '#55624c' : 'white', color: filtroTalla.includes(s) ? 'white' : '#1d1d1d', fontSize: '12px', fontWeight: 500, cursor: 'pointer', transition: 'all 0.15s', fontFamily: 'var(--font-sans)' }}>{s}</button>))}</div>) },
       ].map(sec => (
         <div key={sec.id} style={{ borderBottom: '1px solid #f0ede8' }}>
           <button onClick={() => toggleSection(sec.id)} style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 0', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-sans)', fontSize: '11px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#1d1d1d' }}>
@@ -206,30 +158,19 @@ export default function Tienda() {
 
       {/* ── HERO DINÁMICO ── */}
       <div style={{ marginTop: '64px', position: 'relative', width: '100%', height: esMobil ? '300px' : '460px', overflow: 'hidden' }}>
-        <img
-          key={hero.img}
-          src={hero.img}
-          alt=""
-          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 20%', display: 'block' }}
-        />
+        <img key={hero.img} src={hero.img} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 20%', display: 'block' }}/>
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.35) 50%, rgba(0,0,0,0.0) 80%)' }}/>
         <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', padding: esMobil ? '2rem 1.5rem' : '0 5rem' }}>
           <div style={{ maxWidth: '500px' }}>
-            <p style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)', margin: '0 0 0.75rem' }}>
-              {hero.label}
-            </p>
+            <p style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)', margin: '0 0 0.75rem' }}>{hero.label}</p>
             <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: esMobil ? '2.8rem' : '4.2rem', fontWeight: 400, letterSpacing: '-0.03em', color: 'white', margin: '0 0 0.5rem', lineHeight: 1.0 }}>
               {lang === 'es' ? hero.titulo_es : hero.titulo_en}
             </h1>
-            {/* Línea acento */}
             <div style={{ width: '40px', height: '2px', background: hero.acento, margin: '0.75rem 0 1rem', borderRadius: '2px' }}/>
             <p style={{ fontSize: esMobil ? '0.85rem' : '0.95rem', color: 'rgba(255,255,255,0.75)', margin: '0 0 1.75rem', lineHeight: 1.7, maxWidth: '360px' }}>
               {lang === 'es' ? hero.sub_es : hero.sub_en}
             </p>
-            <button
-              onClick={() => document.getElementById('catalogo')?.scrollIntoView({ behavior: 'smooth' })}
-              style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'white', color: '#1d1d1d', padding: '12px 28px', borderRadius: '4px', fontFamily: 'var(--font-sans)', fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', border: 'none', cursor: 'pointer' }}
-            >
+            <button onClick={() => document.getElementById('catalogo')?.scrollIntoView({ behavior: 'smooth' })} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'white', color: '#1d1d1d', padding: '12px 28px', borderRadius: '4px', fontFamily: 'var(--font-sans)', fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', border: 'none', cursor: 'pointer' }}>
               {t('Ver colección', 'Shop now')}
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
             </button>
@@ -254,43 +195,17 @@ export default function Tienda() {
       {/* ── CHIPS FILTROS RÁPIDOS ── */}
       <div style={{ background: 'white', borderBottom: '1px solid #f0ede8', overflowX: 'auto', scrollbarWidth: 'none' }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto', padding: esMobil ? '0.75rem 1rem' : '0.75rem 3rem', display: 'flex', gap: '0.5rem', alignItems: 'center', whiteSpace: 'nowrap' }}>
-          <span style={{ fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#9a9a9a', marginRight: '0.25rem', flexShrink: 0 }}>
-            {t('Forma:', 'Shape:')}
-          </span>
-          {FORMAS.map(f => (
-            <button
-              key={f}
-              onClick={() => setFiltroForma(prev => toggleArr(prev, f))}
-              style={{ padding: '6px 14px', borderRadius: '20px', border: `1.5px solid ${filtroForma.includes(f) ? '#55624c' : '#e2ddd6'}`, background: filtroForma.includes(f) ? '#55624c' : 'white', color: filtroForma.includes(f) ? 'white' : '#1d1d1d', fontSize: '0.72rem', fontWeight: 500, cursor: 'pointer', fontFamily: 'var(--font-sans)', transition: 'all 0.15s', flexShrink: 0 }}
-            >
-              {f}
-            </button>
-          ))}
+          <span style={{ fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#9a9a9a', marginRight: '0.25rem', flexShrink: 0 }}>{t('Forma:', 'Shape:')}</span>
+          {FORMAS.map(f => (<button key={f} onClick={() => setFiltroForma(prev => toggleArr(prev, f))} style={{ padding: '6px 14px', borderRadius: '20px', border: `1.5px solid ${filtroForma.includes(f) ? '#55624c' : '#e2ddd6'}`, background: filtroForma.includes(f) ? '#55624c' : 'white', color: filtroForma.includes(f) ? 'white' : '#1d1d1d', fontSize: '0.72rem', fontWeight: 500, cursor: 'pointer', fontFamily: 'var(--font-sans)', transition: 'all 0.15s', flexShrink: 0 }}>{f}</button>))}
           <div style={{ width: '1px', height: '20px', background: '#e2ddd6', margin: '0 0.25rem', flexShrink: 0 }}/>
-          <span style={{ fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#9a9a9a', flexShrink: 0 }}>
-            Material:
-          </span>
-          {MATERIALES.map(m => (
-            <button
-              key={m}
-              onClick={() => setFiltroMaterial(prev => toggleArr(prev, m))}
-              style={{ padding: '6px 14px', borderRadius: '20px', border: `1.5px solid ${filtroMaterial.includes(m) ? '#55624c' : '#e2ddd6'}`, background: filtroMaterial.includes(m) ? '#55624c' : 'white', color: filtroMaterial.includes(m) ? 'white' : '#1d1d1d', fontSize: '0.72rem', fontWeight: 500, cursor: 'pointer', fontFamily: 'var(--font-sans)', transition: 'all 0.15s', flexShrink: 0 }}
-            >
-              {m}
-            </button>
-          ))}
-          {(filtroForma.length > 0 || filtroMaterial.length > 0) && (
-            <button onClick={clearAll} style={{ padding: '6px 12px', borderRadius: '20px', border: 'none', background: 'none', color: '#9a9a9a', fontSize: '0.72rem', cursor: 'pointer', fontFamily: 'var(--font-sans)', textDecoration: 'underline', flexShrink: 0 }}>
-              {t('Limpiar', 'Clear')}
-            </button>
-          )}
+          <span style={{ fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#9a9a9a', flexShrink: 0 }}>Material:</span>
+          {MATERIALES.map(m => (<button key={m} onClick={() => setFiltroMaterial(prev => toggleArr(prev, m))} style={{ padding: '6px 14px', borderRadius: '20px', border: `1.5px solid ${filtroMaterial.includes(m) ? '#55624c' : '#e2ddd6'}`, background: filtroMaterial.includes(m) ? '#55624c' : 'white', color: filtroMaterial.includes(m) ? 'white' : '#1d1d1d', fontSize: '0.72rem', fontWeight: 500, cursor: 'pointer', fontFamily: 'var(--font-sans)', transition: 'all 0.15s', flexShrink: 0 }}>{m}</button>))}
+          {(filtroForma.length > 0 || filtroMaterial.length > 0) && (<button onClick={clearAll} style={{ padding: '6px 12px', borderRadius: '20px', border: 'none', background: 'none', color: '#9a9a9a', fontSize: '0.72rem', cursor: 'pointer', fontFamily: 'var(--font-sans)', textDecoration: 'underline', flexShrink: 0 }}>{t('Limpiar', 'Clear')}</button>)}
         </div>
       </div>
 
       {/* ── CATÁLOGO ── */}
       <div id="catalogo" style={{ maxWidth: '1280px', margin: '0 auto', padding: esMobil ? '1.5rem 1rem' : '2.5rem 3rem', display: 'grid', gridTemplateColumns: esMobil ? '1fr' : '220px 1fr', gap: esMobil ? '0' : '3rem', alignItems: 'start' }}>
-
-        {/* SIDEBAR DESKTOP */}
         {!esMobil && (
           <div style={{ position: 'sticky', top: '145px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
@@ -300,27 +215,19 @@ export default function Tienda() {
               </span>
               {chips.length > 0 && <button onClick={clearAll} style={{ background: 'none', border: 'none', fontSize: '11px', color: '#55624c', cursor: 'pointer', fontFamily: 'var(--font-sans)', textDecoration: 'underline' }}>{t('Limpiar', 'Clear all')}</button>}
             </div>
-
-            {/* Card editorial */}
             <div style={{ borderRadius: '12px', overflow: 'hidden', marginBottom: '1.5rem', position: 'relative', height: '180px' }}>
               <img src="/tienda-detalle.jpg" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }}/>
               <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.1) 60%)' }}/>
               <div style={{ position: 'absolute', bottom: '1rem', left: '1rem', right: '1rem' }}>
-                <p style={{ fontFamily: 'var(--font-serif)', fontSize: '1rem', fontWeight: 400, color: 'white', margin: '0 0 2px', lineHeight: 1.2 }}>
-                  {t('Calidad que se', 'Quality you can')}
-                  <br/>{t('ve y se siente.', 'see and feel.')}
-                </p>
+                <p style={{ fontFamily: 'var(--font-serif)', fontSize: '1rem', fontWeight: 400, color: 'white', margin: '0 0 2px', lineHeight: 1.2 }}>{t('Calidad que se', 'Quality you can')}<br/>{t('ve y se siente.', 'see and feel.')}</p>
                 <div style={{ width: '24px', height: '1.5px', background: hero.acento, marginTop: '6px', borderRadius: '2px' }}/>
               </div>
             </div>
-
             <SidebarContent />
           </div>
         )}
 
-        {/* GRID PRODUCTOS */}
         <div>
-          {/* Chips activos mobile */}
           {esMobil && (
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
               <button onClick={() => setFiltersOpen(true)} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '9px 16px', background: 'white', border: '1px solid #e2ddd6', borderRadius: '6px', fontSize: '12px', fontWeight: 500, cursor: 'pointer', fontFamily: 'var(--font-sans)', color: '#1d1d1d' }}>
@@ -363,14 +270,12 @@ export default function Tienda() {
       <div style={{ background: '#55624c', padding: esMobil ? '3rem 1.25rem' : '5rem 3rem' }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
           <p style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)', textAlign: 'center', margin: '0 0 0.75rem' }}>Verly Optical</p>
-          <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: esMobil ? '1.8rem' : '2.4rem', fontWeight: 400, textAlign: 'center', color: 'white', margin: '0 0 3rem', letterSpacing: '-0.02em' }}>
-            {t('¿Por qué Verly?', 'Why Verly?')}
-          </h2>
+          <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: esMobil ? '1.8rem' : '2.4rem', fontWeight: 400, textAlign: 'center', color: 'white', margin: '0 0 3rem', letterSpacing: '-0.02em' }}>{t('¿Por qué Verly?', 'Why Verly?')}</h2>
           <div style={{ display: 'grid', gridTemplateColumns: esMobil ? '1fr' : 'repeat(3, 1fr)', gap: esMobil ? '2rem' : '3rem' }}>
             {[
-              { icon: (<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 4v4h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>), title: t('Envío rápido', 'Fast delivery'), desc: t('Envío gratis en pedidos +$69. Recibe tus lentes en 5–7 días hábiles.', 'Free shipping over $69. Receive your glasses in 5–7 business days.') },
-              { icon: (<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>), title: t('Micas accesibles', 'Affordable lenses'), desc: t('Calidad premium sin el precio de una óptica tradicional. Sin aseguranza.', 'Premium quality without the traditional optical store price. No insurance needed.') },
-              { icon: (<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>), title: t('Receta fácil', 'Easy prescription upload'), desc: t('Sube tu receta en segundos. Escríbela o manda una foto.', 'Upload your prescription in seconds — type it in or send a photo.') },
+              { icon: (<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 4v4h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>), title: t('Envío rápido', 'Fast delivery'), desc: t('Envío gratis en pedidos +$69.', 'Free shipping over $69.') },
+              { icon: (<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>), title: t('Micas accesibles', 'Affordable lenses'), desc: t('Sin aseguranza. Sin complicaciones.', 'No insurance. No hassle.') },
+              { icon: (<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>), title: t('Receta fácil', 'Easy prescription'), desc: t('Foto o manual. En un minuto.', 'Photo or manual. Done in a minute.') },
             ].map((b, i) => (
               <div key={i} style={{ display: 'flex', flexDirection: esMobil ? 'row' : 'column', gap: esMobil ? '1rem' : '1.25rem', alignItems: esMobil ? 'flex-start' : 'center', textAlign: esMobil ? 'left' : 'center' }}>
                 <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{b.icon}</div>
@@ -393,9 +298,7 @@ export default function Tienda() {
               <span style={{ fontSize: '14px', fontWeight: 600, color: '#1d1d1d' }}>{t('Filtros', 'Filters')}</span>
               <button onClick={() => setFiltersOpen(false)} style={{ background: '#f5f3ef', border: 'none', borderRadius: '50%', width: '32px', height: '32px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', color: '#6f6a63' }}>×</button>
             </div>
-            <div style={{ flex: 1, overflowY: 'auto', padding: '0 1.25rem' }}>
-              <SidebarContent />
-            </div>
+            <div style={{ flex: 1, overflowY: 'auto', padding: '0 1.25rem' }}><SidebarContent /></div>
             <div style={{ padding: '1rem 1.25rem', borderTop: '1px solid #f0ede8', display: 'flex', gap: '10px', flexShrink: 0, background: 'white' }}>
               <button onClick={() => { clearAll(); setFiltersOpen(false); }} style={{ flex: 1, background: 'white', border: '1px solid #e2ddd6', borderRadius: '8px', padding: '13px', fontSize: '13px', fontWeight: 500, cursor: 'pointer', fontFamily: 'var(--font-sans)', color: '#6f6a63' }}>{t('Limpiar todo', 'Clear all')}</button>
               <button onClick={() => setFiltersOpen(false)} style={{ flex: 2, background: '#55624c', border: 'none', borderRadius: '8px', padding: '13px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--font-sans)', color: 'white', letterSpacing: '0.06em' }}>
@@ -405,8 +308,15 @@ export default function Tienda() {
           </div>
         </>
       )}
-
       <style>{`* { -webkit-tap-highlight-color: transparent; } div::-webkit-scrollbar { display: none; }`}</style>
     </main>
+  );
+}
+
+export default function Tienda() {
+  return (
+    <Suspense fallback={null}>
+      <TiendaContent />
+    </Suspense>
   );
 }

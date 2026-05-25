@@ -17,7 +17,6 @@ type Armazon = {
   badge?: string;
 };
 
-// ── HOOK ANIMACIÓN SCROLL ──────────────────────────────────────────────────
 function useScrollReveal() {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
@@ -36,27 +35,14 @@ function useScrollReveal() {
 
 function Reveal({ children, delay = 0, direction = 'up' }: { children: React.ReactNode; delay?: number; direction?: 'up' | 'left' | 'right' | 'none' }) {
   const { ref, visible } = useScrollReveal();
-  const transforms: Record<string, string> = {
-    up: 'translateY(32px)',
-    left: 'translateX(-32px)',
-    right: 'translateX(32px)',
-    none: 'none',
-  };
+  const transforms: Record<string, string> = { up: 'translateY(32px)', left: 'translateX(-32px)', right: 'translateX(32px)', none: 'none' };
   return (
-    <div
-      ref={ref}
-      style={{
-        opacity: visible ? 1 : 0,
-        transform: visible ? 'none' : transforms[direction],
-        transition: `opacity 0.7s ease ${delay}ms, transform 0.7s ease ${delay}ms`,
-      }}
-    >
+    <div ref={ref} style={{ opacity: visible ? 1 : 0, transform: visible ? 'none' : transforms[direction], transition: `opacity 0.7s ease ${delay}ms, transform 0.7s ease ${delay}ms` }}>
       {children}
     </div>
   );
 }
 
-// ── QUIZ MODAL ─────────────────────────────────────────────────────────────
 function QuizModal({ onClose, t, lang }: { onClose: () => void; t: any; lang: string }) {
   const router = useRouter();
   const [paso, setPaso] = useState(1);
@@ -66,18 +52,8 @@ function QuizModal({ onClose, t, lang }: { onClose: () => void; t: any; lang: st
   const handleGenero = (val: string) => { router.push(`/Tienda?tipo=${tipo}&genero=${val}`); onClose(); };
 
   const paso1Cards = [
-    {
-      val: 'optico', img: '/quiz-optico.jpg',
-      title: t('Prescription glasses', 'Prescription glasses'),
-      desc: t('Para tu visión diaria', 'For your daily vision'),
-      icon: (<svg width="28" height="16" viewBox="0 0 110 55" fill="none"><rect x="2" y="7" width="44" height="38" rx="8" fill="none" stroke="white" strokeWidth="3"/><rect x="64" y="7" width="44" height="38" rx="8" fill="none" stroke="white" strokeWidth="3"/><path d="M46 22 C50 18, 60 18, 64 22" stroke="white" strokeWidth="2.5" fill="none" strokeLinecap="round"/><line x1="2" y1="22" x2="-5" y2="18" stroke="white" strokeWidth="2.5" strokeLinecap="round"/><line x1="108" y1="22" x2="115" y2="18" stroke="white" strokeWidth="2.5" strokeLinecap="round"/></svg>),
-    },
-    {
-      val: 'solar', img: '/quiz-solar.jpg',
-      title: t('Sunglasses', 'Sunglasses'),
-      desc: t('Protección y estilo', 'Protection and style'),
-      icon: (<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>),
-    },
+    { val: 'optico', img: '/quiz-optico.jpg', title: t('Prescription glasses', 'Prescription glasses'), desc: t('Para tu visión diaria', 'For your daily vision'), icon: (<svg width="28" height="16" viewBox="0 0 110 55" fill="none"><rect x="2" y="7" width="44" height="38" rx="8" fill="none" stroke="white" strokeWidth="3"/><rect x="64" y="7" width="44" height="38" rx="8" fill="none" stroke="white" strokeWidth="3"/><path d="M46 22 C50 18, 60 18, 64 22" stroke="white" strokeWidth="2.5" fill="none" strokeLinecap="round"/><line x1="2" y1="22" x2="-5" y2="18" stroke="white" strokeWidth="2.5" strokeLinecap="round"/><line x1="108" y1="22" x2="115" y2="18" stroke="white" strokeWidth="2.5" strokeLinecap="round"/></svg>) },
+    { val: 'solar', img: '/quiz-solar.jpg', title: t('Sunglasses', 'Sunglasses'), desc: t('Protección y estilo', 'Protection and style'), icon: (<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>) },
   ];
 
   const paso2Cards = [
@@ -133,7 +109,6 @@ function QuizModal({ onClose, t, lang }: { onClose: () => void; t: any; lang: st
   );
 }
 
-// ── HOME ───────────────────────────────────────────────────────────────────
 export default function Home() {
   const { t, lang } = useLang() as any;
   const [esMobil, setEsMobil] = useState(false);
@@ -156,7 +131,6 @@ export default function Home() {
     cargar();
   }, []);
 
-  // ── MOBILE ────────────────────────────────────────────────────────────────
   if (esMobil) {
     return (
       <main style={{ fontFamily: 'var(--font-sans)', margin: 0, padding: 0, background: 'var(--cream)', color: 'var(--charcoal)', overflowX: 'hidden' }}>
@@ -215,9 +189,6 @@ export default function Home() {
           <div style={{ position: 'relative', zIndex: 1 }}>
             <p style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', fontWeight: 300, color: 'white', lineHeight: 1.15, margin: '0 0 0.4rem' }}>{t('Tu primer par.', 'Your first pair.')}</p>
             <p style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', fontWeight: 300, fontStyle: 'italic', color: 'rgba(255,255,255,0.55)', margin: '0 0 1rem', lineHeight: 1.15 }}>{t('Nuestro mejor precio.', 'Our best price.')}</p>
-            <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)', margin: '0 0 1.25rem', lineHeight: 1.6 }}>
-              {t('Usa el código ', 'Use code ')}<span style={{ background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.75)', padding: '2px 8px', borderRadius: '2px', fontWeight: 600, letterSpacing: '2px', fontFamily: 'monospace', border: '1px solid rgba(255,255,255,0.1)' }}>VERLY10</span>{t(' en tu primer pedido.', ' on your first order.')}
-            </p>
             <button onClick={() => setQuizOpen(true)} style={{ display: 'inline-block', fontFamily: 'var(--font-sans)', fontSize: '0.68rem', fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--charcoal)', background: 'white', padding: '0.75rem 1.5rem', borderRadius: '2px', border: 'none', cursor: 'pointer' }}>
               {t('Encontrar mi par →', 'Find my frames →')}
             </button>
@@ -239,7 +210,6 @@ export default function Home() {
     );
   }
 
-  // ── DESKTOP ────────────────────────────────────────────────────────────────
   return (
     <main style={{ fontFamily: 'var(--font-sans)', margin: 0, padding: 0, background: 'var(--cream)', color: 'var(--charcoal)', overflowX: 'hidden' }}>
       <Navbar />
@@ -272,7 +242,6 @@ export default function Home() {
             </Link>
           </div>
         </div>
-        {/* Flecha scroll */}
         <div style={{ position: 'absolute', bottom: '2rem', left: '50%', transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', opacity: 0.4 }}>
           <div style={{ width: '1px', height: '48px', background: 'var(--charcoal)' }}/>
           <svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="var(--charcoal)" strokeWidth="1.2" strokeLinecap="round"/></svg>
@@ -280,363 +249,103 @@ export default function Home() {
       </section>
 
       {/* ── 2. PROMO BANNER ── */}
-<Reveal>
-  <section style={{ position: 'relative', width: '100%', height: '500px', overflow: 'hidden' }}>
-    <img
-      src="/promo-banner.jpg"
-      alt="Verly Promo"
-      style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }}
-    />
-    {/* Overlay izquierda */}
-    <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(237,232,223,0.92) 0%, rgba(237,232,223,0.6) 35%, rgba(237,232,223,0.0) 60%)' }}/>
-    {/* Texto */}
-    <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', padding: '0 5rem' }}>
-      <div style={{ maxWidth: '440px' }}>
-        <p style={{ fontFamily: 'var(--font-sans)', fontSize: '10px', fontWeight: 600, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--sage)', marginBottom: '1rem' }}>
-          {t('Oferta de lanzamiento', 'Limited time offer')}
-        </p>
-        <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2.4rem, 4vw, 3.8rem)', fontWeight: 400, color: 'var(--charcoal)', margin: '0 0 0.5rem', lineHeight: 1.0, letterSpacing: '-0.03em' }}>
-          {t('Lentes de sol', 'Sunglasses')}
-        </h2>
-        <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2.4rem, 4vw, 3.8rem)', fontWeight: 400, fontStyle: 'italic', color: 'var(--sage)', margin: '0 0 1.25rem', lineHeight: 1.0, letterSpacing: '-0.03em' }}>
-          {t('de regalo.', 'on us.')}
-        </h2>
-        <div style={{ width: '40px', height: '1px', background: 'var(--sage)', marginBottom: '1.25rem', opacity: 0.6 }}/>
-        <p style={{ fontFamily: 'var(--font-sans)', fontSize: '13px', color: 'var(--warm-gray)', lineHeight: 1.8, marginBottom: '2rem', maxWidth: '320px' }}>
-          {t('Con cualquier compra de lentes graduados. Un par premium de lentes de sol, gratis.', 'With any prescription glasses purchase. A premium pair of sunglasses, yours free.')}
-        </p>
-        <Link
-          href="/Tienda?tipo=optico"
-          style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', background: 'var(--charcoal)', color: 'white', padding: '13px 28px', borderRadius: '3px', fontFamily: 'var(--font-sans)', fontSize: '11px', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', textDecoration: 'none' }}
-        >
-          {t('Ver lentes graduados', 'Shop prescription glasses')}
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
-        </Link>
-      </div>
-    </div>
-  </section>
-</Reveal>
       <Reveal>
-        <section style={{ background: 'var(--cream-dark)', height: '280px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
-          <div style={{ textAlign: 'center', opacity: 0.3 }}>
-            <div style={{ width: '48px', height: '1px', background: 'var(--charcoal)', margin: '0 auto 1rem' }}/>
-            <p style={{ fontFamily: 'var(--font-sans)', fontSize: '11px', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--charcoal)' }}>Promo — Coming soon</p>
-            <div style={{ width: '48px', height: '1px', background: 'var(--charcoal)', margin: '1rem auto 0' }}/>
+        <section style={{ position: 'relative', width: '100%', height: '500px', overflow: 'hidden' }}>
+          <img src="/promo-banner.jpg" alt="Verly Promo" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }}/>
+          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(237,232,223,0.92) 0%, rgba(237,232,223,0.6) 35%, rgba(237,232,223,0.0) 60%)' }}/>
+          <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', padding: '0 5rem' }}>
+            <div style={{ maxWidth: '440px' }}>
+              <p style={{ fontFamily: 'var(--font-sans)', fontSize: '10px', fontWeight: 600, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--sage)', marginBottom: '1rem' }}>
+                {t('Oferta de lanzamiento', 'Limited time offer')}
+              </p>
+              <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2.4rem, 4vw, 3.8rem)', fontWeight: 400, color: 'var(--charcoal)', margin: '0 0 0.5rem', lineHeight: 1.0, letterSpacing: '-0.03em' }}>
+                {t('Lentes de sol', 'Sunglasses')}
+              </h2>
+              <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2.4rem, 4vw, 3.8rem)', fontWeight: 400, fontStyle: 'italic', color: 'var(--sage)', margin: '0 0 1.25rem', lineHeight: 1.0, letterSpacing: '-0.03em' }}>
+                {t('de regalo.', 'on us.')}
+              </h2>
+              <div style={{ width: '40px', height: '1px', background: 'var(--sage)', marginBottom: '1.25rem', opacity: 0.6 }}/>
+              <p style={{ fontFamily: 'var(--font-sans)', fontSize: '13px', color: 'var(--warm-gray)', lineHeight: 1.8, marginBottom: '2rem', maxWidth: '320px' }}>
+                {t('Con cualquier compra de lentes graduados. Un par premium de lentes de sol, gratis.', 'With any prescription glasses purchase. A premium pair of sunglasses, yours free.')}
+              </p>
+              <Link href="/Tienda?tipo=optico" style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', background: 'var(--charcoal)', color: 'white', padding: '13px 28px', borderRadius: '3px', fontFamily: 'var(--font-sans)', fontSize: '11px', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', textDecoration: 'none' }}>
+                {t('Ver lentes graduados', 'Shop prescription glasses')}
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+              </Link>
+            </div>
           </div>
         </section>
       </Reveal>
 
-      {/* ── 3. HOW IT WORKS EDITORIAL ── */}
-<Reveal>
-  <section
-    style={{
-      background: 'var(--cream)',
-      padding: '8rem 2rem',
-      overflow: 'hidden',
-    }}
-  >
-    <style>{`
-      .how-editorial-wrap {
-        max-width: 1180px;
-        margin: 0 auto;
-      }
-
-      .how-editorial-header {
-        text-align: center;
-        margin-bottom: 5.5rem;
-      }
-
-      .how-eyebrow {
-        font-family: var(--font-sans);
-        font-size: 10px;
-        font-weight: 600;
-        letter-spacing: .26em;
-        text-transform: uppercase;
-        color: var(--warm-gray);
-        margin-bottom: 1.2rem;
-      }
-
-      .how-title {
-        font-family: var(--font-serif);
-        font-size: clamp(3rem, 5vw, 5.2rem);
-        font-weight: 400;
-        line-height: .95;
-        letter-spacing: -.045em;
-        color: var(--charcoal);
-        margin: 0 0 1.5rem;
-      }
-
-      .how-subline {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 1rem;
-      }
-
-      .how-subline span {
-        width: 52px;
-        height: 1px;
-        background: var(--warm-gray);
-        opacity: .35;
-      }
-
-      .how-subline p {
-        font-family: var(--font-sans);
-        font-size: 13px;
-        color: var(--warm-gray);
-        margin: 0;
-      }
-
-      .how-grid {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 2rem;
-      }
-
-      .how-card {
-        position: relative;
-        background: rgba(255, 255, 255, .32);
-        border: 1px solid rgba(80, 70, 58, .07);
-        border-radius: 18px;
-        overflow: hidden;
-        box-shadow: 0 24px 70px rgba(56, 43, 30, .06);
-      }
-
-      .how-card:nth-child(2),
-      .how-card:nth-child(4) {
-        transform: translateY(2.2rem);
-      }
-
-      .how-image {
-        position: relative;
-        height: 255px;
-        overflow: hidden;
-      }
-
-      .how-image img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        object-position: center;
-        display: block;
-        transition: transform .9s ease;
-      }
-
-      .how-card:hover .how-image img {
-        transform: scale(1.035);
-      }
-
-      .how-content {
-        position: relative;
-        padding: 2.1rem 2rem 2.2rem;
-      }
-
-      .how-number-row {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        margin-bottom: 1rem;
-      }
-
-      .how-number {
-        font-family: var(--font-serif);
-        font-size: clamp(4.2rem, 7vw, 6.5rem);
-        font-weight: 300;
-        line-height: .75;
-        letter-spacing: -.06em;
-        color: var(--charcoal);
-        opacity: 0.7;
-      }
-
-      .how-line {
-        flex: 1;
-        height: 1px;
-        background: var(--warm-gray);
-        opacity: .35;
-        margin-top: .8rem;
-      }
-
-      .how-step-title {
-        font-family: var(--font-serif);
-        font-size: clamp(1.6rem, 2.2vw, 2rem);
-        font-weight: 400;
-        line-height: 1.05;
-        letter-spacing: -.025em;
-        color: var(--charcoal);
-        margin: 0 0 .8rem;
-      }
-
-      .how-step-text {
-        font-family: var(--font-sans);
-        font-size: 13px;
-        line-height: 1.75;
-        color: var(--warm-gray);
-        max-width: 360px;
-        margin: 0;
-      }
-
-      @media (max-width: 900px) {
-        .how-grid {
-          grid-template-columns: 1fr;
-          gap: 2rem;
-        }
-
-        .how-card:nth-child(2),
-        .how-card:nth-child(4) {
-          transform: none;
-        }
-
-        .how-image {
-          height: 220px;
-        }
-
-        .how-content {
-          padding: 1.8rem 1.5rem 2rem;
-        }
-      }
-    `}</style>
-
-    <div className="how-editorial-wrap">
-
+      {/* ── 3. HOW IT WORKS ── */}
       <Reveal>
-        <div className="how-editorial-header">
-          <p className="how-eyebrow">
-            {t('Cómo funciona', 'How it works')}
-          </p>
-
-          <h2 className="how-title">
-            {lang === 'es' ? (
-              <>
-                Cuatro pasos simples.<br />
-                Mejor visión.
-              </>
-            ) : (
-              <>
-                Four simple steps.<br />
-                Better vision.
-              </>
-            )}
-          </h2>
-
-          <div className="how-subline">
-            <span />
-            <p>{t('De tu receta a tu puerta.', 'From your prescription to your door.')}</p>
-            <span />
+        <section style={{ background: 'var(--cream)', padding: '8rem 2rem', overflow: 'hidden' }}>
+          <style>{`
+            .how-editorial-wrap { max-width: 1180px; margin: 0 auto; }
+            .how-editorial-header { text-align: center; margin-bottom: 5.5rem; }
+            .how-eyebrow { font-family: var(--font-sans); font-size: 10px; font-weight: 600; letter-spacing: .26em; text-transform: uppercase; color: var(--warm-gray); margin-bottom: 1.2rem; }
+            .how-title { font-family: var(--font-serif); font-size: clamp(3rem, 5vw, 5.2rem); font-weight: 400; line-height: .95; letter-spacing: -.045em; color: var(--charcoal); margin: 0 0 1.5rem; }
+            .how-subline { display: flex; justify-content: center; align-items: center; gap: 1rem; }
+            .how-subline span { width: 52px; height: 1px; background: var(--warm-gray); opacity: .35; }
+            .how-subline p { font-family: var(--font-sans); font-size: 13px; color: var(--warm-gray); margin: 0; }
+            .how-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2rem; }
+            .how-card { position: relative; background: var(--cream-dark); border: 1px solid rgba(80,70,58,.07); border-radius: 18px; overflow: hidden; box-shadow: 0 24px 70px rgba(56,43,30,.06); }
+            .how-card:nth-child(2), .how-card:nth-child(4) { transform: translateY(2.2rem); }
+            .how-image { position: relative; height: 255px; overflow: hidden; }
+            .how-image img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; transition: transform .9s ease; }
+            .how-card:hover .how-image img { transform: scale(1.035); }
+            .how-content { position: relative; padding: 2.1rem 2rem 2.2rem; }
+            .how-number-row { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+            .how-number { font-family: var(--font-serif); font-size: clamp(4.2rem, 7vw, 6.5rem); font-weight: 300; line-height: .75; letter-spacing: -.06em; color: var(--sage); opacity: 0.7; }
+            .how-line { flex: 1; height: 1px; background: var(--warm-gray); opacity: .35; margin-top: .8rem; }
+            .how-step-title { font-family: var(--font-serif); font-size: clamp(1.6rem, 2.2vw, 2rem); font-weight: 400; line-height: 1.05; letter-spacing: -.025em; color: var(--charcoal); margin: 0 0 .8rem; }
+            .how-step-text { font-family: var(--font-sans); font-size: 13px; line-height: 1.75; color: var(--warm-gray); max-width: 360px; margin: 0; }
+            @media (max-width: 900px) {
+              .how-grid { grid-template-columns: 1fr; gap: 2rem; }
+              .how-card:nth-child(2), .how-card:nth-child(4) { transform: none; }
+              .how-image { height: 220px; }
+              .how-content { padding: 1.8rem 1.5rem 2rem; }
+            }
+          `}</style>
+          <div className="how-editorial-wrap">
+            <Reveal>
+              <div className="how-editorial-header">
+                <p className="how-eyebrow">{t('Cómo funciona', 'How it works')}</p>
+                <h2 className="how-title">
+                  {lang === 'es' ? <>Cuatro pasos simples.<br/>Mejor visión.</> : <>Four simple steps.<br/>Better vision.</>}
+                </h2>
+                <div className="how-subline">
+                  <span/><p>{t('De tu receta a tu puerta.', 'From your prescription to your door.')}</p><span/>
+                </div>
+              </div>
+            </Reveal>
+            <div className="how-grid">
+              {[
+                { num: '01', title_es: 'Elige tu armazón', title_en: 'Choose your frame', desc_es: 'Explora nuestra colección y encuentra el estilo perfecto para ti.', desc_en: 'Explore our collection and find the perfect style for you.', img: '/proceso-01.jpg', delay: 0 },
+                { num: '02', title_es: 'Sube tu receta', title_en: 'Upload your Rx', desc_es: 'Toma una foto de tu receta o escribe los números manualmente.', desc_en: 'Upload a photo of your prescription or type the numbers manually.', img: '/proceso-02.jpg', delay: 100 },
+                { num: '03', title_es: 'Fabricamos tus lentes', title_en: 'We craft your lenses', desc_es: 'Micas hechas con precisión según tu graduación, material y filtros.', desc_en: 'Precision lenses made for your prescription, material and filters.', img: '/proceso-03.jpg', delay: 160 },
+                { num: '04', title_es: 'Recíbelos en casa', title_en: 'Delivered to your door', desc_es: 'Envío rápido y seguro. Porque ver bien debería ser sencillo.', desc_en: 'Fast, secure shipping. Because great vision should feel effortless.', img: '/proceso-04.jpg', delay: 220 },
+              ].map((step, i) => (
+                <Reveal key={i} delay={step.delay} direction="up">
+                  <article className="how-card">
+                    <div className="how-image">
+                      <img src={step.img} alt={lang === 'es' ? step.title_es : step.title_en}/>
+                    </div>
+                    <div className="how-content">
+                      <div className="how-number-row">
+                        <span className="how-number">{step.num}</span>
+                        <span className="how-line"/>
+                      </div>
+                      <h3 className="how-step-title">{lang === 'es' ? step.title_es : step.title_en}</h3>
+                      <p className="how-step-text">{lang === 'es' ? step.desc_es : step.desc_en}</p>
+                    </div>
+                  </article>
+                </Reveal>
+              ))}
+            </div>
           </div>
-        </div>
+        </section>
       </Reveal>
-
-      <div className="how-grid">
-
-        <Reveal delay={0} direction="up">
-          <article className="how-card">
-            <div className="how-image">
-              <img src="/proceso-01.jpg" alt={t('Elige tu armazón', 'Choose your frame')} />
-            </div>
-
-            <div className="how-content">
-              <div className="how-number-row">
-                <span className="how-number">01</span>
-                <span className="how-line" />
-              </div>
-
-              <h3 className="how-step-title">
-                {t('Elige tu armazón', 'Choose your frame')}
-              </h3>
-
-              <p className="how-step-text">
-                {t(
-                  'Explora nuestra colección y encuentra el estilo perfecto para ti.',
-                  'Explore our collection and find the perfect style for you.'
-                )}
-              </p>
-            </div>
-          </article>
-        </Reveal>
-
-        <Reveal delay={100} direction="up">
-          <article className="how-card">
-            <div className="how-image">
-              <img src="/proceso-02.jpg" alt={t('Sube tu receta', 'Upload your Rx')} />
-            </div>
-
-            <div className="how-content">
-              <div className="how-number-row">
-                <span className="how-number">02</span>
-                <span className="how-line" />
-              </div>
-
-              <h3 className="how-step-title">
-                {t('Sube tu receta', 'Upload your Rx')}
-              </h3>
-
-              <p className="how-step-text">
-                {t(
-                  'Toma una foto de tu receta o escribe los números manualmente.',
-                  'Upload a photo of your prescription or type the numbers manually.'
-                )}
-              </p>
-            </div>
-          </article>
-        </Reveal>
-
-        <Reveal delay={160} direction="up">
-          <article className="how-card">
-            <div className="how-image">
-              <img src="/proceso-03.jpg" alt={t('Fabricamos tus lentes', 'We craft your lenses')} />
-            </div>
-
-            <div className="how-content">
-              <div className="how-number-row">
-                <span className="how-number">03</span>
-                <span className="how-line" />
-              </div>
-
-              <h3 className="how-step-title">
-                {t('Fabricamos tus lentes', 'We craft your lenses')}
-              </h3>
-
-              <p className="how-step-text">
-                {t(
-                  'Micas hechas con precisión según tu graduación, material y filtros.',
-                  'Precision lenses made for your prescription, material and filters.'
-                )}
-              </p>
-            </div>
-          </article>
-        </Reveal>
-
-        <Reveal delay={220} direction="up">
-          <article className="how-card">
-            <div className="how-image">
-              <img src="/proceso-04.jpg" alt={t('Recíbelos en casa', 'Delivered to your door')} />
-            </div>
-
-            <div className="how-content">
-              <div className="how-number-row">
-                <span className="how-number">04</span>
-                <span className="how-line" />
-              </div>
-
-              <h3 className="how-step-title">
-                {t('Recíbelos en casa', 'Delivered to your door')}
-              </h3>
-
-              <p className="how-step-text">
-                {t(
-                  'Envío rápido y seguro. Porque ver bien debería ser sencillo.',
-                  'Fast, secure shipping. Because great vision should feel effortless.'
-                )}
-              </p>
-            </div>
-          </article>
-        </Reveal>
-
-      </div>
-    </div>
-  </section>
-</Reveal>
-
 
       {/* ── 4. BEST SELLERS ── */}
       <section style={{ padding: '5rem 2rem', maxWidth: '1180px', margin: '0 auto' }}>
@@ -660,16 +369,15 @@ export default function Home() {
                   onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = 'none'; (e.currentTarget as HTMLDivElement).style.boxShadow = 'none'; }}
                 >
                   <div style={{ aspectRatio: '4/3', background: '#f5f2ed', overflow: 'hidden', position: 'relative' }}>
-                    {a.imagen_url
-                      ? <img src={a.imagen_url} alt={a.nombre} style={{ width: '100%', height: '100%', objectFit: 'cover' }}/>
-                      : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <svg width="70" height="38" viewBox="0 0 160 90" fill="none" style={{ opacity: 0.12 }}>
-                            <rect x="4" y="12" width="64" height="66" rx="14" stroke="#1d1d1d" strokeWidth="3"/>
-                            <rect x="92" y="12" width="64" height="66" rx="14" stroke="#1d1d1d" strokeWidth="3"/>
-                            <path d="M68 38 C72 32, 88 32, 92 38" stroke="#1d1d1d" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
-                          </svg>
-                        </div>
-                    }
+                    {a.imagen_url ? <img src={a.imagen_url} alt={a.nombre} style={{ width: '100%', height: '100%', objectFit: 'cover' }}/> : (
+                      <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <svg width="70" height="38" viewBox="0 0 160 90" fill="none" style={{ opacity: 0.12 }}>
+                          <rect x="4" y="12" width="64" height="66" rx="14" stroke="#1d1d1d" strokeWidth="3"/>
+                          <rect x="92" y="12" width="64" height="66" rx="14" stroke="#1d1d1d" strokeWidth="3"/>
+                          <path d="M68 38 C72 32, 88 32, 92 38" stroke="#1d1d1d" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+                        </svg>
+                      </div>
+                    )}
                     {a.badge && <div style={{ position: 'absolute', top: '10px', left: '10px', fontSize: '0.55rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', padding: '3px 8px', borderRadius: '3px', background: '#1d1d1d', color: 'white' }}>{a.badge}</div>}
                   </div>
                   <div style={{ padding: '1rem 1.1rem 1.1rem' }}>

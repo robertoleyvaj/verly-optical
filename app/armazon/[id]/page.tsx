@@ -1,5 +1,6 @@
 // app/armazon/[id]/page.tsx
 'use client';
+import { usePreciosVerly } from '@/hooks/usePreciosVerly';
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import Navbar from '../../components/Navbar';
@@ -423,6 +424,7 @@ export default function DetalleArmazon() {
   const [errores, setErrores] = useState<string[]>([]);
   const [paciente, setPaciente] = useState('');
   const [reutilizarReceta, setReutilizarReceta] = useState<string | null>(null);
+  const preciosDB = usePreciosVerly();
 
   const esSolar = armazon?.tipo === 'solar';
 
@@ -478,9 +480,13 @@ export default function DetalleArmazon() {
   }, [lightboxOpen]);
 
   const precioArmazon = esRegalo ? 0 : (armazon?.precio || PRECIO_ARMAZON);
-  const precioVision = visionOpts.find(v => v.id === vision)?.precio || 0;
-  const precioMaterial = materialOpts.find(m => m.id === material)?.precio || 0;
-  const precioFiltros = filtroOpts.filter(f => filtros.includes(f.id)).reduce((a, f) => a + f.precio, 0);
+  const precioVision = (preciosDB.vision.find(v => v.id === vision)?.precio || visionOpts.find(v => v.id === vision)?.precio || 0);
+  const precioMaterial = (preciosDB.material.find(m => m.id === material)?.precio || materialOpts.find(m => m.id === material)?.precio || 0);
+  const precioFiltros = filtros.reduce((total, fid) => {
+  const precioDB = preciosDB.filtro.find(f => f.id === fid)?.precio;
+  const precioLocal = filtroOpts.find(f => f.id === fid)?.precio || 0;
+  return total + (precioDB || precioLocal);
+}, 0);
   const total = soloArmazon ? precioArmazon : precioArmazon + precioVision + precioMaterial + precioFiltros;
 
   const toggleFiltro = (fid: string) => setFiltros(prev => prev.includes(fid) ? prev.filter(f => f !== fid) : [...prev, fid]);

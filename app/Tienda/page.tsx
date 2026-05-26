@@ -6,6 +6,7 @@ import Link from 'next/link';
 import Navbar from '../components/Navbar';
 import { useLang } from '../components/LanguageContext';
 import { supabase } from '../supabase';
+import { useFavoritos } from '../context/FavoritosContext';
 
 type Armazon = {
   id: number; nombre: string; forma: string; genero: string;
@@ -28,7 +29,8 @@ const HERO_CONFIG: Record<string, { img: string; label: string; titulo_es: strin
 };
 
 function ArmazonCard({ a, esMobil, t, esPromoRegalo }: { a: Armazon; esMobil: boolean; t: (es: string, en: string) => string; esPromoRegalo: boolean }) {
-  const [liked, setLiked] = useState(false);
+  const { toggleFavorito, esFavorito } = useFavoritos();
+  const liked = esFavorito(a.id);
   const [hovered, setHovered] = useState(false);
   const href = esPromoRegalo ? `/armazon/${a.id}?promo=regalo` : `/armazon/${a.id}`;
   return (
@@ -54,7 +56,7 @@ function ArmazonCard({ a, esMobil, t, esPromoRegalo }: { a: Armazon; esMobil: bo
             </div>
           )}
           {!esPromoRegalo && a.badge && <div style={{ position: 'absolute', top: '10px', left: '10px', fontSize: '0.58rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', padding: '3px 9px', borderRadius: '3px', background: a.badge?.toLowerCase() === 'nuevo' || a.badge?.toLowerCase() === 'new' ? '#55624c' : '#1d1d1d', color: 'white' }}>{a.badge}</div>}
-          <button onClick={e => { e.preventDefault(); e.stopPropagation(); setLiked(l => !l); }} style={{ position: 'absolute', top: '10px', right: '10px', width: '30px', height: '30px', borderRadius: '50%', background: 'white', border: `1px solid ${liked ? 'rgba(192,57,43,0.25)' : 'rgba(0,0,0,0.06)'}`, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', transition: 'all 0.2s', transform: liked ? 'scale(1.1)' : 'scale(1)' }}>
+          <button onClick={e => { e.preventDefault(); e.stopPropagation(); toggleFavorito({ id: a.id, nombre: a.nombre, imagen_url: a.imagen_url, precio: a.precio, forma: a.forma, material: a.material }); }} style={{ position: 'absolute', top: '10px', right: '10px', width: '30px', height: '30px', borderRadius: '50%', background: 'white', border: `1px solid ${liked ? 'rgba(192,57,43,0.25)' : 'rgba(0,0,0,0.06)'}`, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', transition: 'all 0.2s', transform: liked ? 'scale(1.1)' : 'scale(1)' }}>
             <svg width="12" height="12" viewBox="0 0 24 24" fill={liked ? '#c0392b' : 'none'} stroke={liked ? '#c0392b' : '#6f6a63'} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
           </button>
           {!esPromoRegalo && a.descuento && a.descuento > 0 && <div style={{ position: 'absolute', bottom: '10px', left: '10px', fontSize: '0.6rem', fontWeight: 700, padding: '3px 8px', borderRadius: '3px', background: '#c0392b', color: 'white' }}>-{a.descuento}%</div>}

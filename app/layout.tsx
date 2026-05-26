@@ -5,6 +5,7 @@ import "./globals.css";
 import VerlyBot from "./components/verlybot";
 import { LangProvider } from "./components/LanguageContext";
 import { CartProvider } from "./context/CartContext";
+import { FavoritosProvider } from "./context/FavoritosContext";
 
 const cormorant = Cormorant_Garamond({
   variable: "--font-cormorant",
@@ -91,9 +92,11 @@ export default function RootLayout({
       >
         <LangProvider>
           <CartProvider>
-            {children}
-            <VerlyBot />
-          </CartProvider>
+  <FavoritosProvider>
+    {children}
+    <VerlyBot />
+  </FavoritosProvider>
+</CartProvider>
         </LangProvider>
       </body>
     </html>

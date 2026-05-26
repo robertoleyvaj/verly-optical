@@ -481,7 +481,7 @@ export default function DetalleArmazon() {
 
   const precioArmazon = esRegalo ? 0 : (armazon?.precio || PRECIO_ARMAZON);
   const precioVision = (preciosDB.vision.find((v: any) => v.id === vision)?.precio || visionOpts.find(v => v.id === vision)?.precio || 0);
-  const precioMaterial = (preciosDB.material.find(m => m.id === material)?.precio || materialOpts.find(m => m.id === material)?.precio || 0);
+  const precioMaterial = (preciosDB.material.find((m: any) => m.id === material)?.precio || materialOpts.find(m => m.id === material)?.precio || 0);
   const precioFiltros = filtros.reduce((total, fid) => {
   const precioDB = preciosDB.filtro.find(f => f.id === fid)?.precio;
   const precioLocal = filtroOpts.find(f => f.id === fid)?.precio || 0;

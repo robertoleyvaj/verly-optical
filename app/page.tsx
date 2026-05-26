@@ -152,7 +152,7 @@ export default function Home() {
                 <div style={{ width: '160px' }}>
                   <div style={{ width: '160px', height: '140px', background: a.color ? `${a.color}12` : 'var(--cream-dark)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.6rem', overflow: 'hidden', position: 'relative' }}>
                     {a.imagen_url
-                      ? <img src={a.imagen_url} alt={a.nombre} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '8px', boxSizing: 'border-box' }}/>
+                      ? <img src={a.imagen_url} alt={a.nombre} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '4px', boxSizing: 'border-box' }}/>
                       : (
                         <svg width="90" height="48" viewBox="0 0 160 90" fill="none">
                           <rect x="4" y="12" width="64" height="66" rx="14" fill="none" stroke={a.color || 'var(--charcoal)'} strokeWidth="3.5"/>

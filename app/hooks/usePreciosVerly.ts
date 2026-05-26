@@ -12,7 +12,7 @@ export function invalidarCachePrecios() {
 }
 
 export function usePreciosVerly() {
-  const [precios, setPrecios] = useState({
+  const [precios, setPrecios] = useState<any>({
     armazon_base: 0,
     vision: [],
     material: [],

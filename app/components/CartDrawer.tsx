@@ -7,10 +7,20 @@ import Link from 'next/link';
 
 function ItemCard({ item, onRemove }: { item: CartItem; onRemove: () => void }) {
   const { t } = useLang() as any;
+  const { removeItem, addItem } = useCart();
+  const [editandoPaciente, setEditandoPaciente] = useState(false);
+  const [nombreTemp, setNombreTemp] = useState(item.paciente || '');
+
+  const guardarNombre = () => {
+    if (!nombreTemp.trim()) return;
+    removeItem(item.id);
+    addItem({ ...item, paciente: nombreTemp.trim() });
+    setEditandoPaciente(false);
+  };
+
   return (
     <div style={{ padding: '1.25rem 0', borderBottom: '1px solid #f0ede8' }}>
       <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
-        {/* Imagen */}
         <div style={{ width: '72px', height: '60px', borderRadius: '8px', background: '#f5f2ed', overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           {item.armazon_imagen
             ? <img src={item.armazon_imagen} alt={item.armazon_nombre} style={{ width: '100%', height: '100%', objectFit: 'cover' }}/>
@@ -18,48 +28,54 @@ function ItemCard({ item, onRemove }: { item: CartItem; onRemove: () => void }) 
           }
         </div>
 
-        {/* Info */}
         <div style={{ flex: 1, minWidth: 0 }}>
-          {/* Paciente */}
-          {item.paciente && (
-            <div style={{ fontSize: '10px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#55624c', marginBottom: '3px' }}>
-              {item.paciente}
+          {/* Nombre / paciente */}
+          {editandoPaciente ? (
+            <div style={{ display: 'flex', gap: '6px', marginBottom: '6px' }}>
+              <input
+                autoFocus
+                type="text"
+                value={nombreTemp}
+                onChange={e => setNombreTemp(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') guardarNombre(); if (e.key === 'Escape') setEditandoPaciente(false); }}
+                placeholder={t('Nombre...', 'Name...')}
+                style={{ flex: 1, padding: '4px 8px', borderRadius: '6px', border: '1.5px solid #55624c', fontSize: '12px', fontFamily: 'var(--font-sans)', outline: 'none' }}
+              />
+              <button onClick={guardarNombre} style={{ background: '#55624c', color: 'white', border: 'none', borderRadius: '6px', padding: '4px 10px', fontSize: '11px', fontWeight: 600, cursor: 'pointer' }}>✓</button>
+              <button onClick={() => setEditandoPaciente(false)} style={{ background: '#f5f3ef', color: '#6f6a63', border: 'none', borderRadius: '6px', padding: '4px 8px', fontSize: '11px', cursor: 'pointer' }}>✕</button>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+              {item.paciente ? (
+                <span style={{ fontSize: '10px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#55624c' }}>{item.paciente}</span>
+              ) : (
+                <span style={{ fontSize: '10px', fontWeight: 600, color: '#c0392b', background: '#fff5f5', padding: '2px 8px', borderRadius: '20px', border: '1px solid #fcc' }}>
+                  ⚠ {t('Sin nombre — requerido', 'No name — required')}
+                </span>
+              )}
+              <button onClick={() => { setNombreTemp(item.paciente || ''); setEditandoPaciente(true); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9a9a9a', fontSize: '10px', fontFamily: 'var(--font-sans)', textDecoration: 'underline', padding: 0 }}>
+                {item.paciente ? t('editar', 'edit') : t('agregar', 'add')}
+              </button>
             </div>
           )}
 
-          {/* Nombre armazón */}
-          <div style={{ fontFamily: 'var(--font-serif)', fontSize: '1rem', fontWeight: 400, color: '#1d1d1d', marginBottom: '4px', lineHeight: 1.2 }}>
-            {item.armazon_nombre}
-          </div>
+          <div style={{ fontFamily: 'var(--font-serif)', fontSize: '1rem', fontWeight: 400, color: '#1d1d1d', marginBottom: '4px', lineHeight: 1.2 }}>{item.armazon_nombre}</div>
 
-          {/* Tipo badge */}
           <div style={{ display: 'flex', gap: '6px', marginBottom: '6px', flexWrap: 'wrap' }}>
-            {item.es_regalo && (
-              <span style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#55624c', background: '#f0f4ef', padding: '2px 8px', borderRadius: '20px', border: '1px solid #c8dbc4' }}>
-                🎁 Free sunglasses
-              </span>
-            )}
-            {item.solo_armazon && (
-              <span style={{ fontSize: '9px', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#9a9a9a', background: '#f5f3ef', padding: '2px 8px', borderRadius: '20px' }}>
-                {t('Solo armazón', 'Frame only')}
-              </span>
-            )}
+            {item.es_regalo && <span style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#55624c', background: '#f0f4ef', padding: '2px 8px', borderRadius: '20px', border: '1px solid #c8dbc4' }}>🎁 Free sunglasses</span>}
+            {item.solo_armazon && <span style={{ fontSize: '9px', fontWeight: 600, color: '#9a9a9a', background: '#f5f3ef', padding: '2px 8px', borderRadius: '20px' }}>{t('Solo armazón', 'Frame only')}</span>}
           </div>
 
-          {/* Configuración lentes */}
           {item.lentes && !item.solo_armazon && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', marginBottom: '6px' }}>
               <div style={{ fontSize: '11px', color: '#6f6a63' }}>{item.lentes.vision_nombre}</div>
               <div style={{ fontSize: '11px', color: '#6f6a63' }}>{item.lentes.material_nombre}</div>
-              {item.lentes.filtros_nombres.length > 0 && (
-                <div style={{ fontSize: '11px', color: '#6f6a63' }}>{item.lentes.filtros_nombres.join(' · ')}</div>
-              )}
+              {item.lentes.filtros_nombres.length > 0 && <div style={{ fontSize: '11px', color: '#6f6a63' }}>{item.lentes.filtros_nombres.join(' · ')}</div>}
             </div>
           )}
 
-          {/* Receta */}
           {item.receta && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '4px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
               <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: item.receta.metodo === 'despues' ? '#d97706' : '#55624c', flexShrink: 0 }}/>
               <span style={{ fontSize: '10px', color: item.receta.metodo === 'despues' ? '#92400e' : '#55624c', fontWeight: 500 }}>
                 {item.receta.metodo === 'manual' && t('Receta ingresada', 'Prescription entered')}
@@ -71,11 +87,15 @@ function ItemCard({ item, onRemove }: { item: CartItem; onRemove: () => void }) 
           )}
         </div>
 
-        {/* Precio + eliminar */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px', flexShrink: 0 }}>
-          <div style={{ fontFamily: 'var(--font-serif)', fontSize: '1.1rem', fontWeight: 400, color: item.es_regalo ? '#55624c' : '#1d1d1d' }}>
-            {item.es_regalo ? t('Gratis', 'Free') : `$${item.precio_total}`}
-          </div>
+          {item.es_regalo ? (
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ fontSize: '11px', color: '#9a9a9a', textDecoration: 'line-through' }}>${item.armazon_precio || 13}</div>
+              <div style={{ fontFamily: 'var(--font-serif)', fontSize: '1.1rem', fontWeight: 400, color: '#55624c' }}>{t('Gratis', 'Free')}</div>
+            </div>
+          ) : (
+            <div style={{ fontFamily: 'var(--font-serif)', fontSize: '1.1rem', fontWeight: 400, color: '#1d1d1d' }}>${item.precio_total}</div>
+          )}
           <button onClick={onRemove} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9a9a9a', fontSize: '11px', fontFamily: 'var(--font-sans)', textDecoration: 'underline', padding: 0 }}>
             {t('Eliminar', 'Remove')}
           </button>
@@ -91,35 +111,41 @@ export default function CartDrawer() {
   const [loadingCheckout, setLoadingCheckout] = useState(false);
 
   const handleCheckout = async () => {
-    setLoadingCheckout(true);
-    try {
-      // Construir descripción de items para Stripe
-      const itemsStr = items.map(item => {
-        if (item.es_regalo) return `${item.armazon_nombre} (Free sunglasses)`;
-        if (item.solo_armazon) return `${item.armazon_nombre} (frame only)`;
-        const partes = [item.armazon_nombre];
-        if (item.lentes) {
-          partes.push(item.lentes.vision_nombre);
-          partes.push(item.lentes.material_nombre);
-          if (item.lentes.filtros_nombres.length > 0) partes.push(...item.lentes.filtros_nombres);
-        }
-        if (item.paciente) partes.push(`(${item.paciente})`);
-        return partes.join(' + ');
-      }).join(' | ');
-
-      const res = await fetch('/api/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items: itemsStr, total: totalPrecio }),
-      });
-      const data = await res.json();
-      if (data.url) window.location.href = data.url;
-      else { alert(t('Error al procesar el pago.', 'Error processing payment.')); setLoadingCheckout(false); }
-    } catch {
-      alert(t('Error al procesar el pago.', 'Error processing payment.'));
-      setLoadingCheckout(false);
-    }
-  };
+  const sinNombre = items.filter(i => !i.paciente?.trim());
+  if (sinNombre.length > 0) {
+    alert(t(
+      `Por favor agrega un nombre a ${sinNombre.length === 1 ? 'tu par de lentes' : 'todos los pares'} antes de continuar.`,
+      `Please add a name to ${sinNombre.length === 1 ? 'your pair of glasses' : 'all pairs'} before continuing.`
+    ));
+    return;
+  }
+  setLoadingCheckout(true);
+  try {
+    const itemsStr = items.map(item => {
+      if (item.es_regalo) return `${item.armazon_nombre} (Free - ${item.paciente})`;
+      if (item.solo_armazon) return `${item.armazon_nombre} (frame only - ${item.paciente})`;
+      const partes = [item.armazon_nombre];
+      if (item.lentes) {
+        partes.push(item.lentes.vision_nombre);
+        partes.push(item.lentes.material_nombre);
+        if (item.lentes.filtros_nombres.length > 0) partes.push(...item.lentes.filtros_nombres);
+      }
+      if (item.paciente) partes.push(`(${item.paciente})`);
+      return partes.join(' + ');
+    }).join(' | ');
+    const res = await fetch('/api/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ items: itemsStr, total: totalPrecio }),
+    });
+    const data = await res.json();
+    if (data.url) window.location.href = data.url;
+    else { alert(t('Error al procesar el pago.', 'Error processing payment.')); setLoadingCheckout(false); }
+  } catch {
+    alert(t('Error al procesar el pago.', 'Error processing payment.'));
+    setLoadingCheckout(false);
+  }
+};
 
   const tienePendientes = items.some(i => i.receta?.metodo === 'despues');
 
@@ -173,7 +199,7 @@ export default function CartDrawer() {
               ))}
 
               {/* Banner promo solar */}
-              {promoSolarDisponible && !promoSolarReclamada && (
+              {promoSolarDisponible && !items.some(i => i.es_regalo) && (
                 <div style={{ margin: '1.25rem 0', background: 'linear-gradient(135deg, #1d1d1d 0%, #3a4f33 100%)', borderRadius: '12px', padding: '1.25rem', position: 'relative', overflow: 'hidden' }}>
                   <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '100px', height: '100px', borderRadius: '50%', background: 'rgba(255,255,255,0.04)' }}/>
                   <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)', margin: '0 0 6px' }}>
@@ -185,7 +211,7 @@ export default function CartDrawer() {
                   <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.6)', margin: '0 0 1rem', lineHeight: 1.5 }}>
                     {t('Con tu compra de lentes graduados tienes derecho a un par de lentes de sol sin costo.', 'With your prescription glasses purchase you get a free pair of sunglasses.')}
                   </p>
-                  <Link href="/sunglasses?promo=regalo" onClick={() => setCartOpen(false)} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'white', color: '#1d1d1d', padding: '10px 18px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', textDecoration: 'none', fontFamily: 'var(--font-sans)' }}>
+                  <Link href="/Tienda?tipo=solar&promo=regalo" onClick={() => setCartOpen(false)} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'white', color: '#1d1d1d', padding: '10px 18px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', textDecoration: 'none', fontFamily: 'var(--font-sans)' }}>
                     {t('Elegir mi par gratis', 'Choose my free pair')}
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
                   </Link>
@@ -228,8 +254,12 @@ export default function CartDrawer() {
                     {item.paciente ? `${item.paciente} — ` : ''}{item.armazon_nombre}
                   </span>
                   <span style={{ fontWeight: 500, color: item.es_regalo ? '#55624c' : '#1d1d1d', flexShrink: 0 }}>
-                    {item.es_regalo ? t('Gratis', 'Free') : `$${item.precio_total}`}
-                  </span>
+  {item.es_regalo
+    ? item.precio_total > 0
+      ? <span>{t('Armazón gratis', 'Frame free')} + ${item.precio_total} {t('micas', 'lenses')}</span>
+      : t('Gratis', 'Free')
+    : `$${item.precio_total}`}
+</span>
                 </div>
               ))}
             </div>

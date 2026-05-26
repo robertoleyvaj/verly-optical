@@ -27,11 +27,12 @@ const HERO_CONFIG: Record<string, { img: string; label: string; titulo_es: strin
   'solar-all':     { img: '/hero-tienda.jpg', label: 'SUNGLASSES', titulo_es: 'Lentes solares.', titulo_en: 'Sunglasses.', sub_es: 'Protección UV y estilo sin compromiso.', sub_en: 'UV protection and style without compromise.', acento: '#4A5940' },
 };
 
-function ArmazonCard({ a, esMobil, t }: { a: Armazon; esMobil: boolean; t: (es: string, en: string) => string }) {
+function ArmazonCard({ a, esMobil, t, esPromoRegalo }: { a: Armazon; esMobil: boolean; t: (es: string, en: string) => string; esPromoRegalo: boolean }) {
   const [liked, setLiked] = useState(false);
   const [hovered, setHovered] = useState(false);
+  const href = esPromoRegalo ? `/armazon/${a.id}?promo=regalo` : `/armazon/${a.id}`;
   return (
-    <Link href={`/armazon/${a.id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
+    <Link href={href} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
       <div style={{ background: 'white', borderRadius: '12px', overflow: 'hidden', border: `1px solid ${hovered ? 'rgba(85,98,76,0.2)' : 'rgba(0,0,0,0.04)'}`, transition: 'all 0.4s ease', cursor: 'pointer', transform: hovered ? 'translateY(-4px)' : 'translateY(0)', boxShadow: hovered ? '0 16px 48px rgba(0,0,0,0.09)' : 'none' }}
         onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
         <div style={{ aspectRatio: '4/3', background: '#f5f2ed', overflow: 'hidden', position: 'relative' }}>
@@ -46,17 +47,31 @@ function ArmazonCard({ a, esMobil, t }: { a: Armazon; esMobil: boolean; t: (es: 
               </svg>
             </div>
           )}
-          {a.badge && <div style={{ position: 'absolute', top: '10px', left: '10px', fontSize: '0.58rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', padding: '3px 9px', borderRadius: '3px', background: a.badge?.toLowerCase() === 'nuevo' || a.badge?.toLowerCase() === 'new' ? '#55624c' : '#1d1d1d', color: 'white' }}>{a.badge}</div>}
+          {/* Badge promo regalo */}
+          {esPromoRegalo && (
+            <div style={{ position: 'absolute', top: '10px', left: '10px', fontSize: '0.58rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', padding: '3px 9px', borderRadius: '3px', background: '#55624c', color: 'white' }}>
+              🎁 FREE
+            </div>
+          )}
+          {!esPromoRegalo && a.badge && <div style={{ position: 'absolute', top: '10px', left: '10px', fontSize: '0.58rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', padding: '3px 9px', borderRadius: '3px', background: a.badge?.toLowerCase() === 'nuevo' || a.badge?.toLowerCase() === 'new' ? '#55624c' : '#1d1d1d', color: 'white' }}>{a.badge}</div>}
           <button onClick={e => { e.preventDefault(); e.stopPropagation(); setLiked(l => !l); }} style={{ position: 'absolute', top: '10px', right: '10px', width: '30px', height: '30px', borderRadius: '50%', background: 'white', border: `1px solid ${liked ? 'rgba(192,57,43,0.25)' : 'rgba(0,0,0,0.06)'}`, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', transition: 'all 0.2s', transform: liked ? 'scale(1.1)' : 'scale(1)' }}>
             <svg width="12" height="12" viewBox="0 0 24 24" fill={liked ? '#c0392b' : 'none'} stroke={liked ? '#c0392b' : '#6f6a63'} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
           </button>
-          {a.descuento && a.descuento > 0 && <div style={{ position: 'absolute', bottom: '10px', left: '10px', fontSize: '0.6rem', fontWeight: 700, padding: '3px 8px', borderRadius: '3px', background: '#c0392b', color: 'white' }}>-{a.descuento}%</div>}
+          {!esPromoRegalo && a.descuento && a.descuento > 0 && <div style={{ position: 'absolute', bottom: '10px', left: '10px', fontSize: '0.6rem', fontWeight: 700, padding: '3px 8px', borderRadius: '3px', background: '#c0392b', color: 'white' }}>-{a.descuento}%</div>}
         </div>
         <div style={{ padding: esMobil ? '0.75rem' : '1rem 1.25rem 1.25rem' }}>
           <div style={{ fontFamily: 'var(--font-serif)', fontSize: esMobil ? '0.95rem' : '1.1rem', fontWeight: 400, color: '#1d1d1d', marginBottom: '2px', letterSpacing: '-0.01em' }}>{a.nombre}</div>
           {a.material && <div style={{ fontSize: '0.72rem', color: '#9a9a9a', marginBottom: '8px', textTransform: 'capitalize' }}>{a.material}</div>}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div style={{ fontSize: '0.9rem', fontWeight: 600, color: '#1d1d1d' }}>{t('Desde', 'From')} ${a.precio}</div>
+            {esPromoRegalo ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span style={{ fontSize: '0.9rem', color: '#9a9a9a', textDecoration: 'line-through' }}>${a.precio}</span>
+                <span style={{ fontSize: '0.9rem', fontWeight: 700, color: '#55624c' }}>$0</span>
+                <span style={{ fontSize: '0.65rem', fontWeight: 600, color: '#55624c', background: '#f0f4ef', padding: '2px 6px', borderRadius: '20px', border: '1px solid #c8dbc4' }}>FREE</span>
+              </div>
+            ) : (
+              <div style={{ fontSize: '0.9rem', fontWeight: 600, color: '#1d1d1d' }}>{t('Desde', 'From')} ${a.precio}</div>
+            )}
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '0.68rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: hovered ? 'white' : '#55624c', background: hovered ? '#55624c' : 'transparent', padding: hovered ? '4px 10px' : '4px 0', borderRadius: '4px', transition: 'all 0.25s ease' }}>
               {t('Ver', 'View')} <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
             </div>
@@ -80,12 +95,15 @@ function TiendaContent() {
   const [filtroMaterial, setFiltroMaterial] = useState<string[]>([]);
   const [filtroTalla, setFiltroTalla] = useState<string[]>([]);
   const [openSections, setOpenSections] = useState<string[]>(['shape']);
+  const [esPromoRegalo, setEsPromoRegalo] = useState(false);
 
   useEffect(() => {
     const tipo = searchParams.get('tipo');
     const genero = searchParams.get('genero');
+    const promo = searchParams.get('promo');
     if (tipo) setTipoActivo(tipo);
     if (genero && genero !== 'all') setGeneroTab(genero);
+    if (promo === 'regalo') { setEsPromoRegalo(true); setTipoActivo('solar'); }
   }, [searchParams]);
 
   useEffect(() => {
@@ -156,22 +174,31 @@ function TiendaContent() {
     <main style={{ fontFamily: 'var(--font-sans), sans-serif', background: '#f7f4ef', minHeight: '100vh', color: '#1d1d1d' }}>
       <Navbar />
 
+      {/* Banner promo regalo */}
+      {esPromoRegalo && (
+        <div style={{ background: 'linear-gradient(135deg, #1d1d1d 0%, #3a4f33 100%)', padding: '1rem 2rem', textAlign: 'center', marginTop: '64px' }}>
+          <p style={{ fontFamily: 'var(--font-serif)', fontSize: '1rem', fontWeight: 300, color: 'white', margin: 0 }}>
+            🎁 {t('Elige tu par de lentes de sol gratis. El armazón es cortesía de Verly — las micas son opcionales.', 'Choose your free sunglasses. The frame is on us — lenses are optional.')}
+          </p>
+        </div>
+      )}
+
       {/* ── HERO DINÁMICO ── */}
-      <div style={{ marginTop: '64px', position: 'relative', width: '100%', height: esMobil ? '300px' : '460px', overflow: 'hidden' }}>
+      <div style={{ marginTop: esPromoRegalo ? '0' : '64px', position: 'relative', width: '100%', height: esMobil ? '300px' : '460px', overflow: 'hidden' }}>
         <img key={hero.img} src={hero.img} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 20%', display: 'block' }}/>
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.35) 50%, rgba(0,0,0,0.0) 80%)' }}/>
         <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', padding: esMobil ? '2rem 1.5rem' : '0 5rem' }}>
           <div style={{ maxWidth: '500px' }}>
-            <p style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)', margin: '0 0 0.75rem' }}>{hero.label}</p>
+            <p style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)', margin: '0 0 0.75rem' }}>{esPromoRegalo ? '🎁 FREE SUNGLASSES' : hero.label}</p>
             <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: esMobil ? '2.8rem' : '4.2rem', fontWeight: 400, letterSpacing: '-0.03em', color: 'white', margin: '0 0 0.5rem', lineHeight: 1.0 }}>
-              {lang === 'es' ? hero.titulo_es : hero.titulo_en}
+              {esPromoRegalo ? t('Tu par gratis.', 'Your free pair.') : (lang === 'es' ? hero.titulo_es : hero.titulo_en)}
             </h1>
             <div style={{ width: '40px', height: '2px', background: hero.acento, margin: '0.75rem 0 1rem', borderRadius: '2px' }}/>
             <p style={{ fontSize: esMobil ? '0.85rem' : '0.95rem', color: 'rgba(255,255,255,0.75)', margin: '0 0 1.75rem', lineHeight: 1.7, maxWidth: '360px' }}>
-              {lang === 'es' ? hero.sub_es : hero.sub_en}
+              {esPromoRegalo ? t('Elige el modelo que más te guste. Sin costo.', 'Pick the model you like most. On the house.') : (lang === 'es' ? hero.sub_es : hero.sub_en)}
             </p>
             <button onClick={() => document.getElementById('catalogo')?.scrollIntoView({ behavior: 'smooth' })} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'white', color: '#1d1d1d', padding: '12px 28px', borderRadius: '4px', fontFamily: 'var(--font-sans)', fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', border: 'none', cursor: 'pointer' }}>
-              {t('Ver colección', 'Shop now')}
+              {esPromoRegalo ? t('Elegir mi par →', 'Choose my pair →') : t('Ver colección', 'Shop now')}
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
             </button>
           </div>
@@ -260,7 +287,7 @@ function TiendaContent() {
             </div>
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: esMobil ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)', gap: esMobil ? '12px' : '20px' }}>
-              {filtered.map(a => <ArmazonCard key={a.id} a={a} esMobil={esMobil} t={t} />)}
+              {filtered.map(a => <ArmazonCard key={a.id} a={a} esMobil={esMobil} t={t} esPromoRegalo={esPromoRegalo} />)}
             </div>
           )}
         </div>

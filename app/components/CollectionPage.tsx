@@ -41,9 +41,16 @@ export default async function CollectionPage({
   filterTag,
 }: CollectionPageProps) {
   const frames = await getFrames(filterTag);
+  const displayFrames = frames.length > 0
+    ? frames
+    : Array.from({ length: 4 }, (_, i) => ({ id: i, nombre: "Browse styles", precio: 13, imagen_url: null }));
 
   return (
     <main style={{ background: "var(--cream)", minHeight: "100vh", fontFamily: "var(--font-sans)" }}>
+      <style>{`
+        .collection-frame-card:hover { transform: translateY(-4px); box-shadow: 0 16px 48px rgba(0,0,0,0.08); }
+        .collection-related-link:hover { border-color: var(--sage) !important; color: var(--sage) !important; }
+      `}</style>
 
       {/* HERO */}
       <section style={{ background: "var(--charcoal)", position: "relative", overflow: "hidden", paddingTop: "120px", paddingBottom: "80px" }}>
@@ -51,7 +58,7 @@ export default async function CollectionPage({
         <div style={{ maxWidth: "1180px", margin: "0 auto", padding: "0 2rem", position: "relative" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "1.5rem" }}>
             <div style={{ height: "1px", width: "32px", background: "var(--sage)" }}/>
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: "10px", fontWeight: 600, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--sage-light)", margin: 0 }}>{subtitle}</p>
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: "10px", fontWeight: 600, letterSpacing: "0.22em", textTransform: "uppercase", color: "#6B7A5E", margin: 0 }}>{subtitle}</p>
           </div>
           <h1 style={{ fontFamily: "var(--font-serif)", fontSize: "clamp(3rem, 6vw, 5.5rem)", fontWeight: 400, color: "var(--cream)", lineHeight: 0.95, letterSpacing: "-0.02em", margin: "0 0 1.5rem" }}>{heroKeyword}</h1>
           <p style={{ fontFamily: "var(--font-sans)", fontSize: "15px", color: "var(--warm-gray)", lineHeight: 1.8, maxWidth: "520px", margin: "0 0 2.5rem" }}>{description}</p>
@@ -96,12 +103,13 @@ export default async function CollectionPage({
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: "1.25rem" }}>
-          {(frames.length > 0 ? frames : Array.from({ length: 4 }, (_, i) => ({ id: i, nombre: "Browse styles", precio: 28, imagen_url: null }))).map((frame: any) => (
-            <Link key={frame.id} href={frame.nombre === "Browse styles" ? "/Tienda" : `/armazon/${frame.id}`} style={{ textDecoration: "none", color: "inherit" }}>
-              <div style={{ background: "white", borderRadius: "12px", overflow: "hidden", border: "1px solid rgba(0,0,0,0.04)", transition: "all 0.3s ease", cursor: "pointer" }}
-                onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(-4px)"; (e.currentTarget as HTMLDivElement).style.boxShadow = "0 16px 48px rgba(0,0,0,0.08)"; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = "none"; (e.currentTarget as HTMLDivElement).style.boxShadow = "none"; }}
-              >
+          {displayFrames.map((frame: any) => (
+            <Link
+              key={frame.id}
+              href={frame.nombre === "Browse styles" ? "/Tienda" : `/armazon/${frame.id}`}
+              style={{ textDecoration: "none", color: "inherit" }}
+            >
+              <div className="collection-frame-card" style={{ background: "white", borderRadius: "12px", overflow: "hidden", border: "1px solid rgba(0,0,0,0.04)", transition: "all 0.3s ease", cursor: "pointer" }}>
                 <div style={{ aspectRatio: "1", background: "#f5f2ed", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
                   {frame.imagen_url
                     ? <img src={frame.imagen_url} alt={frame.nombre} style={{ width: "100%", height: "100%", objectFit: "cover" }}/>
@@ -172,9 +180,11 @@ export default async function CollectionPage({
           <p style={{ fontFamily: "var(--font-sans)", fontSize: "10px", fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--warm-gray)", margin: "0 0 1.5rem", textAlign: "center" }}>Also explore</p>
           <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "0.75rem" }}>
             {relatedLinks.map((l) => (
-              <Link key={l.href} href={l.href} style={{ fontFamily: "var(--font-sans)", fontSize: "12px", letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--charcoal)", border: "1px solid var(--border)", padding: "10px 20px", borderRadius: "2px", textDecoration: "none", background: "var(--cream)", transition: "border-color 0.2s ease, color 0.2s ease" }}
-                onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.borderColor = "var(--sage)"; (e.currentTarget as HTMLAnchorElement).style.color = "var(--sage)"; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.borderColor = "var(--border)"; (e.currentTarget as HTMLAnchorElement).style.color = "var(--charcoal)"; }}
+              <Link
+                key={l.href}
+                href={l.href}
+                className="collection-related-link"
+                style={{ fontFamily: "var(--font-sans)", fontSize: "12px", letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--charcoal)", border: "1px solid var(--border)", padding: "10px 20px", borderRadius: "2px", textDecoration: "none", background: "var(--cream)", transition: "border-color 0.2s ease, color 0.2s ease" }}
               >
                 {l.label}
               </Link>
@@ -186,7 +196,7 @@ export default async function CollectionPage({
       {/* CTA */}
       <section style={{ background: "var(--sage)", padding: "5rem 2rem", textAlign: "center" }}>
         <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "clamp(2rem, 4vw, 3.5rem)", fontWeight: 400, color: "var(--cream)", margin: "0 0 1rem", lineHeight: 1.1 }}>Complete pair from $28</h2>
-        <p style={{ fontFamily: "var(--font-sans)", fontSize: "14px", color: "rgba(247,244,239,0.7)", margin: "0 0 2.5rem", maxWidth: "400px", marginLeft: "auto", marginRight: "auto", lineHeight: 1.7 }}>
+        <p style={{ fontFamily: "var(--font-sans)", fontSize: "14px", color: "rgba(247,244,239,0.7)", margin: "0 auto 2.5rem", maxWidth: "400px", lineHeight: 1.7 }}>
           Frame + lenses included. No hidden fees. Prescription verified by our opticians.
         </p>
         <Link href="/Tienda" style={{ display: "inline-block", fontFamily: "var(--font-sans)", fontSize: "12px", fontWeight: 500, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--sage)", background: "var(--cream)", padding: "16px 40px", borderRadius: "2px", textDecoration: "none" }}>

@@ -94,6 +94,8 @@ export default function Navbar() {
   const navLinks = [
     { href: "/Tienda", label: "Eyeglasses" },
     { href: "/sunglasses", label: "Sunglasses" },
+    { href: "/blue-light-glasses", label: "Blue Light" },
+    { href: "/progressive-glasses", label: "Progressive" },
   ];
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + "/");
@@ -135,7 +137,6 @@ export default function Navbar() {
         </div>
       </header>
 
-      {/* Mobile Menu */}
       <div style={{ position: "fixed", inset: 0, zIndex: 99, background: "var(--cream)", display: "flex", flexDirection: "column", justifyContent: "center", padding: "2rem", opacity: menuOpen ? 1 : 0, pointerEvents: menuOpen ? "all" : "none", transition: "opacity 0.35s ease" }}>
         <nav style={{ display: "flex", flexDirection: "column", gap: "0" }}>
           {navLinks.map(({ href, label }, i) => (

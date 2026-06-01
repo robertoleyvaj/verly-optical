@@ -29,6 +29,10 @@ export const metadata: Metadata = {
   },
   description:
     "Shop prescription eyeglasses and sunglasses online starting at $13. Free shipping to the US. No insurance needed. Configure your lenses in minutes.",
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
+  },
   keywords: [
     "prescription glasses online",
     "affordable eyeglasses USA",

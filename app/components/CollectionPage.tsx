@@ -21,7 +21,7 @@ async function getFrames(filterTag?: string) {
   let query = supabase
     .from("armazones")
     .select("id, nombre, precio, imagen_url, tags, genero")
-    .eq("activo", true)
+    .eq("activo", true).eq("publicar_verly", true)
     .limit(8);
   if (filterTag) {
     query = query.contains("tags", [filterTag]);

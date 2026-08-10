@@ -175,7 +175,7 @@ function TiendaContent() {
     supabase
       .from('armazones')
       .select('*')
-      .eq('activo', true)
+      .eq('activo', true).eq('publicar_verly', true)
       .eq('tipo', 'optico')
       .order('id')
       .then(({ data }) => { setArmazones(data || []); setLoading(false); });

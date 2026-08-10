@@ -12,7 +12,7 @@ type Armazon = {
   id: number; nombre: string; forma: string; genero: string;
   precio: number; color: string; imagen_url?: string;
   badge?: string; material?: string; talla?: string; tipo?: string;
-  color1?: string; descuento?: number;
+  color1?: string; descuento?: number; descuento_verly?: number;
 };
 
 const FORMAS = ['Rectangle', 'Round', 'Square', 'Oval', 'Aviator'];
@@ -83,9 +83,9 @@ function ArmazonCard({
               {a.badge}
             </div>
           )}
-          {!esPromoRegalo && a.descuento && a.descuento > 0 && (
+          {!esPromoRegalo && a.descuento_verly && a.descuento_verly > 0 && (
             <div style={{ position: 'absolute', bottom: '10px', left: '10px', fontSize: '0.6rem', fontWeight: 700, padding: '3px 8px', borderRadius: '2px', background: 'var(--charcoal)', color: 'white' }}>
-              -{a.descuento}%
+              -{a.descuento_verly}%
             </div>
           )}
 
@@ -117,9 +117,17 @@ function ArmazonCard({
                 <span style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--sage)' }}>$0</span>
               </div>
             ) : (
-              <div style={{ fontSize: '0.85rem', color: 'var(--charcoal)' }}>
-                {t('Desde', 'From')} <span style={{ fontWeight: 600 }}>${a.precio}</span>
-              </div>
+              (() => {
+                const dv = a.descuento_verly || 0;
+                const fin = Math.round(a.precio * (1 - dv / 100));
+                return (
+                  <div style={{ fontSize: '0.85rem', color: 'var(--charcoal)' }}>
+                    {t('Desde', 'From')}{' '}
+                    {dv > 0 && <span style={{ textDecoration: 'line-through', color: 'var(--warm-gray)', fontWeight: 400, fontSize: '0.78rem', marginRight: '5px' }}>${a.precio}</span>}
+                    <span style={{ fontWeight: 600 }}>${dv > 0 ? fin : a.precio}</span>
+                  </div>
+                );
+              })()
             )}
             <div style={{
               display: 'inline-flex', alignItems: 'center', gap: '4px',

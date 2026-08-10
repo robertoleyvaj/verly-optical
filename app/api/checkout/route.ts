@@ -16,8 +16,8 @@ const FILTRO_PRICES: Record<string, number> = { ar: 11, blue: 18, foto: 49, anti
 async function calcularPrecioItem(item: any): Promise<number> {
   let precioArmazon = PRECIO_ARMAZON_BASE;
   if (item.armazon_id) {
-    const { data } = await supabase.from('armazones').select('precio').eq('id', item.armazon_id).eq('activo', true).single();
-    if (data) precioArmazon = data.precio;
+    const { data } = await supabase.from('armazones').select('precio, descuento_verly').eq('id', item.armazon_id).eq('activo', true).single();
+    if (data) precioArmazon = Math.round(data.precio * (1 - (data.descuento_verly || 0) / 100));
   }
   if (item.es_regalo) precioArmazon = 0;
   if (item.solo_armazon) return precioArmazon;

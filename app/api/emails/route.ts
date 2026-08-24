@@ -12,13 +12,18 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-function isAdmin(req: NextRequest): boolean {
+function autorizado(req: NextRequest): boolean {
+  // 1) Cookie del admin (panel web, si aún existe)
   const token = req.cookies.get('verly_admin')?.value;
-  return !!process.env.ADMIN_TOKEN_SECRET && token === process.env.ADMIN_TOKEN_SECRET;
+  const cookieOk = !!process.env.ADMIN_TOKEN_SECRET && token === process.env.ADMIN_TOKEN_SECRET;
+  // 2) Secreto de servicio (OptiOS lo manda en un header)
+  const secret = req.headers.get('x-internal-secret');
+  const secretOk = !!process.env.INTERNAL_EMAIL_SECRET && secret === process.env.INTERNAL_EMAIL_SECRET;
+  return cookieOk || secretOk;
 }
 
 export async function POST(req: NextRequest) {
-  if (!isAdmin(req)) {
+  if (!autorizado(req)) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
   }
 

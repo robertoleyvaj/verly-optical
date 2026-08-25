@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useCart, CartItem } from '../context/CartContext';
 import { useLang } from './LanguageContext';
+import { fbTrack } from '../lib/fpixel';
 import Link from 'next/link';
 
 function ItemCard({ item, onRemove }: { item: CartItem; onRemove: () => void }) {
@@ -139,7 +140,17 @@ export default function CartDrawer() {
       body: JSON.stringify({ items: items, total: totalPrecio }),
     });
     const data = await res.json();
-    if (data.url) window.location.href = data.url;
+    if (data.url) {
+      // Meta Pixel · InitiateCheckout (justo antes de ir a Stripe)
+      fbTrack('InitiateCheckout', {
+        content_ids: items.map((i: CartItem) => String(i.armazon_id)),
+        content_type: 'product',
+        value: totalPrecio,
+        currency: 'USD',
+        num_items: items.length,
+      });
+      window.location.href = data.url;
+    }
     else { alert(t('Error al procesar el pago.', 'Error processing payment.')); setLoadingCheckout(false); }
   } catch {
     alert(t('Error al procesar el pago.', 'Error processing payment.'));

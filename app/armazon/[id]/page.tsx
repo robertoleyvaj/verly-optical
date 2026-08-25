@@ -6,6 +6,7 @@ import { useParams, useSearchParams } from 'next/navigation';
 import Navbar from '../../components/Navbar';
 import { useLang } from '../../components/LanguageContext';
 import { supabase } from '../../lib/supabase';
+import { fbTrack } from '../../lib/fpixel';
 import { useCart, generateCartId } from '../../context/CartContext';
 
 type Armazon = {
@@ -455,6 +456,7 @@ export default function DetalleArmazon() {
   const { t, lang } = useLang() as any;
   const { addItem, recetasSesion, items } = useCart();
   const [armazon, setArmazon] = useState<Armazon | null>(null);
+  const viewContentRef = useRef<string | null>(null);
   const [relacionados, setRelacionados] = useState<Armazon[]>([]);
   const [loading, setLoading] = useState(true);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -522,6 +524,20 @@ export default function DetalleArmazon() {
     return total + (precioDB || precioLocal);
   }, 0);
   const total = soloArmazon ? precioArmazon : precioArmazon + precioVision + precioMaterial + precioFiltros;
+
+  // Meta Pixel · ViewContent (una vez por armazón)
+  useEffect(() => {
+    if (armazon && viewContentRef.current !== String(armazon.id)) {
+      viewContentRef.current = String(armazon.id);
+      fbTrack('ViewContent', {
+        content_ids: [String(armazon.id)],
+        content_type: 'product',
+        content_name: armazon.nombre,
+        value: armazon.precio,
+        currency: 'USD',
+      });
+    }
+  }, [armazon]);
 
   const toggleFiltro = (fid: string) => setFiltros(prev => prev.includes(fid) ? prev.filter(f => f !== fid) : [...prev, fid]);
   const tieneReceta = recetaEstado === 'guardada' || recetaEstado === 'foto' || recetaEstado === 'sin_graduacion';
@@ -592,6 +608,14 @@ export default function DetalleArmazon() {
       precio_total: total,
     };
     addItem(item);
+    // Meta Pixel · AddToCart (tras agregar correctamente)
+    fbTrack('AddToCart', {
+      content_ids: [String(armazon!.id)],
+      content_type: 'product',
+      content_name: armazon!.nombre,
+      value: total,
+      currency: 'USD',
+    });
     setDrawerOpen(false);
     setPaso(1); setVision(''); setMaterial(''); setFiltros([]);
     setPaciente(''); setReutilizarReceta(null);

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Navbar from '../components/Navbar';
 import { useLang } from '../components/LanguageContext';
+import { fbTrack } from '../lib/fpixel';
 
 export default function Gracias() {
   const { t, lang } = useLang() as any;
@@ -11,6 +12,28 @@ export default function Gracias() {
 
   useEffect(() => {
     setTimeout(() => setVisible(true), 100);
+  }, []);
+
+  // Meta Pixel · Purchase — solo si Stripe confirma el pago, y sin duplicar al recargar.
+  useEffect(() => {
+    const sid = new URLSearchParams(window.location.search).get('session_id');
+    if (!sid) return;
+    const key = 'fb_purchase_' + sid;
+    if (localStorage.getItem(key)) return; // ya se disparó para esta orden
+    fetch('/api/verify-payment?session_id=' + encodeURIComponent(sid))
+      .then(r => r.json())
+      .then(d => {
+        if (d && d.paid) {
+          localStorage.setItem(key, '1');
+          fbTrack('Purchase', {
+            content_ids: d.content_ids || [],
+            content_type: 'product',
+            value: d.value,
+            currency: d.currency || 'USD',
+          });
+        }
+      })
+      .catch(() => {});
   }, []);
 
   return (

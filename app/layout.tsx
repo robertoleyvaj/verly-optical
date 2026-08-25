@@ -4,6 +4,7 @@ import Script from "next/script";
 import { Cormorant_Garamond, DM_Sans } from "next/font/google";
 import "./globals.css";
 import VerlyBot from "./components/verlybot";
+import PixelPageView from "./components/PixelPageView";
 import { LangProvider } from "./components/LanguageContext";
 import { CartProvider } from "./context/CartContext";
 import { FavoritosProvider } from "./context/FavoritosContext";
@@ -128,7 +129,6 @@ export default function RootLayout({
             (window, document,'script','https://connect.facebook.net/en_US/fbevents.js');
 
             fbq('init', '1001616152414051');
-            fbq('track', 'PageView');
           `}
         </Script>
 
@@ -200,6 +200,7 @@ export default function RootLayout({
           />
         </noscript>
 
+        <PixelPageView />
         <LangProvider>
           <CartProvider>
             <FavoritosProvider>

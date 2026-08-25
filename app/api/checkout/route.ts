@@ -72,6 +72,10 @@ export async function POST(req: NextRequest) {
         : `${item.armazon_nombre}${item.paciente ? ` — ${item.paciente}` : ''}`
     ).join(', ');
 
+    // URL base garantizada con esquema (Stripe exige https://)
+    const rawBase = process.env.NEXT_PUBLIC_BASE_URL || 'https://verlyoptical.com';
+    const BASE = /^https?:\/\//.test(rawBase) ? rawBase : `https://${rawBase}`;
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       mode: 'payment',
@@ -96,8 +100,8 @@ export async function POST(req: NextRequest) {
         quantity: 1,
       }],
       metadata: { checkout_session_id: cs.id.toString() },
-      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/gracias?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url:  `${process.env.NEXT_PUBLIC_BASE_URL}/Tienda`,
+      success_url: `${BASE}/gracias?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url:  `${BASE}/Tienda`,
     });
 
     await supabase.from('checkout_sessions')

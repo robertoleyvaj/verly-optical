@@ -111,9 +111,10 @@ export async function POST(req: NextRequest) {
         ...baseParams,
         ui_mode: 'embedded',
         return_url: `${BASE}/gracias?session_id={CHECKOUT_SESSION_ID}`,
-      });
+      } as unknown as Stripe.Checkout.SessionCreateParams);
       await supabase.from('checkout_sessions').update({ stripe_session_id: session.id }).eq('id', cs.id);
-      return NextResponse.json({ clientSecret: session.client_secret });
+      const clientSecret = (session as unknown as { client_secret: string | null }).client_secret;
+      return NextResponse.json({ clientSecret });
     }
 
     // Modo hospedado (fallback): redirige a Stripe.

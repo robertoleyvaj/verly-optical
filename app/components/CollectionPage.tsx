@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { createClient } from "@supabase/supabase-js";
 
+// Componente de SERVIDOR (nunca se envía al navegador): usa la service key para
+// leer el catálogo sin depender de las políticas RLS. La llave no se expone.
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
 export interface CollectionPageProps {

@@ -62,6 +62,7 @@ export default function Asistente({ onClose, t, lang }: { onClose: () => void; t
   }, []);
 
   const formasRecomendadas = cara && CARA_FORMAS[cara] ? CARA_FORMAS[cara] : null;
+  const caraImg = genero === 'hombre' ? '/cara-hombre.png' : '/cara-mujer.png';
 
   // Recomendación con relajación: si hay muy pocos, aflojamos filtros.
   const recomendar = (): Armazon[] => {
@@ -173,15 +174,32 @@ export default function Asistente({ onClose, t, lang }: { onClose: () => void; t
             </div>
           )}
 
-          {/* Paso 2: cara */}
+          {/* Paso 2: cara (foto real por género + contorno de forma encima) */}
           {paso === 2 && (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '10px' }}>
-              {opcionesCara.map(o => (
-                <button key={o.val} style={cardStyle(cara === o.val)} onClick={() => { setCara(o.val); setPaso(3); }}>
-                  <Cara tipo={o.val}/>
-                  <span style={{ fontSize: '0.82rem', fontWeight: 500 }}>{o.label}</span>
-                </button>
-              ))}
+              {opcionesCara.map(o => {
+                const activo = cara === o.val;
+                return (
+                  <button key={o.val} onClick={() => { setCara(o.val); setPaso(3); }}
+                    style={{ position: 'relative', padding: 0, borderRadius: '14px', overflow: 'hidden', cursor: 'pointer', color: 'white', fontFamily: 'var(--font-sans)',
+                      border: activo ? '2px solid var(--sage)' : '1px solid rgba(255,255,255,0.15)', background: 'rgba(255,255,255,0.05)' }}>
+                    <div style={{ position: 'relative', height: '130px', background: 'rgba(255,255,255,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <img src={caraImg} alt="" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+                        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 22%' }}/>
+                      <svg width="70%" height="82%" viewBox="0 0 60 72" fill="none" style={{ position: 'relative', zIndex: 1, filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.6))' }}>
+                        {o.val === 'ovalada' && <path d="M30 4 C44 4 49 22 49 36 C49 55 40 68 30 68 C20 68 11 55 11 36 C11 22 16 4 30 4Z" stroke="white" strokeWidth="2" strokeDasharray="4 4"/>}
+                        {o.val === 'redonda' && <path d="M30 6 C47 6 53 22 53 38 C53 55 43 66 30 66 C17 66 7 55 7 38 C7 22 13 6 30 6Z" stroke="white" strokeWidth="2" strokeDasharray="4 4"/>}
+                        {o.val === 'cuadrada' && <path d="M11 9 h38 v33 q0 21 -19 24 q-19 -3 -19 -24 z" stroke="white" strokeWidth="2" strokeDasharray="4 4" strokeLinejoin="round"/>}
+                        {o.val === 'corazon' && <path d="M8 15 q0 -8 8 -8 h28 q8 0 8 8 q0 25 -22 52 q-22 -27 -22 -52Z" stroke="white" strokeWidth="2" strokeDasharray="4 4" strokeLinejoin="round"/>}
+                        {o.val === 'alargada' && <path d="M30 3 C42 3 47 24 47 40 C47 60 39 69 30 69 C21 69 13 60 13 40 C13 24 18 3 30 3Z" stroke="white" strokeWidth="2" strokeDasharray="4 4"/>}
+                      </svg>
+                    </div>
+                    <div style={{ padding: '8px 4px 10px', textAlign: 'center' }}>
+                      <span style={{ fontSize: '0.82rem', fontWeight: 500 }}>{o.label}</span>
+                    </div>
+                  </button>
+                );
+              })}
               <button style={cardStyle(false)} onClick={() => { setCara(''); setPaso(3); }}>
                 <span style={{ fontSize: '1.6rem', opacity: 0.7 }}>?</span>
                 <span style={{ fontSize: '0.82rem', fontWeight: 500 }}>{t('No sé', 'Not sure')}</span>

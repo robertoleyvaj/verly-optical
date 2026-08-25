@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import CollectionPage from "@/app/components/CollectionPage";
 
+// Leer en vivo (no estático) para reflejar el catálogo actual.
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Prescription Glasses from $28 | Verly Optical",
   description:

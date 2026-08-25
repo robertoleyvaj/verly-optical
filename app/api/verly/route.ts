@@ -1,5 +1,23 @@
 // app/api/verly/route.ts
 import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+
+// Contador diario global en la base (confiable entre despliegues/instancias).
+const sb = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
+const TOPE_DIARIO = 500; // máximo de mensajes al chat por día (protege el costo)
+
+async function superaTopeDiario(): Promise<boolean> {
+  try {
+    const hoy = new Date().toISOString().slice(0, 10);
+    const { data } = await sb.from('chat_uso').select('total').eq('fecha', hoy).maybeSingle();
+    const actual = data?.total ?? 0;
+    if (actual >= TOPE_DIARIO) return true;
+    await sb.from('chat_uso').upsert({ fecha: hoy, total: actual + 1 }, { onConflict: 'fecha' });
+    return false;
+  } catch {
+    return false; // si el contador falla, no bloqueamos al cliente
+  }
+}
 
 // ── Rate limiting: 15 mensajes por minuto por IP ──────────────────────────
 const botAttempts = new Map<string, { count: number; resetAt: number }>();
@@ -30,6 +48,14 @@ export async function POST(req: NextRequest) {
     }
 
     const { messages, lang, contexto } = await req.json();
+
+    // Tope global diario (protege el costo de la API)
+    if (await superaTopeDiario()) {
+      return NextResponse.json(
+        { texto: lang === 'es' ? 'El chat no está disponible por ahora. Escríbenos por WhatsApp.' : 'Chat is unavailable right now. Please reach us on WhatsApp.' },
+        { status: 429 }
+      );
+    }
 
     // Validación de input
     if (!Array.isArray(messages) || messages.length > 20) {

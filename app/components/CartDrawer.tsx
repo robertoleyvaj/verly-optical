@@ -140,7 +140,7 @@ export default function CartDrawer() {
     });
     const data = await res.json();
     if (data.url) window.location.href = data.url;
-    else { alert(t('Error al procesar el pago.', 'Error processing payment.')); setLoadingCheckout(false); }
+    else { alert(data.error || t('Error al procesar el pago.', 'Error processing payment.')); setLoadingCheckout(false); }
   } catch {
     alert(t('Error al procesar el pago.', 'Error processing payment.'));
     setLoadingCheckout(false);

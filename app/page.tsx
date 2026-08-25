@@ -179,12 +179,12 @@ export default function Home() {
           <div style={{ position: 'absolute', bottom: '1.75rem', left: '1.5rem', right: '40%' }}>
             <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.6rem', fontWeight: 300, color: 'white', lineHeight: 1.15, margin: '0 0 0.5rem', letterSpacing: '-0.01em' }}>
               {lang === 'es'
-                ? <>Lentes que<br />se adaptan<br /><em style={{ fontStyle: 'italic', color: 'rgba(255,255,255,0.7)' }}>a tu vida.</em></>
-                : <>Eyewear that<br />fits<br /><em style={{ fontStyle: 'italic', color: 'rgba(255,255,255,0.7)' }}>your life.</em></>}
+                ? <>Lentes graduados<br />desde <em style={{ fontStyle: 'italic', color: 'rgba(255,255,255,0.7)' }}>$28.</em></>
+                : <>Prescription glasses<br />from <em style={{ fontStyle: 'italic', color: 'rgba(255,255,255,0.7)' }}>$28.</em></>}
             </h1>
-            <button onClick={() => setQuizOpen(true)} style={{ display: 'inline-block', fontFamily: 'var(--font-sans)', fontSize: '0.68rem', fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--charcoal)', background: 'white', padding: '0.65rem 1.1rem', borderRadius: '2px', border: 'none', cursor: 'pointer' }}>
-              {t('Encontrar mi par', 'Find my frames')}
-            </button>
+            <Link href="/Tienda?tipo=optico" style={{ display: 'inline-block', fontFamily: 'var(--font-sans)', fontSize: '0.68rem', fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--charcoal)', background: 'white', padding: '0.65rem 1.1rem', borderRadius: '2px', textDecoration: 'none' }}>
+              {t('Ver lentes graduados', 'Shop eyeglasses')}
+            </Link>
           </div>
         </section>
 
@@ -284,19 +284,19 @@ export default function Home() {
           </p>
           <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(3.5rem, 5.5vw, 5rem)', fontWeight: 400, lineHeight: 1.05, letterSpacing: '-0.02em', color: 'var(--charcoal)', marginBottom: '1.25rem', maxWidth: '580px' }}>
             {lang === 'es'
-              ? <>Lentes de calidad<br />que se adaptan<br /><em style={{ fontStyle: 'italic', color: 'var(--sage)' }}>a tu vida.</em></>
-              : <>Quality eyewear<br />that fits<br /><em style={{ fontStyle: 'italic', color: 'var(--sage)' }}>your life.</em></>}
+              ? <>Lentes graduados<br />desde <em style={{ fontStyle: 'italic', color: 'var(--sage)' }}>$28.</em></>
+              : <>Prescription glasses<br />from <em style={{ fontStyle: 'italic', color: 'var(--sage)' }}>$28.</em></>}
           </h1>
           <p style={{ fontFamily: 'var(--font-sans)', fontSize: '15px', color: 'var(--warm-gray)', lineHeight: 1.8, marginBottom: '2.5rem', maxWidth: '360px', fontWeight: 400 }}>
-            {t('Disenos clasicos. Micas premium. Precios justos.', 'Classic designs. Premium lenses. Fair prices.')}
+            {t('Armazones de calidad. Micas graduadas. Precios justos.', 'Quality frames. Prescription lenses. Fair prices.')}
           </p>
           <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-            <button onClick={() => setQuizOpen(true)} style={{ background: 'var(--sage)', color: 'white', padding: '15px 36px', borderRadius: '3px', fontFamily: 'var(--font-sans)', fontSize: '12px', fontWeight: 500, letterSpacing: '1.2px', textTransform: 'uppercase', border: 'none', cursor: 'pointer' }}>
+            <Link href="/Tienda?tipo=optico" style={{ background: 'var(--sage)', color: 'white', padding: '15px 36px', borderRadius: '3px', fontFamily: 'var(--font-sans)', fontSize: '12px', fontWeight: 500, letterSpacing: '1.2px', textTransform: 'uppercase', textDecoration: 'none', display: 'inline-block', cursor: 'pointer' }}>
+              {t('Ver lentes graduados', 'Shop eyeglasses')}
+            </Link>
+            <button onClick={() => setQuizOpen(true)} style={{ background: 'rgba(255,255,255,0.8)', color: 'var(--charcoal)', padding: '14px 28px', borderRadius: '3px', fontFamily: 'var(--font-sans)', fontSize: '12px', fontWeight: 500, letterSpacing: '1px', textTransform: 'uppercase', border: '1px solid var(--border)', cursor: 'pointer', backdropFilter: 'blur(8px)' }}>
               {t('Encontrar mi par', 'Find my frames')}
             </button>
-            <Link href="/Tienda" style={{ background: 'rgba(255,255,255,0.8)', color: 'var(--charcoal)', padding: '14px 28px', borderRadius: '3px', fontFamily: 'var(--font-sans)', fontSize: '12px', fontWeight: 500, textDecoration: 'none', letterSpacing: '1px', textTransform: 'uppercase', border: '1px solid var(--border)', display: 'inline-block', backdropFilter: 'blur(8px)' }}>
-              {t('Ver todo', 'Browse all')}
-            </Link>
           </div>
         </div>
         <div style={{ position: 'absolute', bottom: '2rem', left: '50%', transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', opacity: 0.4 }}>

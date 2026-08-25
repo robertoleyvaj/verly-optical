@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useCart, CartItem } from '../context/CartContext';
 import { useLang } from './LanguageContext';
-import { fbTrack } from '../lib/fpixel';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 function ItemCard({ item, onRemove }: { item: CartItem; onRemove: () => void }) {
@@ -110,6 +110,7 @@ export default function CartDrawer() {
   const { t, lang } = useLang() as any;
   const { items, removeItem, totalPrecio, totalItems, promoSolarDisponible, promoSolarReclamada, cartOpen, setCartOpen } = useCart();
   const [loadingCheckout, setLoadingCheckout] = useState(false);
+  const router = useRouter();
 
   const handleCheckout = async () => {
   const sinNombre = items.filter(i => !i.paciente?.trim());
@@ -120,42 +121,11 @@ export default function CartDrawer() {
     ));
     return;
   }
+  // Pago embebido: el checkout ocurre dentro de Verly (página /checkout).
+  // El evento InitiateCheckout se dispara ahí, al crear la sesión de Stripe.
   setLoadingCheckout(true);
-  try {
-    const itemsStr = items.map(item => {
-      if (item.es_regalo) return `${item.armazon_nombre} (Free - ${item.paciente})`;
-      if (item.solo_armazon) return `${item.armazon_nombre} (frame only - ${item.paciente})`;
-      const partes = [item.armazon_nombre];
-      if (item.lentes) {
-        partes.push(item.lentes.vision_nombre);
-        partes.push(item.lentes.material_nombre);
-        if (item.lentes.filtros_nombres.length > 0) partes.push(...item.lentes.filtros_nombres);
-      }
-      if (item.paciente) partes.push(`(${item.paciente})`);
-      return partes.join(' + ');
-    }).join(' | ');
-    const res = await fetch('/api/checkout', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ items: items, total: totalPrecio }),
-    });
-    const data = await res.json();
-    if (data.url) {
-      // Meta Pixel · InitiateCheckout (justo antes de ir a Stripe)
-      fbTrack('InitiateCheckout', {
-        content_ids: items.map((i: CartItem) => String(i.armazon_id)),
-        content_type: 'product',
-        value: totalPrecio,
-        currency: 'USD',
-        num_items: items.length,
-      });
-      window.location.href = data.url;
-    }
-    else { alert(t('Error al procesar el pago.', 'Error processing payment.')); setLoadingCheckout(false); }
-  } catch {
-    alert(t('Error al procesar el pago.', 'Error processing payment.'));
-    setLoadingCheckout(false);
-  }
+  setCartOpen(false);
+  router.push('/checkout');
 };
 
   const tienePendientes = items.some(i => i.receta?.metodo === 'despues');

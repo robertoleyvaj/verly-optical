@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
     const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown';
     if (isRateLimited(ip)) return NextResponse.json({ error: 'Demasiados intentos.' }, { status: 429 });
 
-    const { items } = await req.json();
+    const { items, embedded } = await req.json();
     if (!Array.isArray(items) || items.length === 0 || items.length > 10)
       return NextResponse.json({ error: 'Carrito inválido' }, { status: 400 });
 
@@ -78,7 +78,8 @@ export async function POST(req: NextRequest) {
     const envBaseOk = envBase ? (/^https?:\/\//.test(envBase) ? envBase : `https://${envBase}`) : '';
     const BASE = req.headers.get('origin') || req.nextUrl.origin || envBaseOk || 'https://verlyoptical.com';
 
-    const session = await stripe.checkout.sessions.create({
+    // Parámetros compartidos entre el checkout embebido y el hospedado.
+    const baseParams: Stripe.Checkout.SessionCreateParams = {
       payment_method_types: ['card'],
       mode: 'payment',
       shipping_address_collection: { allowed_countries: ['US', 'MX', 'CA'] },
@@ -102,14 +103,28 @@ export async function POST(req: NextRequest) {
         quantity: 1,
       }],
       metadata: { checkout_session_id: cs.id.toString() },
+    };
+
+    // Modo EMBEBIDO: el pago se muestra dentro de Verly. Devuelve client_secret.
+    if (embedded) {
+      const session = await stripe.checkout.sessions.create({
+        ...baseParams,
+        ui_mode: 'embedded',
+        return_url: `${BASE}/gracias?session_id={CHECKOUT_SESSION_ID}`,
+      });
+      await supabase.from('checkout_sessions').update({ stripe_session_id: session.id }).eq('id', cs.id);
+      return NextResponse.json({ clientSecret: session.client_secret });
+    }
+
+    // Modo hospedado (fallback): redirige a Stripe.
+    const session = await stripe.checkout.sessions.create({
+      ...baseParams,
       success_url: `${BASE}/gracias?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url:  `${BASE}/Tienda`,
     });
-
     await supabase.from('checkout_sessions')
       .update({ stripe_session_id: session.id })
       .eq('id', cs.id);
-
     return NextResponse.json({ url: session.url });
 
   } catch (error: any) {

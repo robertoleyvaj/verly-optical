@@ -26,7 +26,7 @@ export default function GlassesFrom28Page() {
       subtitle="Best value"
       heroKeyword="Prescription Glasses from $28"
       description="Quality frames with prescription lenses included — complete pairs starting at just $28. Handpicked styles, fair prices, no surprises at checkout."
-      nombres={["NATURA", "OVALINE", "HALLE", "LIND", "ULTEM", "TENA"]}
+      nombres={["NATURA", "MAXCO", "OFEN", "SMART", "LIGHTEM", "ARRY"]}
       lensHighlights={[
         { icon: "◌", label: "From $28 complete", desc: "Frame + prescription lenses included" },
         { icon: "◈", label: "Anti-reflective coating", desc: "Essential AR available on every pair" },

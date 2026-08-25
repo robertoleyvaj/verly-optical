@@ -120,9 +120,9 @@ export default async function CollectionPage({
               style={{ textDecoration: "none", color: "inherit" }}
             >
               <div className="collection-frame-card" style={{ background: "white", borderRadius: "12px", overflow: "hidden", border: "1px solid rgba(0,0,0,0.04)", transition: "all 0.3s ease", cursor: "pointer" }}>
-                <div style={{ aspectRatio: "1", background: "#f5f2ed", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
+                <div style={{ aspectRatio: "1", background: "#ffffff", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", padding: "20px" }}>
                   {frame.imagen_url
-                    ? <img src={frame.imagen_url} alt={frame.nombre} style={{ width: "100%", height: "100%", objectFit: "cover" }}/>
+                    ? <img src={frame.imagen_url} alt={frame.nombre} style={{ width: "100%", height: "100%", objectFit: "contain" }}/>
                     : (
                       <svg width="56" height="32" viewBox="0 0 160 90" fill="none" style={{ opacity: 0.15 }}>
                         <rect x="4" y="12" width="64" height="66" rx="14" stroke="#1d1d1d" strokeWidth="3"/>

@@ -112,6 +112,6 @@ export async function POST(req: NextRequest) {
 
   } catch (error: any) {
     console.error('Checkout error:', error);
-    return NextResponse.json({ error: `Error: ${error?.message || error}` }, { status: 500 });
+    return NextResponse.json({ error: 'Error procesando el pedido.' }, { status: 500 });
   }
 }

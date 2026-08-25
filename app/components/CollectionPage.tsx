@@ -31,12 +31,20 @@ async function getFrames(filterTag?: string, nombres?: string[]) {
     query = query.limit(8);
     if (filterTag) query = query.contains("tags", [filterTag]);
   }
-  const { data } = await query;
+  const { data, error } = await query;
   let frames = data ?? [];
   // Respeta el orden exacto pedido cuando se filtró por nombres.
   if (nombres && nombres.length) {
     frames = [...frames].sort((a, b) => nombres.indexOf(a.nombre) - nombres.indexOf(b.nombre));
   }
+  // eslint-disable-next-line no-console
+  (globalThis as any).__collDebug = {
+    count: frames.length,
+    error: error?.message ?? null,
+    hasServiceKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+    url: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+    nombres: nombres ?? null,
+  };
   return frames;
 }
 
@@ -56,8 +64,12 @@ export default async function CollectionPage({
     ? frames
     : Array.from({ length: 4 }, (_, i) => ({ id: i, nombre: "Browse styles", precio: 13, imagen_url: null }));
 
+  const __dbg = (globalThis as any).__collDebug || {};
   return (
     <main style={{ background: "var(--cream)", minHeight: "100vh", fontFamily: "var(--font-sans)" }}>
+      <div style={{ background: "#111", color: "#0f0", fontSize: "11px", fontFamily: "monospace", padding: "6px 12px" }}>
+        DEBUG · frames={String(__dbg.count)} · error={String(__dbg.error)} · serviceKey={String(__dbg.hasServiceKey)} · url={String(__dbg.url)} · nombres={JSON.stringify(__dbg.nombres)}
+      </div>
       <style>{`
         .collection-frame-card:hover { transform: translateY(-4px); box-shadow: 0 16px 48px rgba(0,0,0,0.08); }
         .collection-related-link:hover { border-color: var(--sage) !important; color: var(--sage) !important; }

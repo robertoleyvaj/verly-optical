@@ -15,19 +15,27 @@ export interface CollectionPageProps {
   faq: { q: string; a: string }[];
   relatedLinks: { label: string; href: string }[];
   filterTag?: string;
+  nombres?: string[];
 }
 
-async function getFrames(filterTag?: string) {
+async function getFrames(filterTag?: string, nombres?: string[]) {
   let query = supabase
     .from("armazones")
     .select("id, nombre, precio, imagen_url, tags, genero")
-    .eq("activo", true).eq("publicar_verly", true)
-    .limit(8);
-  if (filterTag) {
-    query = query.contains("tags", [filterTag]);
+    .eq("activo", true).eq("publicar_verly", true);
+  if (nombres && nombres.length) {
+    query = query.in("nombre", nombres);
+  } else {
+    query = query.limit(8);
+    if (filterTag) query = query.contains("tags", [filterTag]);
   }
   const { data } = await query;
-  return data ?? [];
+  let frames = data ?? [];
+  // Respeta el orden exacto pedido cuando se filtró por nombres.
+  if (nombres && nombres.length) {
+    frames = [...frames].sort((a, b) => nombres.indexOf(a.nombre) - nombres.indexOf(b.nombre));
+  }
+  return frames;
 }
 
 export default async function CollectionPage({
@@ -39,8 +47,9 @@ export default async function CollectionPage({
   faq,
   relatedLinks,
   filterTag,
+  nombres,
 }: CollectionPageProps) {
-  const frames = await getFrames(filterTag);
+  const frames = await getFrames(filterTag, nombres);
   const displayFrames = frames.length > 0
     ? frames
     : Array.from({ length: 4 }, (_, i) => ({ id: i, nombre: "Browse styles", precio: 13, imagen_url: null }));

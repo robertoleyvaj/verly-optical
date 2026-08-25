@@ -72,9 +72,11 @@ export async function POST(req: NextRequest) {
         : `${item.armazon_nombre}${item.paciente ? ` — ${item.paciente}` : ''}`
     ).join(', ');
 
-    // URL base garantizada con esquema (Stripe exige https://)
-    const rawBase = process.env.NEXT_PUBLIC_BASE_URL || 'https://verlyoptical.com';
-    const BASE = /^https?:\/\//.test(rawBase) ? rawBase : `https://${rawBase}`;
+    // URL base según el ORIGEN real de la petición: en localhost = http://localhost:3000,
+    // en producción = https://verlyoptical.com. No depende de variables de entorno.
+    const envBase = process.env.NEXT_PUBLIC_BASE_URL;
+    const envBaseOk = envBase ? (/^https?:\/\//.test(envBase) ? envBase : `https://${envBase}`) : '';
+    const BASE = req.headers.get('origin') || req.nextUrl.origin || envBaseOk || 'https://verlyoptical.com';
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],

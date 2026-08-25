@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Navbar from './components/Navbar';
+import Asistente from './components/Asistente';
 import { useLang } from './components/LanguageContext';
 import { supabase } from './lib/supabase';
 
@@ -135,7 +136,7 @@ export default function Home() {
     return (
       <main style={{ fontFamily: 'var(--font-sans)', margin: 0, padding: 0, background: 'var(--cream)', color: 'var(--charcoal)', overflowX: 'hidden' }}>
         <Navbar />
-        {quizOpen && <QuizModal onClose={() => setQuizOpen(false)} t={t} lang={lang} />}
+        {quizOpen && <Asistente onClose={() => setQuizOpen(false)} t={t} lang={lang} />}
 
         <section style={{ paddingTop: '80px', paddingBottom: '2rem' }}>
           <div style={{ padding: '0 1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '1rem' }}>
@@ -272,7 +273,7 @@ export default function Home() {
   return (
     <main style={{ fontFamily: 'var(--font-sans)', margin: 0, padding: 0, background: 'var(--cream)', color: 'var(--charcoal)', overflowX: 'hidden' }}>
       <Navbar />
-      {quizOpen && <QuizModal onClose={() => setQuizOpen(false)} t={t} lang={lang} />}
+      {quizOpen && <Asistente onClose={() => setQuizOpen(false)} t={t} lang={lang} />}
 
       <section style={{ position: 'relative', width: '100%', minHeight: '100vh', overflow: 'hidden', display: 'flex', alignItems: 'center' }}>
         <img src="/hero-man.jpg" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top' }}/>

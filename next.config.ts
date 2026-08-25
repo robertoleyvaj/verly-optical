@@ -21,9 +21,6 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
-  // Durante la fase de lanzamiento no bloqueamos el build por avisos de lint
-  // (el chequeo de tipos de TypeScript sigue activo). Reversible.
-  eslint: { ignoreDuringBuilds: true },
   async headers() {
     return [
       {

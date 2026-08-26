@@ -472,7 +472,10 @@ export default function DetalleArmazon() {
   type DrawerEstado = 'inicio' | 'inicio_solar' | 'manual' | 'foto' | 'config';
   const [drawerEstado, setDrawerEstado] = useState<DrawerEstado>('inicio');
   const [recetaEstado, setRecetaEstado] = useState<RecetaEstado>('sin_receta');
-  const [fotoReceta, setFotoReceta] = useState('');
+  const [fotoReceta, setFotoReceta] = useState('');          // preview local (objectURL)
+  const [fotoRecetaPath, setFotoRecetaPath] = useState('');  // ruta real en Storage (lo que se guarda)
+  const [subiendoFoto, setSubiendoFoto] = useState(false);
+  const [errorFoto, setErrorFoto] = useState('');
   const [receta, setReceta] = useState<RecetaData>({ sph_od: null, cyl_od: null, axis_od: null, sph_os: null, cyl_os: null, axis_os: null, add: null, dp: null, prisma: '' });
   const [paso, setPaso] = useState(1);
   const [vision, setVision] = useState('');
@@ -550,6 +553,29 @@ export default function DetalleArmazon() {
     return errs;
   };
 
+  const subirFotoReceta = async (file: File) => {
+    setErrorFoto('');
+    const tipoOk = file.type.startsWith('image/') || file.type === 'application/pdf';
+    if (!tipoOk) { setErrorFoto(t('Formato no válido. Sube una imagen o PDF.', 'Invalid format. Upload an image or PDF.')); return; }
+    if (file.size > 10 * 1024 * 1024) { setErrorFoto(t('El archivo supera 10 MB.', 'The file is larger than 10 MB.')); return; }
+    setFotoReceta(URL.createObjectURL(file)); // vista previa inmediata
+    setFotoRecetaPath('');
+    setSubiendoFoto(true);
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      const res = await fetch('/api/upload-receta', { method: 'POST', body: fd });
+      const data = await res.json();
+      if (!res.ok || !data.path) throw new Error(data.error || 'upload failed');
+      setFotoRecetaPath(data.path);
+    } catch {
+      setErrorFoto(t('No se pudo subir la foto. Intenta de nuevo.', 'Could not upload the photo. Please try again.'));
+      setFotoReceta(''); setFotoRecetaPath('');
+    } finally {
+      setSubiendoFoto(false);
+    }
+  };
+
   const guardarRecetaManual = () => {
     const errs = validarReceta();
     if (errs.length > 0) { setErrores(errs); return; }
@@ -602,7 +628,7 @@ export default function DetalleArmazon() {
       receta: soloArmazon ? undefined : {
         metodo: recetaEstado === 'guardada' ? 'manual' as const : recetaEstado === 'foto' ? 'foto' as const : recetaEstado === 'sin_graduacion' ? 'sin_graduacion' as const : 'despues' as const,
         datos: recetaEstado === 'guardada' ? receta : undefined,
-        foto_url: recetaEstado === 'foto' ? fotoReceta : undefined,
+        foto_url: recetaEstado === 'foto' ? fotoRecetaPath : undefined,
       },
       paciente: paciente.trim() || undefined,
       precio_total: total,
@@ -619,7 +645,7 @@ export default function DetalleArmazon() {
     setDrawerOpen(false);
     setPaso(1); setVision(''); setMaterial(''); setFiltros([]);
     setPaciente(''); setReutilizarReceta(null);
-    setRecetaEstado('sin_receta'); setFotoReceta('');
+    setRecetaEstado('sin_receta'); setFotoReceta(''); setFotoRecetaPath(''); setErrorFoto('');
     setDrawerEstado(esSolar ? 'inicio_solar' : 'inicio');
   };
 
@@ -832,8 +858,18 @@ export default function DetalleArmazon() {
             <p style={{ fontFamily: 'var(--font-serif)', fontSize: '1.1rem', fontWeight: 300, color: 'var(--charcoal)', marginBottom: '1rem' }}>{t('Sube tu receta', 'Upload your prescription')}</p>
             {fotoReceta ? (
               <div style={{ marginBottom: '1rem' }}>
-                <img src={fotoReceta} alt="receta" style={{ width: '100%', borderRadius: '6px', maxHeight: '200px', objectFit: 'contain', border: '1px solid var(--border)' }}/>
-                <button onClick={() => setFotoReceta('')} style={{ background: 'none', border: 'none', color: '#c0392b', fontSize: '12px', cursor: 'pointer', marginTop: '8px', fontFamily: 'var(--font-sans)' }}>{t('Quitar foto', 'Remove photo')}</button>
+                <div style={{ position: 'relative' }}>
+                  <img src={fotoReceta} alt="receta" style={{ width: '100%', borderRadius: '6px', maxHeight: '200px', objectFit: 'contain', border: '1px solid var(--border)', opacity: subiendoFoto ? 0.5 : 1 }}/>
+                  {subiendoFoto && (
+                    <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', color: 'var(--charcoal)', fontFamily: 'var(--font-sans)' }}>
+                      {t('Subiendo…', 'Uploading…')}
+                    </div>
+                  )}
+                </div>
+                {!subiendoFoto && fotoRecetaPath && (
+                  <p style={{ fontSize: '11px', color: 'var(--sage)', marginTop: '6px', fontFamily: 'var(--font-sans)' }}>✓ {t('Foto guardada de forma segura', 'Photo saved securely')}</p>
+                )}
+                <button onClick={() => { setFotoReceta(''); setFotoRecetaPath(''); setErrorFoto(''); }} style={{ background: 'none', border: 'none', color: '#c0392b', fontSize: '12px', cursor: 'pointer', marginTop: '8px', fontFamily: 'var(--font-sans)' }}>{t('Quitar foto', 'Remove photo')}</button>
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '1rem' }}>
@@ -842,7 +878,7 @@ export default function DetalleArmazon() {
                   { title: t('Tomar foto ahora', 'Take photo now'), sub: t('Usa la cámara de tu dispositivo', 'Use your device camera'), capture: 'environment' as const, accept: 'image/*' }
                 ].map((opt, i) => (
                   <label key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '1.1rem 1.25rem', borderRadius: '8px', border: '1px dashed var(--border)', cursor: 'pointer', background: 'var(--cream)' }}>
-                    <input type="file" accept={opt.accept} capture={opt.capture} style={{ display: 'none' }} onChange={e => { const file = e.target.files?.[0]; if (file) setFotoReceta(URL.createObjectURL(file)); }}/>
+                    <input type="file" accept={opt.accept} capture={opt.capture} style={{ display: 'none' }} onChange={e => { const file = e.target.files?.[0]; if (file) subirFotoReceta(file); }}/>
                     <div>
                       <div style={{ fontSize: '13px', fontWeight: 500, color: 'var(--charcoal)' }}>{opt.title}</div>
                       <div style={{ fontSize: '12px', color: 'var(--warm-gray)' }}>{opt.sub}</div>
@@ -851,7 +887,10 @@ export default function DetalleArmazon() {
                 ))}
               </div>
             )}
-            {fotoReceta && (
+            {errorFoto && (
+              <p style={{ fontSize: '12px', color: '#c0392b', marginBottom: '1rem', fontFamily: 'var(--font-sans)' }}>{errorFoto}</p>
+            )}
+            {fotoReceta && !subiendoFoto && fotoRecetaPath && (
               // DRAWER ACTION → TURQUESA
               <button onClick={() => { setRecetaEstado('foto'); setDrawerEstado('config'); setPaso(1); }} style={{ width: '100%', background: TURQUESA, color: 'white', border: 'none', borderRadius: '6px', padding: '14px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', letterSpacing: '0.1em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)', transition: 'background 0.2s' }} onMouseEnter={e => (e.currentTarget.style.background = TURQUESA_DARK)} onMouseLeave={e => (e.currentTarget.style.background = TURQUESA)}>
                 {t('Foto guardada — continuar →', 'Photo saved — continue →')}

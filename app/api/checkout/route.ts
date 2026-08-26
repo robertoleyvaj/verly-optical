@@ -130,6 +130,10 @@ export async function POST(req: NextRequest) {
 
   } catch (error: any) {
     console.error('Checkout error:', error);
-    return NextResponse.json({ error: 'Error procesando el pedido.' }, { status: 500 });
+    // TEMP diagnóstico: devolvemos el mensaje real para depurar el 500 en producción.
+    return NextResponse.json(
+      { error: 'Error procesando el pedido.', detail: error?.message || String(error) },
+      { status: 500 }
+    );
   }
 }

@@ -109,7 +109,7 @@ export async function POST(req: NextRequest) {
     if (embedded) {
       const session = await stripe.checkout.sessions.create({
         ...baseParams,
-        ui_mode: 'embedded',
+        ui_mode: 'embedded_page',
         return_url: `${BASE}/gracias?session_id={CHECKOUT_SESSION_ID}`,
       } as unknown as Stripe.Checkout.SessionCreateParams);
       await supabase.from('checkout_sessions').update({ stripe_session_id: session.id }).eq('id', cs.id);

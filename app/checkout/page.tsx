@@ -69,11 +69,20 @@ export default function CheckoutPage() {
         )}
 
         {estado === 'listo' && (
-          <div style={{ background: 'white', borderRadius: '12px', border: '1px solid rgba(0,0,0,0.06)', padding: '8px', overflow: 'hidden' }}>
-            <EmbeddedCheckoutProvider stripe={stripePromise} options={{ fetchClientSecret }}>
-              <EmbeddedCheckout />
-            </EmbeddedCheckoutProvider>
-          </div>
+          <>
+            <div style={{ background: 'white', borderRadius: '16px', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 6px 30px rgba(0,0,0,0.05)', padding: '10px', overflow: 'hidden' }}>
+              <EmbeddedCheckoutProvider stripe={stripePromise} options={{ fetchClientSecret }}>
+                <EmbeddedCheckout />
+              </EmbeddedCheckoutProvider>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginTop: '1.5rem', color: 'var(--warm-gray)', fontSize: '12px', letterSpacing: '0.02em' }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+              </svg>
+              <span>{t('Pago cifrado y seguro con Stripe', 'Encrypted, secure payment with Stripe')}</span>
+            </div>
+          </>
         )}
       </div>
     </main>

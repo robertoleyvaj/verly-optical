@@ -459,6 +459,9 @@ export default function DetalleArmazon() {
   const viewContentRef = useRef<string | null>(null);
   const [relacionados, setRelacionados] = useState<Armazon[]>([]);
   const [loading, setLoading] = useState(true);
+  type ColorPub = { color: string; imagen_url?: string | null; imagen2_url?: string | null; imagen3_url?: string | null; precio?: number | null };
+  const [colores, setColores] = useState<ColorPub[]>([]);
+  const [colorSel, setColorSel] = useState(0);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [verlyModal, setVerlyModal] = useState(false);
   const [paqueteVerly, setPaqueteVerly] = useState<PaqueteVerly | null>(null);
@@ -656,6 +659,11 @@ export default function DetalleArmazon() {
         setArmazon(data);
         const { data: rel } = await supabase.from('armazones').select('*').eq('activo', true).eq('publicar_verly', true).neq('id', id).limit(6);
         setRelacionados(rel || []);
+        // Colores publicados en Verly de este modelo (con sus fotos)
+        const { data: cols } = await supabase.from('armazon_colores')
+          .select('color, imagen_url, imagen2_url, imagen3_url, precio')
+          .eq('armazon_id', id).eq('publicar_verly', true).order('orden');
+        setColores(cols || []);
       }
       setLoading(false);
     }
@@ -679,9 +687,19 @@ export default function DetalleArmazon() {
   const pasos = [t('Visión', 'Vision'), t('Material', 'Material'), t('Filtros', 'Filters'), t('Resumen', 'Summary')];
   const coloresDisponibles = getColoresDisponibles(vision, material);
   const filtrosActivos = esSolar ? filtroOptsSolar : filtroOpts;
-  const fotos = [armazon?.imagen_url, armazon?.imagen2_url, armazon?.imagen3_url, armazon?.imagen4_url].filter(Boolean) as string[];
+  const colorActivo = colores[colorSel] || null;
+  const fotosColor = colorActivo ? [colorActivo.imagen_url, colorActivo.imagen2_url, colorActivo.imagen3_url].filter(Boolean) as string[] : [];
+  const fotos = (fotosColor.length > 0
+    ? fotosColor
+    : [armazon?.imagen_url, armazon?.imagen2_url, armazon?.imagen3_url, armazon?.imagen4_url].filter(Boolean)) as string[];
   const fotoLifestyle = armazon?.imagen5_url || null;
   const partesMedidas = armazon?.medidas?.split('-') || [];
+  const swatchColor = (n: string): string => {
+    const s = (n || '').toUpperCase();
+    const map: [string, string][] = [['NEGR', '#1d1d1d'], ['BLANC', '#e8e8e8'], ['AZUL', '#2f4a8c'], ['ROJO', '#a83232'], ['ROSA', '#d46a90'], ['VERDE', '#3a7d4d'], ['GRIS', '#8a8a8a'], ['CAFE', '#5a3a1e'], ['CAREY', '#6b4423'], ['DORAD', '#c9a227'], ['PLATE', '#b8b8b8'], ['MORAD', '#6a3d9a'], ['LILA', '#b39ddb'], ['NARANJ', '#e07b2f'], ['VINO', '#722f37'], ['AMARIL', '#e6c229'], ['TRANSP', '#d8e4e8'], ['CRISTAL', '#d8e4e8'], ['BRONCE', '#8c6239'], ['GUINDA', '#722f37']];
+    for (const [k, v] of map) if (s.includes(k)) return v;
+    return '#b0b0b0';
+  };
 
   const irFoto = (idx: number) => { setFotoActiva(Math.max(0, Math.min(idx, fotos.length - 1))); setSwipeOffset(0); };
   const fotoPrev = () => irFoto(fotoActiva - 1);
@@ -1198,6 +1216,19 @@ export default function DetalleArmazon() {
               <span style={{ fontSize: '0.85rem', color: 'var(--warm-gray)', fontWeight: 400 }}>USD</span>
               {armazon.descuento && armazon.descuento > 0 && <span style={{ background: 'var(--charcoal)', color: 'white', fontSize: '11px', fontWeight: 700, padding: '3px 8px', borderRadius: '2px' }}>-{armazon.descuento}%</span>}
             </div>
+            {colores.length > 0 && (
+              <div style={{ marginBottom: '1.75rem' }}>
+                <p style={{ fontSize: '0.8rem', color: 'var(--warm-gray)', margin: '0 0 8px', fontFamily: 'var(--font-sans)' }}>
+                  {t('Color', 'Color')}: <span style={{ color: 'var(--charcoal)', fontWeight: 500 }}>{colorActivo?.color}</span>
+                </p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                  {colores.map((c, i) => (
+                    <button key={i} onClick={() => { setColorSel(i); setFotoActiva(0); }} title={c.color}
+                      style={{ width: '32px', height: '32px', borderRadius: '50%', background: swatchColor(c.color), cursor: 'pointer', padding: 0, border: i === colorSel ? '2px solid var(--charcoal)' : '1px solid var(--border)', boxShadow: i === colorSel ? '0 0 0 2px white inset' : 'none', transition: 'all 0.2s' }} />
+                  ))}
+                </div>
+              </div>
+            )}
             <div style={{ marginBottom: '1.75rem' }}>
               <p style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--charcoal)', margin: '0 0 3px' }}>{t('Graduadas desde $15', 'With lenses from $15')}</p>
               <p style={{ fontSize: '0.78rem', color: 'var(--warm-gray)', margin: 0 }}>Single Vision · Blue Light · {t('Fotocromático', 'Photochromic')} · {t('Progresivo', 'Progressive')}</p>

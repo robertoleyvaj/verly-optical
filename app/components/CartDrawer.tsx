@@ -146,7 +146,6 @@ function ItemCard({ item, onRemove }: { item: CartItem; onRemove: () => void }) 
           <div style={{ fontFamily: 'var(--font-serif)', fontSize: '1rem', fontWeight: 400, color: '#1d1d1d', marginBottom: '4px', lineHeight: 1.2 }}>{item.armazon_nombre}</div>
 
           <div style={{ display: 'flex', gap: '6px', marginBottom: '6px', flexWrap: 'wrap' }}>
-            {item.es_regalo && <span style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#55624c', background: '#f0f4ef', padding: '2px 8px', borderRadius: '20px', border: '1px solid #c8dbc4' }}>🎁 Free sunglasses</span>}
             {item.solo_armazon && <span style={{ fontSize: '9px', fontWeight: 600, color: '#9a9a9a', background: '#f5f3ef', padding: '2px 8px', borderRadius: '20px' }}>{t('Solo armazón', 'Frame only')}</span>}
           </div>
 
@@ -175,14 +174,7 @@ function ItemCard({ item, onRemove }: { item: CartItem; onRemove: () => void }) 
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px', flexShrink: 0 }}>
-          {item.es_regalo ? (
-            <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: '11px', color: '#9a9a9a', textDecoration: 'line-through' }}>${item.armazon_precio || 13}</div>
-              <div style={{ fontFamily: 'var(--font-serif)', fontSize: '1.1rem', fontWeight: 400, color: '#55624c' }}>{t('Gratis', 'Free')}</div>
-            </div>
-          ) : (
-            <div style={{ fontFamily: 'var(--font-serif)', fontSize: '1.1rem', fontWeight: 400, color: '#1d1d1d' }}>${item.precio_total}</div>
-          )}
+          <div style={{ fontFamily: 'var(--font-serif)', fontSize: '1.1rem', fontWeight: 400, color: '#1d1d1d' }}>${item.precio_total}</div>
           <button onClick={onRemove} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9a9a9a', fontSize: '11px', fontFamily: 'var(--font-sans)', textDecoration: 'underline', padding: 0 }}>
             {t('Eliminar', 'Remove')}
           </button>
@@ -194,7 +186,7 @@ function ItemCard({ item, onRemove }: { item: CartItem; onRemove: () => void }) 
 
 export default function CartDrawer() {
   const { t, lang } = useLang() as any;
-  const { items, removeItem, totalPrecio, totalItems, promoSolarDisponible, promoSolarReclamada, cartOpen, setCartOpen } = useCart();
+  const { items, removeItem, totalPrecio, totalItems, cartOpen, setCartOpen } = useCart();
   const [loadingCheckout, setLoadingCheckout] = useState(false);
   const router = useRouter();
 
@@ -274,35 +266,6 @@ export default function CartDrawer() {
                 <ItemCard key={item.id} item={item} onRemove={() => removeItem(item.id)}/>
               ))}
 
-              {/* Banner promo solar */}
-              {promoSolarDisponible && !items.some(i => i.es_regalo) && (
-                <div style={{ margin: '1.25rem 0', background: 'linear-gradient(135deg, #1d1d1d 0%, #3a4f33 100%)', borderRadius: '12px', padding: '1.25rem', position: 'relative', overflow: 'hidden' }}>
-                  <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '100px', height: '100px', borderRadius: '50%', background: 'rgba(255,255,255,0.04)' }}/>
-                  <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)', margin: '0 0 6px' }}>
-                    {t('Promoción desbloqueada', 'Promotion unlocked')}
-                  </p>
-                  <p style={{ fontFamily: 'var(--font-serif)', fontSize: '1.1rem', fontWeight: 400, color: 'white', margin: '0 0 4px', lineHeight: 1.2 }}>
-                    🎉 {t('¡Lentes de sol gratis!', 'Free sunglasses!')}
-                  </p>
-                  <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.6)', margin: '0 0 1rem', lineHeight: 1.5 }}>
-                    {t('Con tu compra de lentes graduados tienes derecho a un par de lentes de sol sin costo.', 'With your prescription glasses purchase you get a free pair of sunglasses.')}
-                  </p>
-                  <Link href="/sunglasses?promo=regalo" onClick={() => setCartOpen(false)} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'white', color: '#1d1d1d', padding: '10px 18px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', textDecoration: 'none', fontFamily: 'var(--font-sans)' }}>
-                    {t('Elegir mi par gratis', 'Choose my free pair')}
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
-                  </Link>
-                </div>
-              )}
-
-              {/* Promo reclamada */}
-              {promoSolarDisponible && promoSolarReclamada && (
-                <div style={{ margin: '1rem 0', background: '#f0f4ef', borderRadius: '8px', padding: '0.85rem 1rem', display: 'flex', alignItems: 'center', gap: '8px', border: '1px solid #c8dbc4' }}>
-                  <span style={{ fontSize: '16px' }}>✓</span>
-                  <span style={{ fontSize: '12px', color: '#3a4f33', fontWeight: 500 }}>
-                    {t('Lentes de sol gratis incluidos', 'Free sunglasses included')}
-                  </span>
-                </div>
-              )}
 
               {/* Recetas pendientes warning */}
               {tienePendientes && (
@@ -329,12 +292,8 @@ export default function CartDrawer() {
                   <span style={{ maxWidth: '260px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {item.paciente ? `${item.paciente} — ` : ''}{item.armazon_nombre}
                   </span>
-                  <span style={{ fontWeight: 500, color: item.es_regalo ? '#55624c' : '#1d1d1d', flexShrink: 0 }}>
-  {item.es_regalo
-    ? item.precio_total > 0
-      ? <span>{t('Armazón gratis', 'Frame free')} + ${item.precio_total} {t('micas', 'lenses')}</span>
-      : t('Gratis', 'Free')
-    : `$${item.precio_total}`}
+                  <span style={{ fontWeight: 500, color: '#1d1d1d', flexShrink: 0 }}>
+  {`$${item.precio_total}`}
 </span>
                 </div>
               ))}

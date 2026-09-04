@@ -163,13 +163,11 @@ function TiendaContent() {
   const [filtroMaterial, setFiltroMaterial] = useState<string[]>([]);
   const [filtroTalla, setFiltroTalla] = useState<string[]>([]);
   const [openSections, setOpenSections] = useState<string[]>(['shape']);
-  const [esPromoRegalo, setEsPromoRegalo] = useState(false);
+  const esPromoRegalo = false;   // promo de solares gratis retirada
 
   useEffect(() => {
     const genero = searchParams.get('genero');
-    const promo = searchParams.get('promo');
     if (genero && genero !== 'all') setGeneroTab(genero);
-    if (promo === 'regalo') setEsPromoRegalo(true);
   }, [searchParams]);
 
   useEffect(() => {
@@ -288,17 +286,8 @@ function TiendaContent() {
     <main style={{ fontFamily: 'var(--font-sans)', background: 'var(--cream)', minHeight: '100vh', color: 'var(--charcoal)' }}>
       <Navbar />
 
-      {/* Promo banner */}
-      {esPromoRegalo && (
-        <div style={{ background: 'var(--charcoal)', padding: '1rem 2rem', textAlign: 'center', marginTop: '72px' }}>
-          <p style={{ fontFamily: 'var(--font-serif)', fontSize: '1rem', fontWeight: 300, color: 'white', margin: 0, letterSpacing: '-0.01em' }}>
-            {t('Elige tu par de lentes gratis — el armazón es cortesía de Verly.', 'Choose your free frame — on us.')}
-          </p>
-        </div>
-      )}
-
       {/* ── HERO ── */}
-      <div style={{ marginTop: esPromoRegalo ? '0' : '72px', position: 'relative', width: '100%', height: esMobil ? '320px' : '500px', overflow: 'hidden' }}>
+      <div style={{ marginTop: '72px', position: 'relative', width: '100%', height: esMobil ? '320px' : '500px', overflow: 'hidden' }}>
         <img
           src="/hero-tienda.jpg"
           alt=""

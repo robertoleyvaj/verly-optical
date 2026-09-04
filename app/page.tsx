@@ -192,19 +192,19 @@ export default function Home() {
         <section style={{ margin: '0 1.25rem 2rem', background: 'var(--sage)', borderRadius: '10px', overflow: 'hidden', position: 'relative' }}>
           <div style={{ padding: '1.75rem 1.5rem' }}>
             <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.6rem', fontWeight: 600, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.65)', margin: '0 0 0.6rem' }}>
-              {t('Oferta de lanzamiento', 'Limited time offer')}
+              {t('Lentes de sol', 'Sunglasses')}
             </p>
             <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.8rem', fontWeight: 400, color: 'white', margin: '0 0 0.15rem', lineHeight: 1.05, letterSpacing: '-0.02em' }}>
               {t('Lentes de sol', 'Sunglasses')}
             </h2>
             <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.8rem', fontWeight: 400, fontStyle: 'italic', color: 'rgba(255,255,255,0.75)', margin: '0 0 1rem', lineHeight: 1.05, letterSpacing: '-0.02em' }}>
-              {t('de regalo.', 'on us.')}
+              {t('que se gradúan.', 'made to your Rx.')}
             </h2>
             <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.78rem', color: 'rgba(255,255,255,0.7)', lineHeight: 1.7, margin: '0 0 1.25rem', maxWidth: '280px' }}>
-              {t('Con cualquier compra de lentes graduados.', 'With any prescription glasses purchase.')}
+              {t('Todos nuestros lentes de sol se pueden graduar. Sin seguro, sin citas.', 'All our sunglasses can be made with prescription lenses. No insurance, no appointments.')}
             </p>
-            <Link href="/Tienda?tipo=optico" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'white', color: 'var(--sage)', padding: '0.75rem 1.25rem', borderRadius: '3px', fontFamily: 'var(--font-sans)', fontSize: '0.68rem', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', textDecoration: 'none' }}>
-              {t('Ver lentes graduados', 'Shop eyeglasses')}
+            <Link href="/sunglasses" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'white', color: 'var(--sage)', padding: '0.75rem 1.25rem', borderRadius: '3px', fontFamily: 'var(--font-sans)', fontSize: '0.68rem', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', textDecoration: 'none' }}>
+              {t('Ver lentes de sol', 'Shop sunglasses')}
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
             </Link>
           </div>
@@ -313,20 +313,20 @@ export default function Home() {
           <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', padding: '0 5rem' }}>
             <div style={{ maxWidth: '440px' }}>
               <p style={{ fontFamily: 'var(--font-sans)', fontSize: '10px', fontWeight: 600, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--sage)', marginBottom: '1rem' }}>
-                {t('Oferta de lanzamiento', 'Limited time offer')}
+                {t('Lentes de sol', 'Sunglasses')}
               </p>
               <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2.4rem, 4vw, 3.8rem)', fontWeight: 400, color: 'var(--charcoal)', margin: '0 0 0.5rem', lineHeight: 1.0, letterSpacing: '-0.03em' }}>
                 {t('Lentes de sol', 'Sunglasses')}
               </h2>
               <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2.4rem, 4vw, 3.8rem)', fontWeight: 400, fontStyle: 'italic', color: 'var(--sage)', margin: '0 0 1.25rem', lineHeight: 1.0, letterSpacing: '-0.03em' }}>
-                {t('de regalo.', 'on us.')}
+                {t('que se gradúan.', 'made to your Rx.')}
               </h2>
               <div style={{ width: '40px', height: '1px', background: 'var(--sage)', marginBottom: '1.25rem', opacity: 0.6 }}/>
               <p style={{ fontFamily: 'var(--font-sans)', fontSize: '13px', color: 'var(--warm-gray)', lineHeight: 1.8, marginBottom: '2rem', maxWidth: '320px' }}>
-                {t('Con cualquier compra de lentes graduados. Un par premium de lentes de sol, gratis.', 'With any prescription glasses purchase. A premium pair of sunglasses, yours free.')}
+                {t('Todos nuestros lentes de sol se pueden graduar. Sin seguro, sin citas.', 'All our sunglasses can be made with prescription lenses. No insurance, no appointments.')}
               </p>
-              <Link href="/Tienda?tipo=optico" style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', background: 'var(--charcoal)', color: 'white', padding: '13px 28px', borderRadius: '3px', fontFamily: 'var(--font-sans)', fontSize: '11px', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', textDecoration: 'none' }}>
-                {t('Ver lentes graduados', 'Shop prescription glasses')}
+              <Link href="/sunglasses" style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', background: 'var(--charcoal)', color: 'white', padding: '13px 28px', borderRadius: '3px', fontFamily: 'var(--font-sans)', fontSize: '11px', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', textDecoration: 'none' }}>
+                {t('Ver lentes de sol', 'Shop sunglasses')}
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
               </Link>
             </div>

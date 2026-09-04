@@ -25,7 +25,6 @@ export type CartItem = {
   receta?: CartReceta;
   paciente?: string;
   precio_total: number;
-  es_regalo?: boolean;
   solo_armazon?: boolean;
 };
 
@@ -37,9 +36,6 @@ type CartContextType = {
   clearCart: () => void;
   totalItems: number;
   totalPrecio: number;
-  promoSolarDisponible: boolean;
-  promoSolarReclamada: boolean;
-  reclamarPromoSolar: () => void;
   cartOpen: boolean;
   setCartOpen: (v: boolean) => void;
   recetasSesion: { paciente: string; receta: CartReceta }[];
@@ -49,7 +45,6 @@ const CartContext = createContext<CartContextType | null>(null);
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
-  const [promoSolarReclamada, setPromoSolarReclamada] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
 
   // Cargar desde localStorage al montar
@@ -59,7 +54,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
       if (saved) {
         const parsed = JSON.parse(saved);
         setItems(parsed.items || []);
-        setPromoSolarReclamada(parsed.promoSolarReclamada || false);
       }
     } catch {}
   }, []);
@@ -67,9 +61,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
   // Guardar en localStorage cuando cambia
   useEffect(() => {
     try {
-      localStorage.setItem('verly_cart', JSON.stringify({ items, promoSolarReclamada }));
+      localStorage.setItem('verly_cart', JSON.stringify({ items }));
     } catch {}
-  }, [items, promoSolarReclamada]);
+  }, [items]);
 
   const addItem = (item: CartItem) => {
     setItems(prev => [...prev, item]);
@@ -77,16 +71,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   };
 
   const removeItem = (id: string) => {
-    setItems(prev => {
-      const filtered = prev.filter(i => i.id !== id);
-      // Si se elimina el item de regalo, resetear promo
-      const itemEliminado = prev.find(i => i.id === id);
-      if (itemEliminado?.es_regalo) setPromoSolarReclamada(false);
-      // Si ya no hay opticos, resetear promo
-      const hayOpticos = filtered.some(i => i.tipo === 'optico' && !i.es_regalo);
-      if (!hayOpticos) setPromoSolarReclamada(false);
-      return filtered;
-    });
+    setItems(prev => prev.filter(i => i.id !== id));
   };
 
   const updateItemReceta = (id: string, receta: CartReceta) => {
@@ -95,16 +80,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const clearCart = () => {
     setItems([]);
-    setPromoSolarReclamada(false);
   };
 
   const totalItems = items.length;
   const totalPrecio = items.reduce((sum, i) => sum + i.precio_total, 0);
-
-  // Promo: disponible si hay al menos 1 optico no regalo
-  const promoSolarDisponible = items.some(i => i.tipo === 'optico' && !i.es_regalo);
-
-  const reclamarPromoSolar = () => setPromoSolarReclamada(true);
 
   // Recetas guardadas en sesión para reutilizar
   const recetasSesion = items
@@ -115,7 +94,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
     <CartContext.Provider value={{
       items, addItem, removeItem, updateItemReceta, clearCart,
       totalItems, totalPrecio,
-      promoSolarDisponible, promoSolarReclamada, reclamarPromoSolar,
       cartOpen, setCartOpen,
       recetasSesion,
     }}>

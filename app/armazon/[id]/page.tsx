@@ -452,9 +452,8 @@ function Acordeon({ titulo, children }: { titulo: string; children: React.ReactN
 export default function DetalleArmazon() {
   const { id } = useParams();
   const searchParams = useSearchParams();
-  const esRegalo = searchParams.get('promo') === 'regalo';
   const { t, lang } = useLang() as any;
-  const { addItem, recetasSesion, items } = useCart();
+  const { addItem, recetasSesion } = useCart();
   const [armazon, setArmazon] = useState<Armazon | null>(null);
   const viewContentRef = useRef<string | null>(null);
   const [relacionados, setRelacionados] = useState<Armazon[]>([]);
@@ -521,7 +520,7 @@ export default function DetalleArmazon() {
     }
   }, [lightboxOpen]);
 
-  const precioArmazon = esRegalo ? 0 : (armazon?.precio || PRECIO_ARMAZON);
+  const precioArmazon = armazon?.precio || PRECIO_ARMAZON;
   const precioVision = (preciosDB.vision.find((v: any) => v.id === vision)?.precio || visionOpts.find(v => v.id === vision)?.precio || 0);
   const precioMaterial = (preciosDB.material.find((m: any) => m.id === material)?.precio || materialOpts.find(m => m.id === material)?.precio || 0);
   const precioFiltros = filtros.reduce((total, fid) => {
@@ -602,10 +601,6 @@ export default function DetalleArmazon() {
   const elegirManual = () => { setVerlyModal(false); setDrawerEstado('config'); setPaso(1); };
 
   const handleAddToCart = () => {
-    if (esRegalo && items.some(i => i.es_regalo)) {
-      alert(t('Ya tienes un par de lentes de sol gratis en tu carrito.', 'You already have a free pair of sunglasses in your cart.'));
-      return;
-    }
     if (reutilizarReceta) {
       const recetaGuardada = recetasSesion.find(r => r.paciente === reutilizarReceta);
       if (recetaGuardada && recetaGuardada.receta.datos) {
@@ -621,7 +616,6 @@ export default function DetalleArmazon() {
       armazon_nombre: armazon!.nombre,
       armazon_imagen: armazon!.imagen_url,
       armazon_precio: precioArmazon,
-      es_regalo: esRegalo,
       solo_armazon: soloArmazon,
       lentes: soloArmazon ? undefined : {
         vision, vision_nombre: visionOpts.find(v => v.id === vision)?.nombre_en || vision, vision_precio: precioVision,
@@ -1060,7 +1054,7 @@ export default function DetalleArmazon() {
                       </div>
                       <div style={{ background: 'var(--cream)', borderRadius: '8px', padding: '1.1rem', marginBottom: '1.25rem', border: '1px solid var(--border)' }}>
                         {[
-                          { label: t('Armazón', 'Frame'), value: esRegalo ? `~~$${armazon?.precio || PRECIO_ARMAZON}~~ $0 🎁` : `$${precioArmazon}` },
+                          { label: t('Armazón', 'Frame'), value: `$${precioArmazon}` },
                           { label: `${t('Visión', 'Vision')}: ${lang === 'es' ? (visionOpts.find(v => v.id === vision)?.nombre || '-') : (visionOpts.find(v => v.id === vision)?.nombre_en || '-')}`, value: `+$${precioVision}` },
                           { label: `${t('Material', 'Material')}: ${lang === 'es' ? (materialOpts.find(m => m.id === material)?.nombre || '-') : (materialOpts.find(m => m.id === material)?.nombre_en || '-')}`, value: precioMaterial === 0 ? t('Incluido', 'Included') : `+$${precioMaterial}` },
                           ...filtroOpts.filter(f => filtros.includes(f.id)).map(f => {

@@ -2,7 +2,6 @@
 'use client';
 import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
 import Navbar from '../components/Navbar';
 import { useLang } from '../components/LanguageContext';
 import { supabase } from '../lib/supabase';
@@ -35,8 +34,7 @@ const CATEGORIAS = [
 
 function SunglassesContent() {
   const { t, lang } = useLang() as any;
-  const searchParams = useSearchParams();
-  const esPromoRegalo = searchParams.get('promo') === 'regalo';
+  const esPromoRegalo = false;   // promo de solares gratis retirada
 
   const [armazones, setArmazones] = useState<Armazon[]>([]);
   const [filtro, setFiltro] = useState('todos');
@@ -69,17 +67,8 @@ function SunglassesContent() {
     <main style={{ fontFamily: 'var(--font-sans)', background: 'var(--cream)', minHeight: '100vh', color: 'var(--charcoal)' }}>
       <Navbar />
 
-      {/* Banner promo regalo */}
-      {esPromoRegalo && (
-        <div style={{ background: 'var(--charcoal)', padding: '1rem 2rem', textAlign: 'center', marginTop: '72px' }}>
-          <p style={{ fontFamily: 'var(--font-serif)', fontSize: '1rem', fontWeight: 300, color: 'white', margin: 0 }}>
-            🎁 {lang === 'es' ? 'Elige tu par de lentes de sol gratis — el armazón es cortesía de Verly.' : 'Choose your free sunglasses — the frame is on us.'}
-          </p>
-        </div>
-      )}
-
       {/* HERO */}
-      <div style={{ position: 'relative', width: '100%', height: esMobil ? '340px' : '520px', overflow: 'hidden', marginTop: esPromoRegalo ? '0' : '72px' }}>
+      <div style={{ position: 'relative', width: '100%', height: esMobil ? '340px' : '520px', overflow: 'hidden', marginTop: '72px' }}>
         <img
           src="/hero-solar.jpg"
           alt="Sunglasses"
@@ -90,12 +79,10 @@ function SunglassesContent() {
         <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', padding: esMobil ? '2rem 1.75rem' : '0 5rem' }}>
           <div style={{ maxWidth: '480px' }}>
             <p style={{ fontSize: '0.57rem', fontWeight: 700, letterSpacing: '0.24em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)', margin: '0 0 0.75rem' }}>
-              {esPromoRegalo ? '🎁 FREE SUNGLASSES' : 'VERLY OPTICAL — SUNGLASSES'}
+              VERLY OPTICAL — SUNGLASSES
             </p>
             <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: esMobil ? '3rem' : '4.8rem', fontWeight: 300, letterSpacing: '-0.03em', color: 'white', margin: 0, lineHeight: 1.0 }}>
-              {esPromoRegalo
-                ? (lang === 'es' ? 'Tu par gratis.' : 'Your free pair.')
-                : (lang === 'es' ? 'Lentes de sol\ncon carácter.' : 'Sunglasses\nwith character.')}
+              {lang === 'es' ? 'Lentes de sol\ncon carácter.' : 'Sunglasses\nwith character.'}
             </h1>
             <div style={{ width: '32px', height: '1px', background: 'var(--sage-light)', margin: '1.1rem 0' }}/>
             <p style={{ fontSize: esMobil ? '0.82rem' : '0.88rem', color: 'rgba(255,255,255,0.65)', margin: '0 0 2rem', lineHeight: 1.8, maxWidth: '340px' }}>

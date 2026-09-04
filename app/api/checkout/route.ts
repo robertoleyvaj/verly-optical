@@ -19,7 +19,6 @@ async function calcularPrecioItem(item: any): Promise<number> {
     const { data } = await supabase.from('armazones').select('precio, descuento_verly').eq('id', item.armazon_id).eq('activo', true).single();
     if (data) precioArmazon = Math.round(data.precio * (1 - (data.descuento_verly || 0) / 100));
   }
-  if (item.es_regalo) precioArmazon = 0;
   if (item.solo_armazon) return precioArmazon;
   const precioVision   = VISION_PRICES[item.lentes?.vision]    ?? 0;
   const precioMaterial = MATERIAL_PRICES[item.lentes?.material] ?? 0;

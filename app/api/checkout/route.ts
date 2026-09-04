@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
+import { validarCupon } from '../../lib/cupones';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 const supabase = createClient(
@@ -41,13 +42,29 @@ export async function POST(req: NextRequest) {
     const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown';
     if (isRateLimited(ip)) return NextResponse.json({ error: 'Demasiados intentos.' }, { status: 429 });
 
-    const { items, embedded } = await req.json();
+    const { items, embedded, codigo } = await req.json();
     if (!Array.isArray(items) || items.length === 0 || items.length > 10)
       return NextResponse.json({ error: 'Carrito inválido' }, { status: 400 });
 
     const totales = await Promise.all(items.map(calcularPrecioItem));
-    const total = totales.reduce((s, t) => s + t, 0);
-    if (total <= 0) return NextResponse.json({ error: 'Total inválido' }, { status: 400 });
+    const totalBruto = totales.reduce((s, t) => s + t, 0);
+    if (totalBruto <= 0) return NextResponse.json({ error: 'Total inválido' }, { status: 400 });
+
+    // Cupón: se revalida SIEMPRE en el servidor (no se confía en el carrito)
+    let total = totalBruto;
+    let cuponId: string | null = null;
+    let cuponCodigo: string | null = null;
+    let cuponDescuento = 0;
+    if (codigo) {
+      const res = await validarCupon(supabase, codigo, items);
+      if (!res.ok) return NextResponse.json({ error: res.motivo || 'Código no válido' }, { status: 400 });
+      total = res.totalFinal;
+      cuponId = res.cuponId ?? null;
+      cuponCodigo = res.codigo ?? null;
+      cuponDescuento = res.descuento;
+      // Fase 1: no soportamos cobro de $0 por Stripe (cortesías 100% se hacen internas)
+      if (total <= 0) return NextResponse.json({ error: 'Este código deja el total en $0. Contáctanos para completar tu pedido de cortesía.' }, { status: 400 });
+    }
 
     // Guardar items temporalmente — NO se crea pedido todavía
     const { data: cs, error: csError } = await supabase
@@ -55,6 +72,9 @@ export async function POST(req: NextRequest) {
       .insert({
         items_data: items.map((item, i) => ({ ...item, precio_verificado: totales[i] })),
         total,
+        cupon_id: cuponId,
+        cupon_codigo: cuponCodigo,
+        cupon_descuento: cuponDescuento,
         status: 'pending',
       })
       .select()

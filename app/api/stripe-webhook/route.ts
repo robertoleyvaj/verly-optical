@@ -129,6 +129,16 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    // Registrar el canje del cupón (si se aplicó) y subir el contador de usos
+    if (cs.cupon_id) {
+      await supabase.from('cupones_canjes').insert({
+        cupon_id: cs.cupon_id, codigo: cs.cupon_codigo,
+        checkout_session_id: cs.id, monto_descuento: cs.cupon_descuento, cliente: email || '',
+      });
+      const { data: cup } = await supabase.from('cupones').select('usos').eq('id', cs.cupon_id).single();
+      await supabase.from('cupones').update({ usos: (cup?.usos || 0) + 1 }).eq('id', cs.cupon_id);
+    }
+
     // Marcar checkout_session como completada
     await supabase.from('checkout_sessions')
       .update({ status: 'completed' })

@@ -12,7 +12,7 @@ import { fbTrack } from '../lib/fpixel';
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
 
 export default function CheckoutPage() {
-  const { items, totalPrecio } = useCart();
+  const { items, totalPrecio, cupon } = useCart();
   const { t } = useLang() as unknown as { t: (es: string, en: string) => string };
   const [estado, setEstado] = useState<'cargando' | 'vacio' | 'listo'>('cargando');
   const initRef = useRef(false);
@@ -30,7 +30,7 @@ export default function CheckoutPage() {
     const res = await fetch('/api/checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ items, embedded: true }),
+      body: JSON.stringify({ items, embedded: true, codigo: cupon?.codigo }),
     });
     const data = await res.json();
     if (!initRef.current) {
@@ -44,7 +44,7 @@ export default function CheckoutPage() {
       });
     }
     return data.clientSecret as string;
-  }, [items, totalPrecio]);
+  }, [items, totalPrecio, cupon]);
 
   return (
     <main style={{ background: 'var(--cream)', minHeight: '100vh', fontFamily: 'var(--font-sans)', color: 'var(--charcoal)' }}>

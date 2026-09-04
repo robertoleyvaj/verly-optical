@@ -184,9 +184,65 @@ function ItemCard({ item, onRemove }: { item: CartItem; onRemove: () => void }) 
   );
 }
 
+function CuponBox() {
+  const { t } = useLang() as any;
+  const { items, cupon, setCupon } = useCart();
+  const [codigo, setCodigo] = useState('');
+  const [cargando, setCargando] = useState(false);
+  const [error, setError] = useState('');
+
+  const aplicar = async () => {
+    if (!codigo.trim()) return;
+    setCargando(true); setError('');
+    try {
+      const r = await fetch('/api/cupon/validar', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ codigo, items }),
+      });
+      const j = await r.json();
+      if (!j.ok) { setError(j.motivo || t('Código no válido', 'Invalid code')); setCupon(null); return; }
+      setCupon({ codigo: j.codigo, descuento: j.descuento, etiqueta: j.etiqueta });
+      setCodigo('');
+    } catch {
+      setError(t('No se pudo validar', 'Could not validate'));
+    } finally { setCargando(false); }
+  };
+
+  if (cupon) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', marginBottom: '0.75rem', background: '#f0f4ef', border: '1px solid #c8dbc4', borderRadius: '8px', padding: '8px 12px' }}>
+        <span style={{ fontSize: '12px', color: '#3a4f33', fontWeight: 500 }}>
+          ✓ {cupon.codigo} · {cupon.etiqueta}
+        </span>
+        <button onClick={() => setCupon(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6f6a63', fontSize: '11px', textDecoration: 'underline', fontFamily: 'var(--font-sans)', padding: 0 }}>
+          {t('Quitar', 'Remove')}
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ marginBottom: '0.75rem' }}>
+      <div style={{ display: 'flex', gap: '6px' }}>
+        <input
+          type="text" value={codigo} onChange={e => { setCodigo(e.target.value.toUpperCase()); setError(''); }}
+          onKeyDown={e => { if (e.key === 'Enter') aplicar(); }}
+          placeholder={t('¿Tienes un código?', 'Have a code?')}
+          style={{ flex: 1, padding: '9px 10px', borderRadius: '6px', border: '1px solid #e0dcd3', fontSize: '12px', fontFamily: 'var(--font-sans)', outline: 'none', textTransform: 'uppercase' }}
+        />
+        <button onClick={aplicar} disabled={cargando || !codigo.trim()} style={{ background: '#1d1d1d', color: 'white', border: 'none', borderRadius: '6px', padding: '0 16px', fontSize: '11px', fontWeight: 600, cursor: cargando ? 'default' : 'pointer', letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)', opacity: (!codigo.trim() || cargando) ? 0.5 : 1 }}>
+          {cargando ? '…' : t('Aplicar', 'Apply')}
+        </button>
+      </div>
+      {error && <p style={{ fontSize: '11px', color: '#c0392b', margin: '5px 2px 0', fontFamily: 'var(--font-sans)' }}>{error}</p>}
+    </div>
+  );
+}
+
 export default function CartDrawer() {
   const { t, lang } = useLang() as any;
-  const { items, removeItem, totalPrecio, totalItems, cartOpen, setCartOpen } = useCart();
+  const { items, removeItem, totalPrecio, totalItems, cupon, cartOpen, setCartOpen } = useCart();
+  const totalFinal = Math.max(0, Math.round((totalPrecio - (cupon?.descuento || 0)) * 100) / 100);
   const [loadingCheckout, setLoadingCheckout] = useState(false);
   const router = useRouter();
 
@@ -299,10 +355,24 @@ export default function CartDrawer() {
               ))}
             </div>
 
+            {/* Código de descuento */}
+            <CuponBox />
+
+            {/* Descuento aplicado */}
+            {cupon && cupon.descuento > 0 && (
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#3a4f33', marginBottom: '4px' }}>
+                <span>{t('Descuento', 'Discount')} ({cupon.codigo})</span>
+                <span style={{ fontWeight: 500 }}>−${cupon.descuento}</span>
+              </div>
+            )}
+
             {/* Total */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '1.25rem', paddingTop: '0.75rem', borderTop: '1px solid #f0ede8' }}>
               <span style={{ fontFamily: 'var(--font-sans)', fontSize: '13px', fontWeight: 600, color: '#1d1d1d', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Total</span>
-              <span style={{ fontFamily: 'var(--font-serif)', fontSize: '1.6rem', fontWeight: 400, color: '#1d1d1d' }}>${totalPrecio} <span style={{ fontSize: '0.75rem', color: '#9a9a9a', fontFamily: 'var(--font-sans)' }}>USD</span></span>
+              <span style={{ fontFamily: 'var(--font-serif)', fontSize: '1.6rem', fontWeight: 400, color: '#1d1d1d' }}>
+                {cupon && cupon.descuento > 0 && <span style={{ fontSize: '1rem', color: '#9a9a9a', textDecoration: 'line-through', marginRight: '8px' }}>${totalPrecio}</span>}
+                ${totalFinal} <span style={{ fontSize: '0.75rem', color: '#9a9a9a', fontFamily: 'var(--font-sans)' }}>USD</span>
+              </span>
             </div>
 
             {/* Botón checkout */}

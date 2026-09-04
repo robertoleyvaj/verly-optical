@@ -14,6 +14,8 @@ export type CartReceta = {
   foto_url?: string;
 };
 
+export type CuponAplicado = { codigo: string; descuento: number; etiqueta: string };
+
 export type CartItem = {
   id: string;
   tipo: 'optico' | 'solar';
@@ -36,6 +38,8 @@ type CartContextType = {
   clearCart: () => void;
   totalItems: number;
   totalPrecio: number;
+  cupon: CuponAplicado | null;
+  setCupon: (c: CuponAplicado | null) => void;
   cartOpen: boolean;
   setCartOpen: (v: boolean) => void;
   recetasSesion: { paciente: string; receta: CartReceta }[];
@@ -45,6 +49,7 @@ const CartContext = createContext<CartContextType | null>(null);
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
+  const [cupon, setCupon] = useState<CuponAplicado | null>(null);
   const [cartOpen, setCartOpen] = useState(false);
 
   // Cargar desde localStorage al montar
@@ -54,6 +59,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       if (saved) {
         const parsed = JSON.parse(saved);
         setItems(parsed.items || []);
+        if (parsed.cupon) setCupon(parsed.cupon);
       }
     } catch {}
   }, []);
@@ -61,17 +67,19 @@ export function CartProvider({ children }: { children: ReactNode }) {
   // Guardar en localStorage cuando cambia
   useEffect(() => {
     try {
-      localStorage.setItem('verly_cart', JSON.stringify({ items }));
+      localStorage.setItem('verly_cart', JSON.stringify({ items, cupon }));
     } catch {}
-  }, [items]);
+  }, [items, cupon]);
 
   const addItem = (item: CartItem) => {
     setItems(prev => [...prev, item]);
+    setCupon(null);   // el descuento podría cambiar; se re-aplica en el carrito
     setCartOpen(true);
   };
 
   const removeItem = (id: string) => {
     setItems(prev => prev.filter(i => i.id !== id));
+    setCupon(null);
   };
 
   const updateItemReceta = (id: string, receta: CartReceta) => {
@@ -80,6 +88,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const clearCart = () => {
     setItems([]);
+    setCupon(null);
   };
 
   const totalItems = items.length;
@@ -94,6 +103,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     <CartContext.Provider value={{
       items, addItem, removeItem, updateItemReceta, clearCart,
       totalItems, totalPrecio,
+      cupon, setCupon,
       cartOpen, setCartOpen,
       recetasSesion,
     }}>

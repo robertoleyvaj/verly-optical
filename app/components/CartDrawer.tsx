@@ -5,6 +5,89 @@ import { useCart, CartItem } from '../context/CartContext';
 import { useLang } from './LanguageContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { FormReceta, validarReceta, recetaVacia, RecetaData } from './RecetaManual';
+
+const TURQUESA = '#2BBFB3';
+
+// ── Resolver de receta dentro del carrito (para pares con receta pendiente) ──
+function ResolverReceta({ item }: { item: CartItem }) {
+  const { t } = useLang() as any;
+  const { updateItemReceta } = useCart();
+  const [modo, setModo] = useState<'opciones' | 'manual' | 'foto'>('opciones');
+  const [receta, setReceta] = useState<RecetaData>(recetaVacia());
+  const [errores, setErrores] = useState<string[]>([]);
+  const [subiendo, setSubiendo] = useState(false);
+  const [errorFoto, setErrorFoto] = useState('');
+
+  const guardarManual = () => {
+    const errs = validarReceta(receta, t);
+    setErrores(errs);
+    if (errs.length) return;
+    updateItemReceta(item.id, { metodo: 'manual', datos: receta });
+  };
+
+  const subirFoto = async (file: File) => {
+    setSubiendo(true); setErrorFoto('');
+    try {
+      const fd = new FormData(); fd.append('file', file);
+      const res = await fetch('/api/upload-receta', { method: 'POST', body: fd });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Error');
+      updateItemReceta(item.id, { metodo: 'foto', foto_url: data.path });
+    } catch (e) {
+      setErrorFoto(e instanceof Error ? e.message : t('No se pudo subir', 'Upload failed'));
+    } finally { setSubiendo(false); }
+  };
+
+  const btn = (label: string, sub: string, onClick: () => void) => (
+    <button onClick={onClick} style={{ display: 'block', width: '100%', textAlign: 'left', padding: '10px 12px', borderRadius: '8px', border: '1px dashed #d6d0c4', background: '#faf8f4', cursor: 'pointer', fontFamily: 'var(--font-sans)', marginBottom: '6px' }}>
+      <div style={{ fontSize: '12px', fontWeight: 600, color: '#1d1d1d' }}>{label}</div>
+      <div style={{ fontSize: '11px', color: '#9a9a9a' }}>{sub}</div>
+    </button>
+  );
+
+  return (
+    <div style={{ marginTop: '10px', padding: '12px', background: '#fffbeb', borderRadius: '10px', border: '1px solid rgba(245,197,24,0.35)' }}>
+      <p style={{ fontSize: '11px', fontWeight: 700, color: '#92400e', margin: '0 0 8px' }}>
+        {t('Agrega la graduación de este par', 'Add this pair’s prescription')}
+      </p>
+
+      {modo === 'opciones' && (
+        <>
+          {btn(t('Escribir a mano', 'Enter manually'), 'SPH, CYL, EJE, ADD, PD', () => setModo('manual'))}
+          {btn(t('Subir foto o PDF / Tomar foto', 'Upload photo or PDF / Take photo'), t('Foto, PDF o captura', 'Photo, PDF or screenshot'), () => setModo('foto'))}
+          {btn(t('No tengo graduación', 'I don’t have a prescription'), t('Lentes sin aumento / solo estética', 'Non-prescription / cosmetic'), () => updateItemReceta(item.id, { metodo: 'sin_graduacion' }))}
+        </>
+      )}
+
+      {modo === 'manual' && (
+        <div>
+          <FormReceta receta={receta} onChange={setReceta} errores={errores} t={t} />
+          <div style={{ display: 'flex', gap: '6px', marginTop: '8px' }}>
+            <button onClick={guardarManual} style={{ flex: 1, background: TURQUESA, color: 'white', border: 'none', borderRadius: '6px', padding: '10px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--font-sans)' }}>{t('Guardar receta', 'Save prescription')}</button>
+            <button onClick={() => setModo('opciones')} style={{ background: '#f5f3ef', color: '#6f6a63', border: 'none', borderRadius: '6px', padding: '10px 12px', fontSize: '12px', cursor: 'pointer', fontFamily: 'var(--font-sans)' }}>{t('Atrás', 'Back')}</button>
+          </div>
+        </div>
+      )}
+
+      {modo === 'foto' && (
+        <div>
+          <label style={{ display: 'block', textAlign: 'center', padding: '10px', borderRadius: '8px', border: '1px dashed #d6d0c4', background: 'white', cursor: 'pointer', fontSize: '12px', fontWeight: 600, color: '#1d1d1d', marginBottom: '6px', opacity: subiendo ? 0.5 : 1 }}>
+            <input type="file" accept="image/*,.pdf" style={{ display: 'none' }} disabled={subiendo} onChange={e => { const f = e.target.files?.[0]; if (f) subirFoto(f); }} />
+            {t('Subir archivo (JPG, PNG, PDF)', 'Upload file (JPG, PNG, PDF)')}
+          </label>
+          <label style={{ display: 'block', textAlign: 'center', padding: '10px', borderRadius: '8px', border: '1px dashed #d6d0c4', background: 'white', cursor: 'pointer', fontSize: '12px', fontWeight: 600, color: '#1d1d1d', marginBottom: '6px', opacity: subiendo ? 0.5 : 1 }}>
+            <input type="file" accept="image/*" capture="environment" style={{ display: 'none' }} disabled={subiendo} onChange={e => { const f = e.target.files?.[0]; if (f) subirFoto(f); }} />
+            {t('Tomar foto ahora', 'Take photo now')}
+          </label>
+          {subiendo && <p style={{ fontSize: '11px', color: '#6f6a63', textAlign: 'center', margin: '4px 0' }}>{t('Subiendo…', 'Uploading…')}</p>}
+          {errorFoto && <p style={{ fontSize: '11px', color: '#c0392b', textAlign: 'center', margin: '4px 0' }}>{errorFoto}</p>}
+          <button onClick={() => setModo('opciones')} style={{ width: '100%', background: 'none', border: 'none', color: '#9a9a9a', fontSize: '11px', cursor: 'pointer', fontFamily: 'var(--font-sans)', padding: '6px' }}>{t('Atrás', 'Back')}</button>
+        </div>
+      )}
+    </div>
+  );
+}
 
 function ItemCard({ item, onRemove }: { item: CartItem; onRemove: () => void }) {
   const { t } = useLang() as any;
@@ -86,6 +169,9 @@ function ItemCard({ item, onRemove }: { item: CartItem; onRemove: () => void }) 
               </span>
             </div>
           )}
+
+          {/* Par con receta pendiente → resolver aquí mismo */}
+          {!item.solo_armazon && item.receta?.metodo === 'despues' && <ResolverReceta item={item} />}
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px', flexShrink: 0 }}>
@@ -118,6 +204,15 @@ export default function CartDrawer() {
     alert(t(
       `Por favor agrega un nombre a ${sinNombre.length === 1 ? 'tu par de lentes' : 'todos los pares'} antes de continuar.`,
       `Please add a name to ${sinNombre.length === 1 ? 'your pair of glasses' : 'all pairs'} before continuing.`
+    ));
+    return;
+  }
+  // Recordatorio: no dejar pares con la graduación pendiente
+  const pendientes = items.filter(i => i.receta?.metodo === 'despues');
+  if (pendientes.length > 0) {
+    alert(t(
+      `Te falta la graduación de ${pendientes.length === 1 ? 'un par' : `${pendientes.length} pares`}. Agrégala en el carrito (o marca "No tengo graduación") antes de pagar.`,
+      `${pendientes.length === 1 ? 'One pair is' : `${pendientes.length} pairs are`} missing a prescription. Add it in the cart (or mark "I don’t have a prescription") before checkout.`
     ));
     return;
   }
@@ -213,10 +308,10 @@ export default function CartDrawer() {
               {tienePendientes && (
                 <div style={{ margin: '1rem 0', background: '#fffbeb', borderRadius: '8px', padding: '0.85rem 1rem', border: '1px solid rgba(245,197,24,0.3)' }}>
                   <p style={{ fontSize: '11px', fontWeight: 600, color: '#92400e', margin: '0 0 2px' }}>
-                    ⚠ {t('Recetas pendientes', 'Prescriptions pending')}
+                    ⚠ {t('Falta la graduación', 'Prescription needed')}
                   </p>
                   <p style={{ fontSize: '11px', color: '#a16207', margin: 0, lineHeight: 1.5 }}>
-                    {t('Algunos pares no tienen receta. Se solicitará antes de fabricar.', "Some pairs don't have a prescription. We'll request it before manufacturing.")}
+                    {t('Agrégala en cada par de arriba antes de pagar, o marca "No tengo graduación".', 'Add it on each pair above before checkout, or mark "I don’t have a prescription".')}
                   </p>
                 </div>
               )}

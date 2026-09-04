@@ -33,6 +33,7 @@ type CartContextType = {
   items: CartItem[];
   addItem: (item: CartItem) => void;
   removeItem: (id: string) => void;
+  updateItemReceta: (id: string, receta: CartReceta) => void;
   clearCart: () => void;
   totalItems: number;
   totalPrecio: number;
@@ -88,6 +89,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
     });
   };
 
+  const updateItemReceta = (id: string, receta: CartReceta) => {
+    setItems(prev => prev.map(i => i.id === id ? { ...i, receta } : i));
+  };
+
   const clearCart = () => {
     setItems([]);
     setPromoSolarReclamada(false);
@@ -108,7 +113,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   return (
     <CartContext.Provider value={{
-      items, addItem, removeItem, clearCart,
+      items, addItem, removeItem, updateItemReceta, clearCart,
       totalItems, totalPrecio,
       promoSolarDisponible, promoSolarReclamada, reclamarPromoSolar,
       cartOpen, setCartOpen,

@@ -108,6 +108,87 @@ export async function enviarEmailCompra(order_id: number, cliente_email: string,
   }
 }
 
+// ── 1b. PURCHASE CONFIRMATION (una compra, uno o varios pedidos) ─────────
+// Lo llama el webhook de Stripe al confirmarse el pago. Un solo correo con todos
+// los lentes de la compra; cada uno con su número de pedido. No se duplica:
+// si el primer pedido ya tiene su correo 'compra' registrado, no vuelve a salir.
+// Si existe ORDERS_NOTIFY_EMAIL (Vercel), manda además un aviso interno de la venta.
+export type LineaCompra = {
+  order_id: number; armazon: string; color?: string | null; lentes?: string | null;
+  paciente?: string | null; precio: number;
+};
+
+const esc = (s: unknown) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!));
+
+export async function enviarEmailCompraPedido(lineas: LineaCompra[], cliente_email: string, cliente_nombre: string, total: number, descuento = 0) {
+  if (!lineas.length || !cliente_email) return;
+  const principal = lineas[0].order_id;
+  if (await yaEnviado(principal, 'compra')) return;
+
+  const nombre = esc((cliente_nombre || '').split(' ')[0] || 'there');
+  const filas = lineas.map(l => `
+    <div style="padding:16px 0;border-bottom:1px solid #E2DDD6;">
+      <p class="label">Order <span style="font-family:'Courier New',monospace;color:#1C1C1A;">${orderCode(l.order_id)}</span></p>
+      <p style="font-size:15px;color:#1C1C1A;font-weight:500;margin:0 0 4px;">${esc(l.armazon)}${l.color ? ` — ${esc(l.color)}` : ''}</p>
+      ${l.lentes ? `<p style="font-size:13px;color:#8C8680;margin:0 0 4px;line-height:1.6;">${esc(l.lentes)}</p>` : ''}
+      ${l.paciente ? `<p style="font-size:13px;color:#8C8680;margin:0 0 4px;">For: ${esc(l.paciente)}</p>` : ''}
+      <p style="font-size:13px;color:#1C1C1A;margin:0;">$${esc(l.precio)} USD</p>
+    </div>`).join('');
+
+  const html = `
+    <!DOCTYPE html><html><head><style>${estilos}</style></head><body>
+    <div class="wrapper">
+      <div class="card">
+        <div class="header"><img src="${logo}" alt="Verly Optical"/></div>
+        <div class="body">
+          <p class="title">Thank you for<br/>your order, ${nombre}!</p>
+          <p class="text">We've received your payment. Our team will review your prescription and we'll email you as soon as we start crafting your lenses.</p>
+          <hr class="divider" style="margin-bottom:0;"/>
+          ${filas}
+          ${descuento > 0 ? `<p class="text" style="margin:16px 0 0;">Discount: −$${esc(descuento)} USD</p>` : ''}
+          <p class="label" style="margin-top:16px;">Total paid</p>
+          <p class="value" style="font-size:18px;">$${esc(total)} USD</p>
+          <p class="text" style="margin:0;">Shipping: free standard shipping, 5–10 business days after your lenses are ready.</p>
+          <hr class="divider"/>
+          <p class="text" style="margin:0;">Questions? Reach us at <a href="mailto:support@verlyoptical.com" style="color:#4A5940;">support@verlyoptical.com</a></p>
+        </div>
+        ${footer()}
+      </div>
+    </div>
+    </body></html>
+  `;
+
+  const codigos = lineas.map(l => orderCode(l.order_id)).join(', ');
+  try {
+    const { data, error } = await resend.emails.send({
+      from: FROM,
+      to: cliente_email,
+      subject: `Order confirmed — ${codigos}`,
+      html,
+    });
+    for (const l of lineas) await logEmail(l.order_id, 'compra', data?.id || null, error ? 'error' : 'sent', error?.message);
+  } catch (e: any) {
+    for (const l of lineas) await logEmail(l.order_id, 'compra', null, 'error', e.message);
+  }
+
+  // Aviso interno de venta (opcional)
+  const aviso = process.env.ORDERS_NOTIFY_EMAIL;
+  if (aviso) {
+    try {
+      await resend.emails.send({
+        from: FROM,
+        to: aviso,
+        subject: `Nueva venta Verly — $${total} USD — ${codigos}`,
+        html: `<div style="font-family:sans-serif;font-size:14px;line-height:1.6;">
+          <p><b>Nueva venta en Verly</b></p>
+          <p>Cliente: ${esc(cliente_nombre)} · ${esc(cliente_email)}<br/>Total: <b>$${esc(total)} USD</b>${descuento > 0 ? ` (descuento $${esc(descuento)})` : ''}</p>
+          ${lineas.map(l => `<p>${orderCode(l.order_id)} · ${esc(l.armazon)}${l.color ? ` — ${esc(l.color)}` : ''}<br/>${esc(l.lentes || 'Solo armazón')}${l.paciente ? `<br/>Paciente: ${esc(l.paciente)}` : ''}</p>`).join('')}
+          <p>Revísala en OptiOS → Tienda.</p></div>`,
+      });
+    } catch { /* el aviso interno no debe frenar nada */ }
+  }
+}
+
 // ── 2. IN PRODUCTION ──────────────────────────────────────────────────────
 export async function enviarEmailFabricacion(order_id: number, cliente_email: string, cliente_nombre: string) {
   if (await yaEnviado(order_id, 'fabricacion')) return;

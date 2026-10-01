@@ -5,25 +5,30 @@ import Link from 'next/link';
 import Navbar from '../components/Navbar';
 import { useLang } from '../components/LanguageContext';
 import { fbTrack } from '../lib/fpixel';
+import { useCart } from '../context/CartContext';
 
 export default function Gracias() {
   const { t, lang } = useLang() as any;
   const [visible, setVisible] = useState(false);
+  const { clearCart } = useCart();
 
   useEffect(() => {
     setTimeout(() => setVisible(true), 100);
   }, []);
 
   // Meta Pixel · Purchase — solo si Stripe confirma el pago, y sin duplicar al recargar.
+  // Con el pago confirmado también se vacía el carrito (si falló, se deja para reintentar).
   useEffect(() => {
     const sid = new URLSearchParams(window.location.search).get('session_id');
     if (!sid) return;
+    const vaciar = () => { try { localStorage.removeItem('verly_cart'); } catch {} clearCart(); };
     const key = 'fb_purchase_' + sid;
-    if (localStorage.getItem(key)) return; // ya se disparó para esta orden
+    if (localStorage.getItem(key)) { vaciar(); return; } // ya se confirmó esta orden antes
     fetch('/api/verify-payment?session_id=' + encodeURIComponent(sid))
       .then(r => r.json())
       .then(d => {
         if (d && d.paid) {
+          vaciar();
           localStorage.setItem(key, '1');
           fbTrack('Purchase', {
             content_ids: d.content_ids || [],

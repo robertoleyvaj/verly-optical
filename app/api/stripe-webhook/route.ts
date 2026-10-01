@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
+import { enviarEmailCompraPedido, type LineaCompra } from '../../lib/emails';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 const supabase = createClient(
@@ -60,6 +61,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Crear pedidos solo ahora que el pago se confirmó
+    const lineasCorreo: LineaCompra[] = [];
     for (const item of items) {
       const color = item.armazon_color?.nombre ? String(item.armazon_color.nombre) : '';
       const nombreArmazon = color ? `${item.armazon_nombre} (${color})` : item.armazon_nombre;
@@ -112,6 +114,18 @@ export async function POST(req: NextRequest) {
 
       if (!pedido) continue;
 
+      lineasCorreo.push({
+        order_id: pedido.id,
+        armazon:  item.armazon_nombre,
+        color:    item.armazon_color?.nombre_en || item.armazon_color?.nombre || null,
+        lentes:   item.solo_armazon ? 'Frame only' : [
+          item.lentes?.vision_nombre, item.lentes?.material_nombre,
+          ...(item.lentes?.filtros_nombres || []),
+        ].filter(Boolean).join(' · '),
+        paciente: item.paciente || null,
+        precio:   item.precio_verificado,
+      });
+
       // Receta
       if (!item.solo_armazon && item.receta) {
         const recetaData: any = {
@@ -155,6 +169,15 @@ export async function POST(req: NextRequest) {
     await supabase.from('checkout_sessions')
       .update({ status: 'completed' })
       .eq('id', parseInt(csId));
+
+    // Correo de confirmación al cliente (+ aviso interno si está configurado).
+    // Va al final y con try: un problema con el correo nunca debe tumbar el pedido.
+    try {
+      const total = session.amount_total != null ? session.amount_total / 100 : Number(cs.total) || 0;
+      await enviarEmailCompraPedido(lineasCorreo, email, nombre, total, Number(cs.cupon_descuento) || 0);
+    } catch (e) {
+      console.error('Email compra error:', e);
+    }
   }
 
   return NextResponse.json({ received: true });

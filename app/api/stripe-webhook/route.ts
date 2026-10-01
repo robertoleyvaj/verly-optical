@@ -61,17 +61,29 @@ export async function POST(req: NextRequest) {
 
     // Crear pedidos solo ahora que el pago se confirmó
     for (const item of items) {
+      const color = item.armazon_color?.nombre ? String(item.armazon_color.nombre) : '';
+      const nombreArmazon = color ? `${item.armazon_nombre} (${color})` : item.armazon_nombre;
       const descripcion = item.solo_armazon
-        ? `${item.armazon_nombre} — Solo armazón`
+        ? `${nombreArmazon} — Solo armazón`
         : [
-            item.armazon_nombre,
+            nombreArmazon,
             item.lentes?.vision_nombre   && `Visión: ${item.lentes.vision_nombre}`,
             item.lentes?.material_nombre && `Material: ${item.lentes.material_nombre}`,
             item.lentes?.filtros_nombres?.length > 0 && `Filtros: ${item.lentes.filtros_nombres.join(', ')}`,
             item.paciente && `Para: ${item.paciente}`,
           ].filter(Boolean).join(' · ');
 
-      const configuracion = item.solo_armazon ? null : {
+      // Color del armazón: nombre y SKU exacto (para el laboratorio y para descontar inventario)
+      const colorCfg = item.armazon_color ? {
+        color_armazon:    item.armazon_color.nombre ?? null,
+        color_sku:        item.armazon_color.sku ?? null,
+        color_id:         item.armazon_color.id ?? null,
+      } : {};
+      const configuracion = item.solo_armazon
+        ? (item.armazon_color ? { solo_armazon: true, tipo: item.tipo, ...colorCfg } : null)
+        : {
+        ...colorCfg,
+        filtros_colores: item.lentes?.filtros_colores ?? null,
         vision:          item.lentes?.vision,
         vision_nombre:   item.lentes?.vision_nombre,
         vision_precio:   item.lentes?.vision_precio,

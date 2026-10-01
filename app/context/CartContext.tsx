@@ -6,7 +6,12 @@ export type CartLentes = {
   vision: string; vision_nombre: string; vision_precio: number;
   material: string; material_nombre: string; material_precio: number;
   filtros: string[]; filtros_nombres: string[]; filtros_precio: number;
+  // Color elegido en filtros que lo llevan: { foto: { id:'gris', es:'Gris', en:'Gray' }, ... }
+  filtros_colores?: Record<string, { id: string; es: string; en: string }>;
 };
+
+// Color del armazón elegido (SKU exacto del inventario nuevo, si lo tiene)
+export type CartColor = { id: number | null; sku: string | null; nombre: string; nombre_en: string };
 
 export type CartReceta = {
   metodo: 'manual' | 'foto' | 'despues' | 'sin_graduacion';
@@ -23,6 +28,7 @@ export type CartItem = {
   armazon_nombre: string;
   armazon_imagen?: string;
   armazon_precio: number;
+  armazon_color?: CartColor;
   lentes?: CartLentes;
   receta?: CartReceta;
   paciente?: string;

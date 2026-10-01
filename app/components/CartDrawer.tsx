@@ -5,6 +5,7 @@ import { useCart, CartItem } from '../context/CartContext';
 import { useLang } from './LanguageContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { nombreColor } from '../lib/colores';
 import { FormReceta, validarReceta, recetaVacia, RecetaData } from './RecetaManual';
 
 const TURQUESA = '#2BBFB3';
@@ -90,7 +91,7 @@ function ResolverReceta({ item }: { item: CartItem }) {
 }
 
 function ItemCard({ item, onRemove }: { item: CartItem; onRemove: () => void }) {
-  const { t } = useLang() as any;
+  const { t, lang } = useLang() as any;
   const { removeItem, addItem } = useCart();
   const [editandoPaciente, setEditandoPaciente] = useState(false);
   const [nombreTemp, setNombreTemp] = useState(item.paciente || '');
@@ -144,6 +145,11 @@ function ItemCard({ item, onRemove }: { item: CartItem; onRemove: () => void }) 
           )}
 
           <div style={{ fontFamily: 'var(--font-serif)', fontSize: '1rem', fontWeight: 400, color: '#1d1d1d', marginBottom: '4px', lineHeight: 1.2 }}>{item.armazon_nombre}</div>
+          {item.armazon_color && (
+            <div style={{ fontSize: '11px', color: '#6f6a63', marginBottom: '4px' }}>
+              {t('Color', 'Color')}: <span style={{ color: '#1d1d1d', fontWeight: 500 }}>{nombreColor(item.armazon_color.nombre, lang)}</span>
+            </div>
+          )}
 
           <div style={{ display: 'flex', gap: '6px', marginBottom: '6px', flexWrap: 'wrap' }}>
             {item.solo_armazon && <span style={{ fontSize: '9px', fontWeight: 600, color: '#9a9a9a', background: '#f5f3ef', padding: '2px 8px', borderRadius: '20px' }}>{t('Solo armazón', 'Frame only')}</span>}

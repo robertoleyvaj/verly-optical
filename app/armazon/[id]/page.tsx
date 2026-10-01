@@ -8,6 +8,7 @@ import { useLang } from '../../components/LanguageContext';
 import { supabase } from '../../lib/supabase';
 import { fbTrack } from '../../lib/fpixel';
 import { useCart, generateCartId } from '../../context/CartContext';
+import { swatchColor, nombreColor } from '../../lib/colores';
 
 type Armazon = {
   id: number; nombre: string; forma: string; genero: string;
@@ -458,7 +459,11 @@ export default function DetalleArmazon() {
   const viewContentRef = useRef<string | null>(null);
   const [relacionados, setRelacionados] = useState<Armazon[]>([]);
   const [loading, setLoading] = useState(true);
-  type ColorPub = { color: string; imagen_url?: string | null; imagen2_url?: string | null; imagen3_url?: string | null; precio?: number | null };
+  type ColorPub = {
+    id?: number; sku?: string | null; color: string; hex?: string | null;
+    imagen_url?: string | null; imagen2_url?: string | null; imagen3_url?: string | null; precio?: number | null;
+    stock_baja?: number | null; stock_mayo?: number | null; stock_plaza?: number | null; stock_online?: number | null; bodega?: number | null;
+  };
   const [colores, setColores] = useState<ColorPub[]>([]);
   const [colorSel, setColorSel] = useState(0);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -615,18 +620,42 @@ export default function DetalleArmazon() {
       }
     }
     const filtrosSeleccionados = filtroOpts.filter(f => filtros.includes(f.id));
+    // Color elegido de cada filtro que lo lleva (fotocromático, polarizado, tinte)
+    const filtrosColores: Record<string, { id: string; es: string; en: string }> = {};
+    const tablaColor: Record<string, { lista: typeof COLORES_FOTO; valor: string }> = {
+      foto: { lista: COLORES_FOTO, valor: colorFoto },
+      pol: { lista: COLORES_POLARIZADO, valor: colorPolarizado },
+      tinte: { lista: COLORES_TINTE, valor: colorTinte },
+    };
+    for (const f of filtros) {
+      const tc = tablaColor[f];
+      if (!tc) continue;
+      const c = tc.lista.find(x => x.id === tc.valor);
+      if (c) filtrosColores[f] = { id: c.id, es: c.nombre_es, en: c.nombre_en };
+    }
+    const nombreFiltroEn = (f: { id: string; nombre_en: string }) =>
+      filtrosColores[f.id] ? `${f.nombre_en} — ${filtrosColores[f.id].en}` : f.nombre_en;
+    // Color del armazón (solo si el modelo tiene colores publicados)
+    const colorArmazon = colorActivo ? {
+      id: colorActivo.id ?? null,
+      sku: colorActivo.sku ?? null,
+      nombre: colorActivo.color,
+      nombre_en: nombreColor(colorActivo.color, 'en'),
+    } : undefined;
     const item = {
       id: generateCartId(),
       tipo: esSolar ? 'solar' as const : 'optico' as const,
       armazon_id: armazon!.id,
       armazon_nombre: armazon!.nombre,
-      armazon_imagen: armazon!.imagen_url,
+      armazon_imagen: colorActivo?.imagen_url || armazon!.imagen_url,
       armazon_precio: precioArmazon,
+      armazon_color: colorArmazon,
       solo_armazon: soloArmazon,
       lentes: soloArmazon ? undefined : {
         vision, vision_nombre: visionOpts.find(v => v.id === vision)?.nombre_en || vision, vision_precio: precioVision,
         material, material_nombre: materialOpts.find(m => m.id === material)?.nombre_en || material, material_precio: precioMaterial,
-        filtros, filtros_nombres: filtrosSeleccionados.map(f => f.nombre_en), filtros_precio: precioFiltros,
+        filtros, filtros_nombres: filtrosSeleccionados.map(nombreFiltroEn), filtros_precio: precioFiltros,
+        filtros_colores: Object.keys(filtrosColores).length ? filtrosColores : undefined,
       },
       receta: soloArmazon ? undefined : {
         metodo: recetaEstado === 'guardada' ? 'manual' as const : recetaEstado === 'foto' ? 'foto' as const : recetaEstado === 'sin_graduacion' ? 'sin_graduacion' as const : 'despues' as const,
@@ -661,9 +690,13 @@ export default function DetalleArmazon() {
         setRelacionados(rel || []);
         // Colores publicados en Verly de este modelo (con sus fotos)
         const { data: cols } = await supabase.from('armazon_colores')
-          .select('color, imagen_url, imagen2_url, imagen3_url, precio')
+          .select('*')
           .eq('armazon_id', id).eq('publicar_verly', true).order('orden');
-        setColores(cols || []);
+        setColores((cols || []) as ColorPub[]);
+        // Si llega con ?color=VRL-1391-03 (desde la tienda), deja ese color elegido
+        const pedido = searchParams.get('color');
+        const idx = pedido ? (cols || []).findIndex((c: { sku?: string | null }) => c.sku === pedido) : -1;
+        if (idx >= 0) setColorSel(idx);
       }
       setLoading(false);
     }
@@ -675,7 +708,7 @@ export default function DetalleArmazon() {
     return () => { document.body.style.overflow = ''; };
   }, [drawerOpen, verlyModal]);
 
-  const abrirDrawer = () => { setDrawerOpen(true); setDrawerEstado(esSolar ? 'inicio_solar' : 'inicio'); setSoloArmazon(false); };
+  const abrirDrawer = () => { if (colorAgotado) return; setDrawerOpen(true); setDrawerEstado(esSolar ? 'inicio_solar' : 'inicio'); setSoloArmazon(false); };
 
   const resumenReceta = () => {
     if (recetaEstado === 'sin_graduacion') return t('Sin graduación', 'No prescription');
@@ -694,12 +727,12 @@ export default function DetalleArmazon() {
     : [armazon?.imagen_url, armazon?.imagen2_url, armazon?.imagen3_url, armazon?.imagen4_url].filter(Boolean)) as string[];
   const fotoLifestyle = armazon?.imagen5_url || null;
   const partesMedidas = armazon?.medidas?.split('-') || [];
-  const swatchColor = (n: string): string => {
-    const s = (n || '').toUpperCase();
-    const map: [string, string][] = [['NEGR', '#1d1d1d'], ['BLANC', '#e8e8e8'], ['AZUL', '#2f4a8c'], ['ROJO', '#a83232'], ['ROSA', '#d46a90'], ['VERDE', '#3a7d4d'], ['GRIS', '#8a8a8a'], ['CAFE', '#5a3a1e'], ['CAREY', '#6b4423'], ['DORAD', '#c9a227'], ['PLATE', '#b8b8b8'], ['MORAD', '#6a3d9a'], ['LILA', '#b39ddb'], ['NARANJ', '#e07b2f'], ['VINO', '#722f37'], ['AMARIL', '#e6c229'], ['TRANSP', '#d8e4e8'], ['CRISTAL', '#d8e4e8'], ['BRONCE', '#8c6239'], ['GUINDA', '#722f37']];
-    for (const [k, v] of map) if (s.includes(k)) return v;
-    return '#b0b0b0';
-  };
+  // Agotado solo aplica al inventario nuevo (SKU VRL-1xxx); el viejo no lleva stock confiable por color
+  const inventarioNuevo = /^VRL-1\d{3}$/.test(String((armazon as any)?.sku ?? ''));
+  const stockColor = (c: ColorPub) => ['stock_baja', 'stock_mayo', 'stock_plaza', 'stock_online', 'bodega']
+    .reduce((s, k) => s + (Number((c as any)[k]) || 0), 0);
+  const agotado = (c: ColorPub | null) => !!c && inventarioNuevo && stockColor(c) <= 0;
+  const colorAgotado = agotado(colorActivo);
 
   const irFoto = (idx: number) => { setFotoActiva(Math.max(0, Math.min(idx, fotos.length - 1))); setSwipeOffset(0); };
   const fotoPrev = () => irFoto(fotoActiva - 1);
@@ -1214,19 +1247,28 @@ export default function DetalleArmazon() {
             <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginBottom: '0.5rem' }}>
               <span style={{ fontFamily: 'var(--font-serif)', fontSize: '3rem', fontWeight: 400, letterSpacing: '-0.02em', lineHeight: 1 }}>${armazon.precio}</span>
               <span style={{ fontSize: '0.85rem', color: 'var(--warm-gray)', fontWeight: 400 }}>USD</span>
-              {armazon.descuento && armazon.descuento > 0 && <span style={{ background: 'var(--charcoal)', color: 'white', fontSize: '11px', fontWeight: 700, padding: '3px 8px', borderRadius: '2px' }}>-{armazon.descuento}%</span>}
+              {!!armazon.descuento && armazon.descuento > 0 && <span style={{ background: 'var(--charcoal)', color: 'white', fontSize: '11px', fontWeight: 700, padding: '3px 8px', borderRadius: '2px' }}>-{armazon.descuento}%</span>}
             </div>
             {colores.length > 0 && (
               <div style={{ marginBottom: '1.75rem' }}>
                 <p style={{ fontSize: '0.8rem', color: 'var(--warm-gray)', margin: '0 0 8px', fontFamily: 'var(--font-sans)' }}>
-                  {t('Color', 'Color')}: <span style={{ color: 'var(--charcoal)', fontWeight: 500 }}>{colorActivo?.color}</span>
+                  {t('Color', 'Color')}: <span style={{ color: 'var(--charcoal)', fontWeight: 500 }}>{nombreColor(colorActivo?.color, lang)}</span>
                 </p>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                  {colores.map((c, i) => (
-                    <button key={i} onClick={() => { setColorSel(i); setFotoActiva(0); }} title={c.color}
-                      style={{ width: '32px', height: '32px', borderRadius: '50%', background: swatchColor(c.color), cursor: 'pointer', padding: 0, border: i === colorSel ? '2px solid var(--charcoal)' : '1px solid var(--border)', boxShadow: i === colorSel ? '0 0 0 2px white inset' : 'none', transition: 'all 0.2s' }} />
-                  ))}
+                  {colores.map((c, i) => {
+                    const ag = agotado(c);
+                    return (
+                      <button key={i} onClick={() => { setColorSel(i); setFotoActiva(0); }} title={nombreColor(c.color, lang) + (ag ? ` — ${t('Agotado', 'Sold out')}` : '')}
+                        aria-label={nombreColor(c.color, lang)}
+                        style={{ position: 'relative', width: '32px', height: '32px', borderRadius: '50%', background: swatchColor(c.color, c.hex), cursor: 'pointer', padding: 0, border: i === colorSel ? '2px solid var(--charcoal)' : '1px solid var(--border)', boxShadow: i === colorSel ? '0 0 0 2px white inset' : 'none', transition: 'all 0.2s', opacity: ag ? 0.4 : 1, overflow: 'hidden' }}>
+                        {ag && <span style={{ position: 'absolute', left: '50%', top: '-4px', bottom: '-4px', width: '1.5px', background: 'var(--charcoal)', transform: 'rotate(45deg)' }} />}
+                      </button>
+                    );
+                  })}
                 </div>
+                {colorAgotado && (
+                  <p style={{ fontSize: '0.78rem', color: '#a33', margin: '8px 0 0' }}>{t('Este color está agotado — elige otro', 'This color is sold out — please choose another')}</p>
+                )}
               </div>
             )}
             <div style={{ marginBottom: '1.75rem' }}>

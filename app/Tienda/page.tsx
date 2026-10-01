@@ -7,6 +7,7 @@ import Navbar from '../components/Navbar';
 import { useLang } from '../components/LanguageContext';
 import { supabase } from '../lib/supabase';
 import { useFavoritos } from '../context/FavoritosContext';
+import { swatchColor, nombreColor } from '../lib/colores';
 
 type Armazon = {
   id: number; nombre: string; forma: string; genero: string;
@@ -19,18 +20,27 @@ const FORMAS = ['Rectangle', 'Round', 'Square', 'Oval', 'Aviator'];
 const MATERIALES = ['Acetato', 'Metálico', 'TR-90', 'Titanio', 'Mixto'];
 const TALLAS = ['S', 'M', 'L', 'XL'];
 
+type ColorCard = { armazon_id: number; sku: string | null; color: string; hex?: string | null; imagen_url?: string | null };
+
 // ── CARD ────────────────────────────────────────────────
 function ArmazonCard({
-  a, esMobil, t, esPromoRegalo,
+  a, esMobil, t, lang, esPromoRegalo, colores = [],
 }: {
   a: Armazon; esMobil: boolean;
   t: (es: string, en: string) => string;
+  lang: string;
   esPromoRegalo: boolean;
+  colores?: ColorCard[];
 }) {
   const { toggleFavorito, esFavorito } = useFavoritos();
   const liked = esFavorito(a.id);
   const [hovered, setHovered] = useState(false);
-  const href = esPromoRegalo ? `/armazon/${a.id}?promo=regalo` : `/armazon/${a.id}`;
+  const [colorIdx, setColorIdx] = useState(0);
+  const colorSel = colores[colorIdx];
+  const imagen = colorSel?.imagen_url || a.imagen_url;
+  const params = [esPromoRegalo ? 'promo=regalo' : '', colorIdx > 0 && colorSel?.sku ? `color=${encodeURIComponent(colorSel.sku)}` : ''].filter(Boolean).join('&');
+  const href = `/armazon/${a.id}${params ? `?${params}` : ''}`;
+  const MAX_DOTS = 4;
 
   return (
     <Link href={href} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
@@ -50,9 +60,9 @@ function ArmazonCard({
       >
         {/* Image */}
         <div style={{ aspectRatio: '4/3', background: 'var(--cream)', overflow: 'hidden', position: 'relative' }}>
-          {a.imagen_url ? (
+          {imagen ? (
             <img
-              src={a.imagen_url}
+              src={imagen}
               alt={a.nombre}
               style={{
                 width: '100%', height: '100%',
@@ -83,7 +93,7 @@ function ArmazonCard({
               {a.badge}
             </div>
           )}
-          {!esPromoRegalo && a.descuento_verly && a.descuento_verly > 0 && (
+          {!esPromoRegalo && !!a.descuento_verly && a.descuento_verly > 0 && (
             <div style={{ position: 'absolute', bottom: '10px', left: '10px', fontSize: '0.6rem', fontWeight: 700, padding: '3px 8px', borderRadius: '2px', background: 'var(--charcoal)', color: 'white' }}>
               -{a.descuento_verly}%
             </div>
@@ -108,6 +118,18 @@ function ArmazonCard({
           {a.material && (
             <div style={{ fontSize: '0.68rem', color: 'var(--warm-gray)', marginBottom: '0.75rem', textTransform: 'capitalize', letterSpacing: '0.02em' }}>
               {a.material}
+            </div>
+          )}
+          {colores.length > 1 && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '0.7rem', minHeight: '16px' }}>
+              {colores.slice(0, MAX_DOTS).map((c, i) => (
+                <button key={i} type="button" aria-label={nombreColor(c.color, lang)} title={nombreColor(c.color, lang)}
+                  onMouseEnter={() => !esMobil && setColorIdx(i)}
+                  onClick={e => { e.preventDefault(); e.stopPropagation(); setColorIdx(i); }}
+                  style={{ width: '14px', height: '14px', borderRadius: '50%', padding: 0, cursor: 'pointer', background: swatchColor(c.color, c.hex), border: '1px solid rgba(28,28,26,0.15)', boxShadow: i === colorIdx ? '0 0 0 2px white, 0 0 0 3px var(--charcoal)' : 'none', transition: 'box-shadow 0.15s' }} />
+              ))}
+              {colores.length > MAX_DOTS && <span style={{ fontSize: '0.65rem', color: 'var(--warm-gray)' }}>+{colores.length - MAX_DOTS}</span>}
+              <span style={{ fontSize: '0.66rem', color: 'var(--warm-gray)', marginLeft: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{nombreColor(colorSel?.color, lang)}</span>
             </div>
           )}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -155,6 +177,7 @@ function TiendaContent() {
   const { t, lang } = useLang() as any;
   const searchParams = useSearchParams();
   const [armazones, setArmazones] = useState<Armazon[]>([]);
+  const [coloresPorModelo, setColoresPorModelo] = useState<Record<number, ColorCard[]>>({});
   const [loading, setLoading] = useState(true);
   const [esMobil, setEsMobil] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -184,7 +207,19 @@ function TiendaContent() {
       .eq('activo', true).eq('publicar_verly', true)
       .eq('tipo', 'optico')
       .order('id')
-      .then(({ data }) => { setArmazones(data || []); setLoading(false); });
+      .then(async ({ data }) => {
+        const lista = (data || []) as Armazon[];
+        setArmazones(lista);
+        setLoading(false);
+        // Colores publicados de cada modelo (circulitos de la tarjeta)
+        const ids = lista.map(a => a.id);
+        if (!ids.length) return;
+        const { data: cols } = await supabase.from('armazon_colores')
+          .select('*').in('armazon_id', ids).eq('publicar_verly', true).order('orden');
+        const mapa: Record<number, ColorCard[]> = {};
+        for (const c of (cols || []) as ColorCard[]) (mapa[c.armazon_id] ||= []).push(c);
+        setColoresPorModelo(mapa);
+      });
   }, []);
 
   const toggleArr = (arr: string[], val: string) =>
@@ -467,7 +502,7 @@ function TiendaContent() {
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: esMobil ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)', gap: esMobil ? '10px' : '18px' }}>
               {filtered.map(a => (
-                <ArmazonCard key={a.id} a={a} esMobil={esMobil} t={t} esPromoRegalo={esPromoRegalo} />
+                <ArmazonCard key={a.id} a={a} esMobil={esMobil} t={t} lang={lang} esPromoRegalo={esPromoRegalo} colores={coloresPorModelo[a.id]} />
               ))}
             </div>
           )}

@@ -8,6 +8,7 @@ import { useLang } from '../components/LanguageContext';
 import { supabase } from '../lib/supabase';
 import { useFavoritos } from '../context/FavoritosContext';
 import { swatchColor, nombreColor } from '../lib/colores';
+import { nombreMaterial, claveMaterial, nombreBadge } from '../lib/textos';
 
 type Armazon = {
   id: number; nombre: string; forma: string; genero: string;
@@ -90,7 +91,7 @@ function ArmazonCard({
           )}
           {!esPromoRegalo && a.badge && (
             <div style={{ position: 'absolute', top: '10px', left: '10px', fontSize: '0.57rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', padding: '3px 9px', borderRadius: '2px', background: ['nuevo','new'].includes(a.badge.toLowerCase()) ? 'var(--sage)' : 'var(--charcoal)', color: 'white' }}>
-              {a.badge}
+              {nombreBadge(a.badge, lang)}
             </div>
           )}
           {!esPromoRegalo && !!a.descuento_verly && a.descuento_verly > 0 && (
@@ -117,7 +118,7 @@ function ArmazonCard({
           </div>
           {a.material && (
             <div style={{ fontSize: '0.68rem', color: 'var(--warm-gray)', marginBottom: '0.75rem', textTransform: 'capitalize', letterSpacing: '0.02em' }}>
-              {a.material}
+              {nombreMaterial(a.material, lang)}
             </div>
           )}
           {colores.length > 1 && (
@@ -230,7 +231,7 @@ function TiendaContent() {
 
   const chips = [
     ...filtroForma.map(v => ({ label: v, type: 'forma', val: v })),
-    ...filtroMaterial.map(v => ({ label: v, type: 'material', val: v })),
+    ...filtroMaterial.map(v => ({ label: nombreMaterial(v, lang), type: 'material', val: v })),
     ...filtroTalla.map(v => ({ label: `Size ${v}`, type: 'talla', val: v })),
   ];
   const removeChip = (chip: { type: string; val: string }) => {
@@ -243,7 +244,7 @@ function TiendaContent() {
     let r = [...armazones];
     if (generoTab !== 'all') r = r.filter(a => a.genero === generoTab || a.genero === 'unisex');
     if (filtroForma.length) r = r.filter(a => filtroForma.some(f => a.forma?.toLowerCase().includes(f.toLowerCase())));
-    if (filtroMaterial.length) r = r.filter(a => filtroMaterial.some(m => a.material === m));
+    if (filtroMaterial.length) r = r.filter(a => filtroMaterial.some(m => claveMaterial(a.material) === claveMaterial(m)));
     if (filtroTalla.length) r = r.filter(a => filtroTalla.includes(a.talla || 'M'));
     return r;
   }, [armazones, generoTab, filtroForma, filtroMaterial, filtroTalla]);
@@ -282,7 +283,7 @@ function TiendaContent() {
               {MATERIALES.map(m => (
                 <label key={m} style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
                   <Checkbox checked={filtroMaterial.includes(m)} onClick={() => setFiltroMaterial(p => toggleArr(p, m))}/>
-                  <span style={{ fontSize: '13px', color: 'var(--charcoal)', fontFamily: 'var(--font-sans)' }}>{m}</span>
+                  <span style={{ fontSize: '13px', color: 'var(--charcoal)', fontFamily: 'var(--font-sans)' }}>{nombreMaterial(m, lang)}</span>
                 </label>
               ))}
             </div>
@@ -406,7 +407,7 @@ function TiendaContent() {
           </span>
           {MATERIALES.map(m => (
             <button key={m} onClick={() => setFiltroMaterial(p => toggleArr(p, m))} style={{ padding: '5px 13px', borderRadius: '20px', border: `1px solid ${filtroMaterial.includes(m) ? 'var(--sage)' : 'var(--border)'}`, background: filtroMaterial.includes(m) ? 'var(--sage)' : 'white', color: filtroMaterial.includes(m) ? 'white' : 'var(--charcoal)', fontSize: '0.68rem', fontWeight: 400, cursor: 'pointer', fontFamily: 'var(--font-sans)', transition: 'all 0.15s', flexShrink: 0 }}>
-              {m}
+              {nombreMaterial(m, lang)}
             </button>
           ))}
           {(filtroForma.length > 0 || filtroMaterial.length > 0) && (
@@ -523,7 +524,7 @@ function TiendaContent() {
               {
                 icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.75)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 4v4h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>,
                 title: t('Envío rápido', 'Fast delivery'),
-                desc: t('Gratis en pedidos +$69 a toda la república.', 'Free shipping over $69 nationwide.'),
+                desc: t('Envío gratis en EE.UU. en compras desde $70.', 'Free US shipping on orders over $70.'),
               },
               {
                 icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.75)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>,

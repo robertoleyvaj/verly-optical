@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     template: "%s | Verly Optical",
   },
   description:
-    "Shop prescription eyeglasses and sunglasses online starting at $13. Free shipping to the US. No insurance needed. Configure your lenses in minutes.",
+    "Complete prescription glasses from $28 — frame and lenses included. No insurance needed. Free US shipping on orders over $70. Configure your lenses in minutes.",
   icons: {
     icon: "/favicon.ico",
     apple: "/apple-touch-icon.png",
@@ -38,8 +38,7 @@ export const metadata: Metadata = {
     "prescription glasses online",
     "affordable eyeglasses USA",
     "buy glasses online no insurance",
-    "prescription sunglasses online",
-    "progressive lenses online",
+        "progressive lenses online",
     "blue light glasses prescription",
     "prescription glasses under 100",
   ],
@@ -50,7 +49,7 @@ export const metadata: Metadata = {
     siteName: "Verly Optical",
     title: "Verly Optical — Affordable Prescription Glasses Online",
     description:
-      "Prescription eyeglasses starting at $13. Free shipping to the US. No insurance needed.",
+      "Complete prescription glasses from $28. No insurance needed. Free US shipping over $70.",
     images: [
       {
         url: "/og-image.jpg",
@@ -64,7 +63,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Verly Optical — Affordable Prescription Glasses Online",
     description:
-      "Prescription eyeglasses starting at $13. Free US shipping. No insurance needed.",
+      "Complete prescription glasses from $28. No insurance needed. Free US shipping over $70.",
     images: ["/og-image.jpg"],
   },
   robots: {

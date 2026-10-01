@@ -3,10 +3,11 @@ import { useEffect } from 'react';
 import Link from 'next/link';
 import { useFavoritos } from '../context/FavoritosContext';
 import { useLang } from './LanguageContext';
+import { nombreMaterial } from '../lib/textos';
 
 export default function FavoritosDrawer() {
   const { favoritos, toggleFavorito, favoritosOpen, setFavoritosOpen } = useFavoritos();
-  const { t } = useLang() as any;
+  const { t, lang } = useLang() as any;
 
   useEffect(() => {
     document.body.style.overflow = favoritosOpen ? 'hidden' : '';
@@ -86,7 +87,7 @@ export default function FavoritosDrawer() {
                   <div style={{ flex: 1, padding: '0.75rem 0.75rem 0.75rem 0', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                     <div>
                       <p style={{ fontFamily: 'var(--font-serif)', fontSize: '1rem', fontWeight: 400, color: 'var(--charcoal)', margin: '0 0 2px' }}>{f.nombre}</p>
-                      {f.material && <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.7rem', color: 'var(--warm-gray)', margin: 0, textTransform: 'capitalize' }}>{f.material}</p>}
+                      {f.material && <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.7rem', color: 'var(--warm-gray)', margin: 0, textTransform: 'capitalize' }}>{nombreMaterial(f.material, lang)}</p>}
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <span style={{ fontFamily: 'var(--font-sans)', fontSize: '0.85rem', fontWeight: 600, color: 'var(--charcoal)' }}>${f.precio}</span>

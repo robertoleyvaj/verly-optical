@@ -6,6 +6,7 @@ import { useLang } from './LanguageContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { nombreColor } from '../lib/colores';
+import { costoEnvio, faltaParaGratis } from '../lib/envio';
 import { FormReceta, validarReceta, recetaVacia, RecetaData } from './RecetaManual';
 
 const TURQUESA = '#2BBFB3';
@@ -249,6 +250,10 @@ export default function CartDrawer() {
   const { t, lang } = useLang() as any;
   const { items, removeItem, totalPrecio, totalItems, cupon, cartOpen, setCartOpen } = useCart();
   const totalFinal = Math.max(0, Math.round((totalPrecio - (cupon?.descuento || 0)) * 100) / 100);
+  const envio = costoEnvio(totalFinal);
+  const falta = faltaParaGratis(totalFinal);
+  const totalConEnvio = Math.round((totalFinal + envio) * 100) / 100;
+  const dinero = (n: number) => Number.isInteger(n) ? `$${n}` : `$${n.toFixed(2)}`;
   const [loadingCheckout, setLoadingCheckout] = useState(false);
   const router = useRouter();
 
@@ -372,12 +377,23 @@ export default function CartDrawer() {
               </div>
             )}
 
+            {/* Envío (solo EE.UU.): gratis desde $70 */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#6f6a63', marginBottom: '4px' }}>
+              <span>{t('Envío', 'Shipping')}</span>
+              <span style={{ fontWeight: 500, color: envio === 0 ? '#3a4f33' : '#1d1d1d' }}>{envio === 0 ? t('Gratis', 'Free') : dinero(envio)}</span>
+            </div>
+            {falta > 0 && (
+              <div style={{ fontSize: '11px', color: '#55624c', background: '#f3f5f0', borderRadius: '6px', padding: '6px 10px', margin: '6px 0 4px' }}>
+                {t(`Te faltan ${dinero(falta)} para envío gratis`, `You're ${dinero(falta)} away from free shipping`)}
+              </div>
+            )}
+
             {/* Total */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '1.25rem', paddingTop: '0.75rem', borderTop: '1px solid #f0ede8' }}>
               <span style={{ fontFamily: 'var(--font-sans)', fontSize: '13px', fontWeight: 600, color: '#1d1d1d', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Total</span>
               <span style={{ fontFamily: 'var(--font-serif)', fontSize: '1.6rem', fontWeight: 400, color: '#1d1d1d' }}>
                 {cupon && cupon.descuento > 0 && <span style={{ fontSize: '1rem', color: '#9a9a9a', textDecoration: 'line-through', marginRight: '8px' }}>${totalPrecio}</span>}
-                ${totalFinal} <span style={{ fontSize: '0.75rem', color: '#9a9a9a', fontFamily: 'var(--font-sans)' }}>USD</span>
+                {dinero(totalConEnvio)} <span style={{ fontSize: '0.75rem', color: '#9a9a9a', fontFamily: 'var(--font-sans)' }}>USD</span>
               </span>
             </div>
 

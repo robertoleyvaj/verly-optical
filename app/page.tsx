@@ -7,6 +7,7 @@ import Navbar from './components/Navbar';
 import Asistente from './components/Asistente';
 import { useLang } from './components/LanguageContext';
 import { supabase } from './lib/supabase';
+import { nombreBadge } from './lib/textos';
 
 type Armazon = {
   id: number;
@@ -160,7 +161,7 @@ export default function Home() {
                           <path d="M68 38 C72 32, 88 32, 92 38" stroke={a.color || 'var(--charcoal)'} strokeWidth="2.5" fill="none" strokeLinecap="round"/>
                         </svg>
                       )}
-                    {a.badge && <div style={{ position: 'absolute', top: '8px', left: '8px', fontFamily: 'var(--font-sans)', fontSize: '0.6rem', fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--charcoal)', background: 'var(--cream)', padding: '3px 7px', border: '1px solid var(--border)', borderRadius: '2px' }}>{a.badge}</div>}
+                    {a.badge && <div style={{ position: 'absolute', top: '8px', left: '8px', fontFamily: 'var(--font-sans)', fontSize: '0.6rem', fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--charcoal)', background: 'var(--cream)', padding: '3px 7px', border: '1px solid var(--border)', borderRadius: '2px' }}>{nombreBadge(a.badge, lang)}</div>}
                   </div>
                   <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.6rem', fontWeight: 400, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--warm-gray)', margin: '0 0 2px' }}>{a.forma}</p>
                   <p style={{ fontFamily: 'var(--font-serif)', fontSize: '0.95rem', fontWeight: 300, color: 'var(--charcoal)', margin: '0 0 4px', lineHeight: 1.2 }}>{a.nombre}</p>
@@ -384,7 +385,7 @@ export default function Home() {
                           </svg>
                         </div>
                       )}
-                    {a.badge && <div style={{ position: 'absolute', top: '10px', left: '10px', fontSize: '0.55rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', padding: '3px 8px', borderRadius: '3px', background: '#1d1d1d', color: 'white' }}>{a.badge}</div>}
+                    {a.badge && <div style={{ position: 'absolute', top: '10px', left: '10px', fontSize: '0.55rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', padding: '3px 8px', borderRadius: '3px', background: '#1d1d1d', color: 'white' }}>{nombreBadge(a.badge, lang)}</div>}
                   </div>
                   <div style={{ padding: '1rem 1.1rem 1.1rem' }}>
                     <div style={{ fontFamily: 'var(--font-serif)', fontSize: '1.05rem', fontWeight: 400, color: '#1d1d1d', marginBottom: '6px' }}>{a.nombre}</div>

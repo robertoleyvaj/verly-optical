@@ -9,6 +9,7 @@ import { supabase } from '../../lib/supabase';
 import { fbTrack } from '../../lib/fpixel';
 import { useCart, generateCartId } from '../../context/CartContext';
 import { swatchColor, nombreColor } from '../../lib/colores';
+import { nombreMaterial, nombreBadge } from '../../lib/textos';
 
 type Armazon = {
   id: number; nombre: string; forma: string; genero: string;
@@ -1238,11 +1239,11 @@ export default function DetalleArmazon() {
               <span style={{ fontSize: '0.58rem', fontWeight: 600, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--sage)', padding: '5px 12px', border: '1px solid var(--sage)', borderRadius: '2px' }}>
                 {armazon.genero === 'hombre' ? t('Hombre', 'Men') : armazon.genero === 'mujer' ? t('Mujer', 'Women') : 'Unisex'}
               </span>
-              {armazon.badge && <span style={{ fontSize: '0.58rem', fontWeight: 600, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--warm-gray)', padding: '5px 12px', border: '1px solid var(--border)', borderRadius: '2px' }}>{armazon.badge}</span>}
+              {armazon.badge && <span style={{ fontSize: '0.58rem', fontWeight: 600, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--warm-gray)', padding: '5px 12px', border: '1px solid var(--border)', borderRadius: '2px' }}>{nombreBadge(armazon.badge, lang)}</span>}
             </div>
             <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: esMobil ? '2.8rem' : '4rem', fontWeight: 400, letterSpacing: '-0.03em', margin: '0 0 0.5rem', lineHeight: 1, color: 'var(--charcoal)' }}>{armazon.nombre}</h1>
             <p style={{ fontSize: '1rem', color: 'var(--warm-gray)', marginBottom: '2rem', letterSpacing: '0.01em', fontWeight: 400 }}>
-              {[armazon.material, armazon.forma && `${armazon.forma.charAt(0).toUpperCase() + armazon.forma.slice(1)}`].filter(Boolean).join(' · ')}
+              {[nombreMaterial(armazon.material, lang), armazon.forma && `${armazon.forma.charAt(0).toUpperCase() + armazon.forma.slice(1)}`].filter(Boolean).join(' · ')}
             </p>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginBottom: '0.5rem' }}>
               <span style={{ fontFamily: 'var(--font-serif)', fontSize: '3rem', fontWeight: 400, letterSpacing: '-0.02em', lineHeight: 1 }}>${armazon.precio}</span>
@@ -1302,7 +1303,7 @@ export default function DetalleArmazon() {
             <div style={{ borderBottom: '1px solid var(--border)' }}>
               <Acordeon titulo={t('Detalles del armazón', 'Frame details')}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  {armazon.material && <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Material</span><span style={{ fontWeight: 500, color: 'var(--charcoal)' }}>{armazon.material}</span></div>}
+                  {armazon.material && <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Material</span><span style={{ fontWeight: 500, color: 'var(--charcoal)' }}>{nombreMaterial(armazon.material, lang)}</span></div>}
                   {armazon.forma && <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>{t('Forma', 'Shape')}</span><span style={{ fontWeight: 500, color: 'var(--charcoal)', textTransform: 'capitalize' }}>{armazon.forma}</span></div>}
                   {armazon.medidas && <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>{t('Medidas', 'Measurements')}</span><span style={{ fontWeight: 500, color: 'var(--charcoal)' }}>{armazon.medidas}</span></div>}
                   {armazon.talla && <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>{t('Talla', 'Size')}</span><span style={{ fontWeight: 500, color: 'var(--charcoal)' }}>{armazon.talla}</span></div>}
@@ -1447,7 +1448,7 @@ export default function DetalleArmazon() {
         <div style={{ borderBottom: '1px solid var(--border)' }}>
           <Acordeon titulo={t('Detalles del armazón', 'Frame details')}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {armazon.material && <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Material</span><span style={{ fontWeight: 500, color: 'var(--charcoal)' }}>{armazon.material}</span></div>}
+              {armazon.material && <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Material</span><span style={{ fontWeight: 500, color: 'var(--charcoal)' }}>{nombreMaterial(armazon.material, lang)}</span></div>}
               {armazon.medidas && <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>{t('Medidas', 'Measurements')}</span><span style={{ fontWeight: 500, color: 'var(--charcoal)' }}>{armazon.medidas}</span></div>}
             </div>
           </Acordeon>

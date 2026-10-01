@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { validarCupon } from '../../lib/cupones';
+import { costoEnvio } from '../../lib/envio';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 const supabase = createClient(
@@ -98,15 +99,25 @@ export async function POST(req: NextRequest) {
     const BASE = req.headers.get('origin') || req.nextUrl.origin || envBaseOk || 'https://verlyoptical.com';
 
     // Parámetros compartidos entre el checkout embebido y el hospedado.
+    // Envío: solo EE.UU.; gratis desde $70 (sobre el total ya con descuento), si no $9.95
+    const envio = costoEnvio(total);
     const baseParams: Stripe.Checkout.SessionCreateParams = {
       payment_method_types: ['card'],
       mode: 'payment',
-      shipping_address_collection: { allowed_countries: ['US', 'MX', 'CA'] },
+      shipping_address_collection: { allowed_countries: ['US'] },
+      // Teléfono opcional (phone_number_collection de Stripe siempre es obligatorio, por eso campo propio)
+      custom_fields: [{
+        key: 'telefono',
+        label: { type: 'custom', custom: 'Phone (optional)' },
+        type: 'numeric',
+        optional: true,
+        numeric: { minimum_length: 10, maximum_length: 15 },
+      }],
       shipping_options: [{
         shipping_rate_data: {
           type: 'fixed_amount',
-          fixed_amount: { amount: 0, currency: 'usd' },
-          display_name: 'Standard Shipping',
+          fixed_amount: { amount: Math.round(envio * 100), currency: 'usd' },
+          display_name: envio === 0 ? 'Free Standard Shipping' : 'Standard Shipping',
           delivery_estimate: {
             minimum: { unit: 'business_day', value: 5 },
             maximum: { unit: 'business_day', value: 10 },

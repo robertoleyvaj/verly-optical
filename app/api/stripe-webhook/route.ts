@@ -40,6 +40,9 @@ export async function POST(req: NextRequest) {
     const items = cs.items_data;
     const email   = session.customer_details?.email || '';
     const nombre  = session.customer_details?.name  || '';
+    // Teléfono opcional (campo propio del checkout) o el que Stripe tenga del cliente
+    const telCampo = (session.custom_fields || []).find(f => f.key === 'telefono')?.numeric?.value || '';
+    const telefono = String(telCampo || session.customer_details?.phone || '').trim();
     const ship    = (session as any).shipping_details?.address || (session as any).shipping?.address;
     const direccion = ship
       ? `${ship.line1}${ship.line2 ? ', ' + ship.line2 : ''}, ${ship.city}, ${ship.state} ${ship.postal_code}, ${ship.country}`
@@ -51,10 +54,10 @@ export async function POST(req: NextRequest) {
       const { data: existente } = await supabase.from('clientes').select('id').eq('email', email).maybeSingle();
       if (existente) {
         clienteId = existente.id;
-        await supabase.from('clientes').update({ nombre: nombre || undefined, direccion: direccion || undefined }).eq('id', clienteId);
+        await supabase.from('clientes').update({ nombre: nombre || undefined, direccion: direccion || undefined, telefono: telefono || undefined }).eq('id', clienteId);
       } else {
         const { data: nuevo } = await supabase.from('clientes')
-          .insert({ nombre, email, telefono: '', direccion })
+          .insert({ nombre, email, telefono, direccion })
           .select().single();
         if (nuevo) clienteId = nuevo.id;
       }

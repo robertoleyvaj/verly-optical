@@ -462,6 +462,12 @@ export default function DetalleArmazon() {
   const [colores, setColores] = useState<ColorPub[]>([]);
   const [colorSel, setColorSel] = useState(0);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  // Avisa al asistente (VerlyBot) que el panel de lentes está abierto para que se mueva a la izquierda
+  useEffect(() => {
+    if (drawerOpen) document.body.dataset.panelLentes = '1';
+    else delete document.body.dataset.panelLentes;
+    return () => { delete document.body.dataset.panelLentes; };
+  }, [drawerOpen]);
   const [verlyModal, setVerlyModal] = useState(false);
   const [paqueteVerly, setPaqueteVerly] = useState<PaqueteVerly | null>(null);
   const [errores, setErrores] = useState<string[]>([]);

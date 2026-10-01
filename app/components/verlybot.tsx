@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import { useLang } from './LanguageContext';
+import { useCart } from '../context/CartContext';
 
 type Expresion = 'neutral' | 'feliz' | 'pensando' | 'recomendando' | 'sorprendida';
 type Mensaje = { de: 'verly' | 'px'; texto: string; paquete?: Paquete };
@@ -220,6 +221,18 @@ export default function VerlyBot() {
     };
   }, [esMobil]);
 
+  // ── PANEL ABIERTO (lentes o carrito) → el asistente se mueve a la izquierda ──
+  const { cartOpen } = useCart();
+  const [panelLentes, setPanelLentes] = useState(false);
+  useEffect(() => {
+    const leer = () => setPanelLentes(document.body.dataset.panelLentes === '1');
+    leer();
+    const obs = new MutationObserver(leer);
+    obs.observe(document.body, { attributes: true, attributeFilter: ['data-panel-lentes'] });
+    return () => obs.disconnect();
+  }, []);
+  const aLaIzquierda = cartOpen || panelLentes;
+
   // ── RESET AL CAMBIAR DE PÁGINA ────────────────────────────────────────────
   useEffect(() => {
     if (pathname !== prevPathname.current) {
@@ -327,13 +340,19 @@ export default function VerlyBot() {
   if (!visible) return null;
 
   // Posición del botón: fijo abajo derecha en móvil, arrastrable en desktop
+  // Con el panel de lentes o el carrito abierto: en computadora se pasa a la izquierda;
+  // en celular el panel ocupa toda la pantalla, así que se oculta hasta que se cierre.
+  if (aLaIzquierda && esMobil && !abierto) return null;
+  const lado: 'left' | 'right' = aLaIzquierda && !esMobil ? 'left' : 'right';
+  const ladoX = lado === 'left' ? 24 : pos.x;
+
   const bottonStyle: React.CSSProperties = esMobil
     ? { position: 'fixed', bottom: '90px', right: '16px', zIndex: 999 }
-    : { position: 'fixed', bottom: `${pos.y}px`, right: `${pos.x}px`, zIndex: 999 };
+    : { position: 'fixed', bottom: `${pos.y}px`, [lado]: `${ladoX}px`, zIndex: 999 };
 
   const chatStyle: React.CSSProperties = esMobil
     ? { position: 'fixed', bottom: '0', left: '0', right: '0', zIndex: 998, width: '100%', maxWidth: '100%', borderRadius: '16px 16px 0 0', maxHeight: '75vh' }
-    : { position: 'fixed', bottom: `${pos.y + 76}px`, right: `${pos.x}px`, zIndex: 998, width: '360px', maxWidth: 'calc(100vw - 48px)', borderRadius: '12px' };
+    : { position: 'fixed', bottom: `${pos.y + 76}px`, [lado]: `${ladoX}px`, zIndex: 998, width: '360px', maxWidth: 'calc(100vw - 48px)', borderRadius: '12px' };
 
   return (
     <>

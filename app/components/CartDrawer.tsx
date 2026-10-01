@@ -154,6 +154,7 @@ function ItemCard({ item, onRemove }: { item: CartItem; onRemove: () => void }) 
 
           <div style={{ display: 'flex', gap: '6px', marginBottom: '6px', flexWrap: 'wrap' }}>
             {item.solo_armazon && <span style={{ fontSize: '9px', fontWeight: 600, color: '#9a9a9a', background: '#f5f3ef', padding: '2px 8px', borderRadius: '20px' }}>{t('Solo armazón', 'Frame only')}</span>}
+            {item.paquete && !!item.descuento_paquete && <span style={{ fontSize: '9px', fontWeight: 600, color: 'white', background: '#55624c', padding: '2px 8px', borderRadius: '20px' }}>{t(`Paquete recomendado −10% (−$${item.descuento_paquete})`, `Recommended package −10% (−$${item.descuento_paquete})`)}</span>}
           </div>
 
           {item.lentes && !item.solo_armazon && (

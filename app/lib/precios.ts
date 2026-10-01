@@ -1,5 +1,14 @@
-// Precios por componente — fuente única para checkout y validación de cupones (SOLO servidor).
+// Precios por componente — FUENTE ÚNICA: la usan la página del armazón (lo que ve el cliente),
+// el checkout y la validación de cupones (lo que se cobra). Para cambiar un precio, cámbialo aquí.
+// (La tabla `precios` de la base ya no se usa en Verly; GON sí la usa con sus propios precios.)
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { descuentoPaquete } from './paquete';
+
+// Precio del armazón con el descuento Verly aplicado (igual en cliente y servidor)
+export function precioArmazonFinal(precio: number | null | undefined, descuentoVerly?: number | null): number {
+  const p = Number(precio) || PRECIO_ARMAZON_BASE;
+  return Math.round(p * (1 - (Number(descuentoVerly) || 0) / 100));
+}
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export const PRECIO_ARMAZON_BASE = 13;
@@ -12,6 +21,7 @@ export type Desglose = {
   vision: number;
   material: number;
   filtros: Record<string, number>;   // id → precio
+  paquete?: number;                  // descuento del paquete recomendado (ya restado en total)
   total: number;
 };
 
@@ -20,7 +30,7 @@ export async function desgloseItem(supabase: SupabaseClient, item: any): Promise
   let armazon = PRECIO_ARMAZON_BASE;
   if (item.armazon_id) {
     const { data } = await supabase.from('armazones').select('precio, descuento_verly').eq('id', item.armazon_id).eq('activo', true).single();
-    if (data) armazon = Math.round(data.precio * (1 - (data.descuento_verly || 0) / 100));
+    if (data) armazon = precioArmazonFinal(data.precio, data.descuento_verly);
   }
   if (item.solo_armazon) return { armazon, vision: 0, material: 0, filtros: {}, total: armazon };
 
@@ -29,8 +39,10 @@ export async function desgloseItem(supabase: SupabaseClient, item: any): Promise
   const filtros: Record<string, number> = {};
   for (const f of (item.lentes?.filtros || [])) filtros[f] = FILTRO_PRICES[f] ?? 0;
   const totalFiltros = Object.values(filtros).reduce((s, x) => s + x, 0);
-  const total = armazon + vision + material + totalFiltros;
-  return { armazon, vision, material, filtros, total };
+  // Paquete recomendado (10%): se recalcula aquí con la receta; si no coincide, no hay descuento
+  const paquete = descuentoPaquete(item, { armazon, vision: VISION_PRICES, material: MATERIAL_PRICES, filtro: FILTRO_PRICES });
+  const total = armazon + vision + material + totalFiltros - paquete;
+  return { armazon, vision, material, filtros, paquete, total };
 }
 
 // Total verificado de todo el carrito.

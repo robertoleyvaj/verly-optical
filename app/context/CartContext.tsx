@@ -34,6 +34,9 @@ export type CartItem = {
   paciente?: string;
   precio_total: number;
   solo_armazon?: boolean;
+  // Paquete recomendado por Verly aceptado (el servidor lo revalida con la receta)
+  paquete?: boolean;
+  descuento_paquete?: number;
 };
 
 type CartContextType = {

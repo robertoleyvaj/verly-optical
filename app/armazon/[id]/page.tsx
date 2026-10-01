@@ -1,6 +1,7 @@
 // app/armazon/[id]/page.tsx
 'use client';
-import { usePreciosVerly } from '../../hooks/usePreciosVerly';
+import { recomendarPaquete, descuentoPaquete, PAQUETE_DESCUENTO } from '../../lib/paquete';
+import { PRECIO_ARMAZON_BASE, VISION_PRICES, MATERIAL_PRICES, FILTRO_PRICES, precioArmazonFinal } from '../../lib/precios';
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import Navbar from '../../components/Navbar';
@@ -24,7 +25,7 @@ type PaqueteVerly = {
   vision: { id: string; nombre: string; nombre_en: string; precio: number };
   material: { id: string; nombre: string; nombre_en: string; precio: number };
   filtroBase: { id: string; nombre: string; nombre_en: string; precio: number };
-  precioOriginal: number; precioFinal: number; descuento: number;
+  precioArmazon: number; precioOriginal: number; precioFinal: number; descuento: number;
   condicion: string; explicacion: string;
   upsells: { id: string; nombre: string; precio: number; razon: string }[];
 };
@@ -37,40 +38,40 @@ type RecetaData = {
 
 type RecetaEstado = 'sin_receta' | 'manual' | 'foto' | 'despues' | 'sin_graduacion' | 'guardada';
 
-const PRECIO_ARMAZON = 13;
+const PRECIO_ARMAZON = PRECIO_ARMAZON_BASE;
 const TURQUESA = '#2BBFB3';
 const TURQUESA_DARK = '#1fa89f';
 
 const visionOpts = [
-  { id: 'mono', nombre: 'Monofocal básico', nombre_en: 'Single Vision', desc_es: 'Para ver de lejos o cerca. Ideal para uso diario.', desc_en: 'For distance or near vision. Great for everyday use.', precio: 15 },
-  { id: 'bi', nombre: 'Bifocal', nombre_en: 'Bifocal', desc_es: 'Para ver de lejos y cerca con línea visible.', desc_en: 'For distance and near vision with a visible line.', precio: 49 },
-  { id: 'prog', nombre: 'Progresivo', nombre_en: 'Progressive', desc_es: 'Visión para todas las distancias sin línea visible.', desc_en: 'All-distance vision without a visible line.', precio: 89 },
+  { id: 'mono', nombre: 'Monofocal básico', nombre_en: 'Single Vision', desc_es: 'Para ver de lejos o cerca. Ideal para uso diario.', desc_en: 'For distance or near vision. Great for everyday use.', precio: VISION_PRICES['mono'] },
+  { id: 'bi', nombre: 'Bifocal', nombre_en: 'Bifocal', desc_es: 'Para ver de lejos y cerca con línea visible.', desc_en: 'For distance and near vision with a visible line.', precio: VISION_PRICES['bi'] },
+  { id: 'prog', nombre: 'Progresivo', nombre_en: 'Progressive', desc_es: 'Visión para todas las distancias sin línea visible.', desc_en: 'All-distance vision without a visible line.', precio: VISION_PRICES['prog'] },
 ];
 
 const materialOpts = [
-  { id: 'cr39', nombre: 'Standard Vision', nombre_en: 'Standard Vision', desc_es: 'Mica básica para graduaciones bajas y uso diario.', desc_en: 'Basic lens for low prescriptions and everyday use.', precio: 0 },
-  { id: 'poly', nombre: 'Thin & Durable', nombre_en: 'Thin & Durable', desc_es: 'Más resistente, ligera y recomendada para uso diario.', desc_en: 'Stronger, lighter, and recommended for everyday wear.', precio: 29 },
-  { id: 'hd', nombre: 'ClearView Plus', nombre_en: 'ClearView Plus', desc_es: 'Mejor claridad visual y apariencia más ligera.', desc_en: 'Better visual clarity with a lighter look.', precio: 39 },
-  { id: 'hi', nombre: 'Ultra Thin', nombre_en: 'Ultra Thin', desc_es: 'Ideal para graduaciones medias-altas. Más delgada y estética.', desc_en: 'Ideal for medium-high prescriptions. Thinner and cleaner look.', precio: 59 },
-  { id: 'shi', nombre: 'Ultra Thin Pro', nombre_en: 'Ultra Thin Pro', desc_es: 'Nuestra opción más delgada para graduaciones altas.', desc_en: 'Our thinnest option for high prescriptions.', precio: 89 },
+  { id: 'cr39', nombre: 'Standard Vision', nombre_en: 'Standard Vision', desc_es: 'Mica básica para graduaciones bajas y uso diario.', desc_en: 'Basic lens for low prescriptions and everyday use.', precio: MATERIAL_PRICES['cr39'] },
+  { id: 'poly', nombre: 'Thin & Durable', nombre_en: 'Thin & Durable', desc_es: 'Más resistente, ligera y recomendada para uso diario.', desc_en: 'Stronger, lighter, and recommended for everyday wear.', precio: MATERIAL_PRICES['poly'] },
+  { id: 'hd', nombre: 'ClearView Plus', nombre_en: 'ClearView Plus', desc_es: 'Mejor claridad visual y apariencia más ligera.', desc_en: 'Better visual clarity with a lighter look.', precio: MATERIAL_PRICES['hd'] },
+  { id: 'hi', nombre: 'Ultra Thin', nombre_en: 'Ultra Thin', desc_es: 'Ideal para graduaciones medias-altas. Más delgada y estética.', desc_en: 'Ideal for medium-high prescriptions. Thinner and cleaner look.', precio: MATERIAL_PRICES['hi'] },
+  { id: 'shi', nombre: 'Ultra Thin Pro', nombre_en: 'Ultra Thin Pro', desc_es: 'Nuestra opción más delgada para graduaciones altas.', desc_en: 'Our thinnest option for high prescriptions.', precio: MATERIAL_PRICES['shi'] },
 ];
 
 const filtroOpts = [
-  { id: 'ar', nombre: 'Essential AR', nombre_en: 'Essential AR', desc_es: 'Reduce reflejos básicos para una visión más cómoda.', desc_en: 'Reduces basic reflections for more comfortable vision.', precio: 11 },
-  { id: 'blue', nombre: 'Blue Light Comfort', nombre_en: 'Blue Light Comfort', desc_es: 'Ayuda si usas computadora, celular o pantallas por muchas horas.', desc_en: 'Helpful if you use computers, phones, or screens for long hours.', precio: 18 },
-  { id: 'foto', nombre: 'Fotocromático', nombre_en: 'Photochromic', desc_es: 'Se oscurece en exterior y vuelve claro en interior.', desc_en: 'Darkens outdoors and returns clear indoors.', precio: 49 },
-  { id: 'anti', nombre: 'Anti-Fog', nombre_en: 'Anti-Fog', desc_es: 'Ayuda a reducir el empañamiento.', desc_en: 'Helps reduce fogging.', precio: 15 },
-  { id: 'arprem', nombre: 'Premium Clarity AR', nombre_en: 'Premium Clarity AR', desc_es: 'Mejor antirreflejante. Ideal para manejar de noche.', desc_en: 'Better anti-reflective coating. Ideal for night driving.', precio: 24 },
-  { id: 'pol', nombre: 'Polarizado', nombre_en: 'Polarized', desc_es: 'Reduce reflejos fuertes en exterior. Ideal para lentes de sol.', desc_en: 'Reduces strong outdoor glare. Ideal for sunglasses.', precio: 70 },
-  { id: 'tinte', nombre: 'Tinte estético', nombre_en: 'Fashion Tint', desc_es: 'Agrega color a tus lentes para un look personalizado.', desc_en: 'Adds color to your lenses for a personalized look.', precio: 28 },
+  { id: 'ar', nombre: 'Essential AR', nombre_en: 'Essential AR', desc_es: 'Reduce reflejos básicos para una visión más cómoda.', desc_en: 'Reduces basic reflections for more comfortable vision.', precio: FILTRO_PRICES['ar'] },
+  { id: 'blue', nombre: 'Blue Light Comfort', nombre_en: 'Blue Light Comfort', desc_es: 'Ayuda si usas computadora, celular o pantallas por muchas horas.', desc_en: 'Helpful if you use computers, phones, or screens for long hours.', precio: FILTRO_PRICES['blue'] },
+  { id: 'foto', nombre: 'Fotocromático', nombre_en: 'Photochromic', desc_es: 'Se oscurece en exterior y vuelve claro en interior.', desc_en: 'Darkens outdoors and returns clear indoors.', precio: FILTRO_PRICES['foto'] },
+  { id: 'anti', nombre: 'Anti-Fog', nombre_en: 'Anti-Fog', desc_es: 'Ayuda a reducir el empañamiento.', desc_en: 'Helps reduce fogging.', precio: FILTRO_PRICES['anti'] },
+  { id: 'arprem', nombre: 'Premium Clarity AR', nombre_en: 'Premium Clarity AR', desc_es: 'Mejor antirreflejante. Ideal para manejar de noche.', desc_en: 'Better anti-reflective coating. Ideal for night driving.', precio: FILTRO_PRICES['arprem'] },
+  { id: 'pol', nombre: 'Polarizado', nombre_en: 'Polarized', desc_es: 'Reduce reflejos fuertes en exterior. Ideal para lentes de sol.', desc_en: 'Reduces strong outdoor glare. Ideal for sunglasses.', precio: FILTRO_PRICES['pol'] },
+  { id: 'tinte', nombre: 'Tinte estético', nombre_en: 'Fashion Tint', desc_es: 'Agrega color a tus lentes para un look personalizado.', desc_en: 'Adds color to your lenses for a personalized look.', precio: FILTRO_PRICES['tinte'] },
 ];
 
 const filtroOptsSolar = [
-  { id: 'pol', nombre: 'Polarizado', nombre_en: 'Polarized', desc_es: 'Elimina reflejos intensos. El estándar para lentes de sol de calidad.', desc_en: 'Eliminates intense glare. The standard for quality sunglasses.', precio: 70 },
-  { id: 'foto', nombre: 'Fotocromático', nombre_en: 'Photochromic', desc_es: 'Se oscurece en exterior y aclara en interior automáticamente.', desc_en: 'Darkens outdoors and clears indoors automatically.', precio: 49 },
-  { id: 'tinte', nombre: 'Tinte estético', nombre_en: 'Fashion Tint', desc_es: 'Elige el color de tus lentes para un look único.', desc_en: 'Choose your lens color for a unique look.', precio: 28 },
-  { id: 'arprem', nombre: 'Premium Clarity AR', nombre_en: 'Premium Clarity AR', desc_es: 'Reduce reflejos internos para mayor claridad.', desc_en: 'Reduces internal reflections for better clarity.', precio: 24 },
-  { id: 'anti', nombre: 'Anti-Fog', nombre_en: 'Anti-Fog', desc_es: 'Ayuda a reducir el empañamiento.', desc_en: 'Helps reduce fogging.', precio: 15 },
+  { id: 'pol', nombre: 'Polarizado', nombre_en: 'Polarized', desc_es: 'Elimina reflejos intensos. El estándar para lentes de sol de calidad.', desc_en: 'Eliminates intense glare. The standard for quality sunglasses.', precio: FILTRO_PRICES['pol'] },
+  { id: 'foto', nombre: 'Fotocromático', nombre_en: 'Photochromic', desc_es: 'Se oscurece en exterior y aclara en interior automáticamente.', desc_en: 'Darkens outdoors and clears indoors automatically.', precio: FILTRO_PRICES['foto'] },
+  { id: 'tinte', nombre: 'Tinte estético', nombre_en: 'Fashion Tint', desc_es: 'Elige el color de tus lentes para un look único.', desc_en: 'Choose your lens color for a unique look.', precio: FILTRO_PRICES['tinte'] },
+  { id: 'arprem', nombre: 'Premium Clarity AR', nombre_en: 'Premium Clarity AR', desc_es: 'Reduce reflejos internos para mayor claridad.', desc_en: 'Reduces internal reflections for better clarity.', precio: FILTRO_PRICES['arprem'] },
+  { id: 'anti', nombre: 'Anti-Fog', nombre_en: 'Anti-Fog', desc_es: 'Ayuda a reducir el empañamiento.', desc_en: 'Helps reduce fogging.', precio: FILTRO_PRICES['anti'] },
 ];
 
 const COLORES_FOTO = [
@@ -282,38 +283,32 @@ function FormReceta({ receta, onChange, errores, t }: { receta: RecetaData; onCh
   );
 }
 
-function calcularPaquete(r: RecetaData, lang: 'es' | 'en'): PaqueteVerly {
-  const sph_od = r.sph_od ?? 0, sph_os = r.sph_os ?? 0;
-  const cyl_od = r.cyl_od ?? 0, cyl_os = r.cyl_os ?? 0;
+function calcularPaquete(r: RecetaData, lang: 'es' | 'en', precioArmazon: number): PaqueteVerly {
+  // La elección (visión, material, filtro) sale de app/lib/paquete.ts: la misma que valida el cobro
+  const rec = recomendarPaquete(r)!;
   const add = r.add ?? 0;
-  const eq = Math.max(Math.abs(sph_od + cyl_od / 2), Math.abs(sph_os + cyl_os / 2));
-  const cyl = Math.max(Math.abs(cyl_od), Math.abs(cyl_os));
-  const astigmatismo = cyl >= 0.75;
-  let vision = visionOpts[0];
-  if (add > 0) vision = visionOpts[2];
-  let material = materialOpts[1];
-  if (eq > 4.0) material = materialOpts[4];
-  else if (eq > 2.0) material = materialOpts[3];
-  const filtroBase = astigmatismo || add > 0 ? filtroOpts[4] : filtroOpts[2];
+  const vision = visionOpts.find(v => v.id === rec.vision)!;
+  const material = materialOpts.find(m => m.id === rec.material)!;
+  const filtroBase = filtroOpts.find(f => f.id === rec.filtro)!;
   let condicion = '', explicacion = '';
-  if (add > 0) { condicion = lang === 'es' ? 'Presbicia' : 'Presbyopia'; explicacion = lang === 'es' ? `Tienes adición (ADD +${add.toFixed(2)}), indicando presbicia.` : `You have presbyopia. Progressive lenses correct all distances.`; }
-  else if (cyl >= 1.50) { condicion = lang === 'es' ? 'Astigmatismo alto' : 'High astigmatism'; explicacion = lang === 'es' ? 'Astigmatismo alto detectado. Premium Clarity AR ayuda a reducir reflejos.' : 'High astigmatism detected. Premium Clarity AR helps reduce reflections.'; }
-  else if (astigmatismo) { condicion = lang === 'es' ? 'Astigmatismo' : 'Astigmatism'; explicacion = lang === 'es' ? 'Tienes astigmatismo. Premium Clarity AR mejora la comodidad visual.' : 'You have astigmatism. Premium Clarity AR improves visual comfort.'; }
-  else if (eq > 4.0) { condicion = lang === 'es' ? 'Graduación muy alta' : 'Very high prescription'; explicacion = lang === 'es' ? 'El Ultra Thin Pro hará tus lentes delgados y elegantes.' : 'Ultra Thin Pro makes your lenses thin and elegant.'; }
-  else if (eq > 2.0) { condicion = lang === 'es' ? 'Graduación alta' : 'High prescription'; explicacion = lang === 'es' ? 'El Ultra Thin reducirá el grosor hasta un 30%.' : 'Ultra Thin will reduce lens thickness by up to 30%.'; }
+  if (rec.tipo === 'presbicia') { condicion = lang === 'es' ? 'Presbicia' : 'Presbyopia'; explicacion = lang === 'es' ? `Tienes adición (ADD +${add.toFixed(2)}), indicando presbicia.` : `You have presbyopia. Progressive lenses correct all distances.`; }
+  else if (rec.tipo === 'astig_alto') { condicion = lang === 'es' ? 'Astigmatismo alto' : 'High astigmatism'; explicacion = lang === 'es' ? 'Astigmatismo alto detectado. Premium Clarity AR ayuda a reducir reflejos.' : 'High astigmatism detected. Premium Clarity AR helps reduce reflections.'; }
+  else if (rec.tipo === 'astig') { condicion = lang === 'es' ? 'Astigmatismo' : 'Astigmatism'; explicacion = lang === 'es' ? 'Tienes astigmatismo. Premium Clarity AR mejora la comodidad visual.' : 'You have astigmatism. Premium Clarity AR improves visual comfort.'; }
+  else if (rec.tipo === 'muy_alta') { condicion = lang === 'es' ? 'Graduación muy alta' : 'Very high prescription'; explicacion = lang === 'es' ? 'El Ultra Thin Pro hará tus lentes delgados y elegantes.' : 'Ultra Thin Pro makes your lenses thin and elegant.'; }
+  else if (rec.tipo === 'alta') { condicion = lang === 'es' ? 'Graduación alta' : 'High prescription'; explicacion = lang === 'es' ? 'El Ultra Thin reducirá el grosor hasta un 30%.' : 'Ultra Thin will reduce lens thickness by up to 30%.'; }
   else { condicion = lang === 'es' ? 'Graduación moderada' : 'Moderate prescription'; explicacion = lang === 'es' ? 'Thin & Durable es resistente y el Fotocromático te da comodidad.' : 'Thin & Durable is strong and Photochromic gives indoor/outdoor comfort.'; }
-  const precioOriginal = PRECIO_ARMAZON + vision.precio + material.precio + filtroBase.precio;
-  const descuento = Math.round(precioOriginal * 0.10);
+  const precioOriginal = precioArmazon + vision.precio + material.precio + filtroBase.precio;
+  const descuento = Math.round(precioOriginal * PAQUETE_DESCUENTO);
   const precioFinal = precioOriginal - descuento;
   const upsells: { id: string; nombre: string; precio: number; razon: string }[] = [];
   if (filtroBase.id === 'arprem') {
-    upsells.push({ id: 'blue', nombre: 'Blue Light Comfort', precio: 18, razon: lang === 'es' ? 'Para uso diario de pantallas' : 'For daily screen use' });
-    upsells.push({ id: 'anti', nombre: 'Anti-Fog', precio: 15, razon: lang === 'es' ? 'Evita empañamiento' : 'Prevents fogging' });
+    upsells.push({ id: 'blue', nombre: 'Blue Light Comfort', precio: FILTRO_PRICES['blue'], razon: lang === 'es' ? 'Para uso diario de pantallas' : 'For daily screen use' });
+    upsells.push({ id: 'anti', nombre: 'Anti-Fog', precio: FILTRO_PRICES['anti'], razon: lang === 'es' ? 'Evita empañamiento' : 'Prevents fogging' });
   } else {
-    upsells.push({ id: 'arprem', nombre: 'Premium Clarity AR', precio: 24, razon: lang === 'es' ? 'Reduce reflejos al manejar de noche' : 'Reduces reflections when driving at night' });
-    upsells.push({ id: 'anti', nombre: 'Anti-Fog', precio: 15, razon: lang === 'es' ? 'Evita empañamiento' : 'Prevents fogging' });
+    upsells.push({ id: 'arprem', nombre: 'Premium Clarity AR', precio: FILTRO_PRICES['arprem'], razon: lang === 'es' ? 'Reduce reflejos al manejar de noche' : 'Reduces reflections when driving at night' });
+    upsells.push({ id: 'anti', nombre: 'Anti-Fog', precio: FILTRO_PRICES['anti'], razon: lang === 'es' ? 'Evita empañamiento' : 'Prevents fogging' });
   }
-  return { vision, material, filtroBase, precioOriginal, precioFinal, descuento, condicion, explicacion, upsells };
+  return { vision, material, filtroBase, precioArmazon, precioOriginal, precioFinal, descuento, condicion, explicacion, upsells };
 }
 
 function LenteSVG({ color, forma, size = 'large', solar = false }: { color: string; forma: string; size?: string; solar?: boolean }) {
@@ -353,11 +348,11 @@ function VerlyModalPaquete({ paquete, armazonNombre, onAceptar, onManual, lang }
               <div style={{ border: '1px solid var(--border)', borderRadius: '6px', overflow: 'hidden', marginBottom: '1.25rem' }}>
                 <div style={{ background: 'var(--cream-dark)', padding: '0.65rem 1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span style={{ fontSize: '0.68rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--charcoal)' }}>{lang === 'es' ? `Paquete ${paquete.condicion}` : `${paquete.condicion} Package`}</span>
-                  <span style={{ background: 'var(--sage)', color: 'white', padding: '2px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 500 }}>-{paquete.descuento}% OFF</span>
+                  <span style={{ background: 'var(--sage)', color: 'white', padding: '2px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 500 }}>-{Math.round(PAQUETE_DESCUENTO * 100)}% OFF</span>
                 </div>
                 <div style={{ padding: '0.75rem 1rem' }}>
                   {[
-                    { label: armazonNombre, valor: `$${PRECIO_ARMAZON}` },
+                    { label: armazonNombre, valor: `$${paquete.precioArmazon}` },
                     { label: lang === 'es' ? paquete.vision.nombre : paquete.vision.nombre_en, valor: `+$${paquete.vision.precio}` },
                     { label: lang === 'es' ? paquete.material.nombre : paquete.material.nombre_en, valor: paquete.material.precio === 0 ? (lang === 'es' ? 'Incluido' : 'Included') : `+$${paquete.material.precio}` },
                     { label: lang === 'es' ? paquete.filtroBase.nombre : paquete.filtroBase.nombre_en, valor: `+$${paquete.filtroBase.precio}` },
@@ -475,11 +470,11 @@ export default function DetalleArmazon() {
     return () => { delete document.body.dataset.panelLentes; };
   }, [drawerOpen]);
   const [verlyModal, setVerlyModal] = useState(false);
+  const [paqueteAceptado, setPaqueteAceptado] = useState(false);
   const [paqueteVerly, setPaqueteVerly] = useState<PaqueteVerly | null>(null);
   const [errores, setErrores] = useState<string[]>([]);
   const [paciente, setPaciente] = useState('');
   const [reutilizarReceta, setReutilizarReceta] = useState<string | null>(null);
-  const preciosDB = usePreciosVerly();
 
   const esSolar = armazon?.tipo === 'solar';
 
@@ -493,7 +488,7 @@ export default function DetalleArmazon() {
   const [receta, setReceta] = useState<RecetaData>({ sph_od: null, cyl_od: null, axis_od: null, sph_os: null, cyl_os: null, axis_os: null, add: null, dp: null, prisma: '' });
   const [paso, setPaso] = useState(1);
   const [vision, setVision] = useState('');
-  const [material, setMaterial] = useState('');
+  const [material, setMaterial] = useState('cr39'); // Standard viene incluido: elegido de inicio
   const [filtros, setFiltros] = useState<string[]>([]);
   const [colorFoto, setColorFoto] = useState('gris');
   const [colorPolarizado, setColorPolarizado] = useState('negro');
@@ -532,15 +527,17 @@ export default function DetalleArmazon() {
     }
   }, [lightboxOpen]);
 
-  const precioArmazon = armazon?.precio || PRECIO_ARMAZON;
-  const precioVision = (preciosDB.vision.find((v: any) => v.id === vision)?.precio || visionOpts.find(v => v.id === vision)?.precio || 0);
-  const precioMaterial = (preciosDB.material.find((m: any) => m.id === material)?.precio || materialOpts.find(m => m.id === material)?.precio || 0);
-  const precioFiltros = filtros.reduce((total, fid) => {
-    const precioDB = preciosDB.filtro.find((f: any) => f.id === fid)?.precio;
-    const precioLocal = filtroOpts.find((f: any) => f.id === fid)?.precio || 0;
-    return total + (precioDB || precioLocal);
-  }, 0);
-  const total = soloArmazon ? precioArmazon : precioArmazon + precioVision + precioMaterial + precioFiltros;
+  // Mismos precios y misma fórmula que el cobro (app/lib/precios.ts)
+  const precioArmazon = precioArmazonFinal(armazon?.precio, (armazon as any)?.descuento_verly);
+  const precioVision = VISION_PRICES[vision] ?? 0;
+  const precioMaterial = MATERIAL_PRICES[material] ?? 0;
+  const precioFiltros = filtros.reduce((total, fid) => total + (FILTRO_PRICES[fid] ?? 0), 0);
+  // Paquete recomendado: 10% si la configuración sigue siendo la recomendada (misma regla que el cobro)
+  const descuentoPaq = soloArmazon ? 0 : descuentoPaquete(
+    { paquete: paqueteAceptado, receta: recetaEstado === 'guardada' ? { metodo: 'manual', datos: receta } : null, lentes: { vision, material, filtros } },
+    { armazon: precioArmazon, vision: VISION_PRICES, material: MATERIAL_PRICES, filtro: FILTRO_PRICES },
+  );
+  const total = soloArmazon ? precioArmazon : precioArmazon + precioVision + precioMaterial + precioFiltros - descuentoPaq;
 
   // Meta Pixel · ViewContent (una vez por armazón)
   useEffect(() => {
@@ -594,7 +591,8 @@ export default function DetalleArmazon() {
     const errs = validarReceta();
     if (errs.length > 0) { setErrores(errs); return; }
     setErrores([]);
-    const paquete = calcularPaquete(receta, lang || 'en');
+    if (!recomendarPaquete(receta)) { elegirManual(); setRecetaEstado('guardada'); return; }
+    const paquete = calcularPaquete(receta, lang || 'en', precioArmazon);
     setPaqueteVerly(paquete);
     setRecetaEstado('guardada');
     setVerlyModal(true);
@@ -605,12 +603,13 @@ export default function DetalleArmazon() {
     setVision(paqueteVerly.vision.id);
     setMaterial(paqueteVerly.material.id);
     setFiltros([paqueteVerly.filtroBase.id, ...extrasIds]);
+    setPaqueteAceptado(true);
     setVerlyModal(false);
     setDrawerEstado('config');
     setPaso(4);
   };
 
-  const elegirManual = () => { setVerlyModal(false); setDrawerEstado('config'); setPaso(1); };
+  const elegirManual = () => { setPaqueteAceptado(false); setVerlyModal(false); setDrawerEstado('config'); setPaso(1); };
 
   const handleAddToCart = () => {
     if (reutilizarReceta) {
@@ -665,6 +664,8 @@ export default function DetalleArmazon() {
       },
       paciente: paciente.trim() || undefined,
       precio_total: total,
+      paquete: descuentoPaq > 0 ? true : undefined,
+      descuento_paquete: descuentoPaq > 0 ? descuentoPaq : undefined,
     };
     addItem(item);
     // Meta Pixel · AddToCart (tras agregar correctamente)
@@ -676,7 +677,7 @@ export default function DetalleArmazon() {
       currency: 'USD',
     });
     setDrawerOpen(false);
-    setPaso(1); setVision(''); setMaterial(''); setFiltros([]);
+    setPaso(1); setVision(''); setMaterial('cr39'); setFiltros([]); setPaqueteAceptado(false);
     setPaciente(''); setReutilizarReceta(null);
     setRecetaEstado('sin_receta'); setFotoReceta(''); setFotoRecetaPath(''); setErrorFoto('');
     setDrawerEstado(esSolar ? 'inicio_solar' : 'inicio');
@@ -1104,7 +1105,8 @@ export default function DetalleArmazon() {
                             if (f.id === 'pol') label = `${nombre} — ${COLORES_POLARIZADO.find(c => c.id === colorPolarizado)?.[lang === 'es' ? 'nombre_es' : 'nombre_en'] || colorPolarizado}`;
                             if (f.id === 'tinte') label = `${nombre} — ${COLORES_TINTE.find(c => c.id === colorTinte)?.[lang === 'es' ? 'nombre_es' : 'nombre_en'] || colorTinte}`;
                             return { label, value: `+$${f.precio}` };
-                          })
+                          }),
+                          ...(descuentoPaq > 0 ? [{ label: t('Paquete recomendado −10%', 'Recommended package −10%'), value: `−$${descuentoPaq}` }] : []),
                         ].map((item, i, arr) => (
                           <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '7px 0', borderBottom: i < arr.length - 1 ? '1px solid var(--border)' : 'none', fontSize: '13px' }}>
                             <span style={{ color: 'var(--warm-gray)' }}>{item.label}</span>

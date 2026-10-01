@@ -3,6 +3,7 @@ import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { validarCupon } from '../../lib/cupones';
 import { costoEnvio } from '../../lib/envio';
+import { desgloseItem } from '../../lib/precios';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 const supabase = createClient(
@@ -10,22 +11,9 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-const PRECIO_ARMAZON_BASE = 13;
-const VISION_PRICES: Record<string, number> = { mono: 15, bi: 49, prog: 89 };
-const MATERIAL_PRICES: Record<string, number> = { cr39: 0, poly: 29, hd: 39, hi: 59, shi: 89 };
-const FILTRO_PRICES: Record<string, number> = { ar: 11, blue: 18, foto: 49, anti: 15, arprem: 24, pol: 70, tinte: 28 };
-
+// Precios: una sola fuente (app/lib/precios.ts), la misma que usa la página del armazón
 async function calcularPrecioItem(item: any): Promise<number> {
-  let precioArmazon = PRECIO_ARMAZON_BASE;
-  if (item.armazon_id) {
-    const { data } = await supabase.from('armazones').select('precio, descuento_verly').eq('id', item.armazon_id).eq('activo', true).single();
-    if (data) precioArmazon = Math.round(data.precio * (1 - (data.descuento_verly || 0) / 100));
-  }
-  if (item.solo_armazon) return precioArmazon;
-  const precioVision   = VISION_PRICES[item.lentes?.vision]    ?? 0;
-  const precioMaterial = MATERIAL_PRICES[item.lentes?.material] ?? 0;
-  const precioFiltros  = (item.lentes?.filtros || []).reduce((s: number, f: string) => s + (FILTRO_PRICES[f] ?? 0), 0);
-  return precioArmazon + precioVision + precioMaterial + precioFiltros;
+  return (await desgloseItem(supabase, item)).total;
 }
 
 const attempts = new Map<string, { count: number; resetAt: number }>();

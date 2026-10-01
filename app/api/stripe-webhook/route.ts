@@ -76,6 +76,7 @@ export async function POST(req: NextRequest) {
             item.lentes?.material_nombre && `Material: ${item.lentes.material_nombre}`,
             item.lentes?.filtros_nombres?.length > 0 && `Filtros: ${item.lentes.filtros_nombres.join(', ')}`,
             item.paciente && `Para: ${item.paciente}`,
+            item.paquete && 'Paquete recomendado −10%',
           ].filter(Boolean).join(' · ');
 
       // Color del armazón: nombre y SKU exacto (para el laboratorio y para descontar inventario)

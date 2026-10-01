@@ -122,9 +122,6 @@ export default function Lenses() {
                 {lang === 'es' ? 'Ir a Eyeglasses' : 'Shop Eyeglasses'}
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
               </Link>
-              <Link href="/sunglasses" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'transparent', color: 'var(--charcoal)', padding: '12px 24px', borderRadius: '2px', fontFamily: 'var(--font-sans)', fontSize: '0.68rem', fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase', textDecoration: 'none', border: '1px solid var(--border)' }}>
-                {lang === 'es' ? 'Ver Sunglasses' : 'Browse Sunglasses'}
-              </Link>
             </div>
           </div>
 
@@ -310,7 +307,7 @@ export default function Lenses() {
               { q: lang === 'es' ? '¿Puedo subir mi receta después?' : 'Can I upload my prescription later?', a: lang === 'es' ? 'Sí. Puedes pagar primero y subir tu receta antes de que procesemos tu pedido.' : 'Yes. Pay first and upload your prescription before we process your order.' },
               { q: lang === 'es' ? '¿Necesito seguro médico?' : 'Do I need insurance?', a: lang === 'es' ? 'No. Nuestros precios son directos al consumidor, sin intermediarios.' : 'No. Our prices are direct-to-consumer, no middlemen.' },
               { q: lang === 'es' ? '¿Cuánto tarda el pedido?' : 'How long does the order take?', a: lang === 'es' ? 'Armazón solo: 5–7 días. Con micas graduadas: hasta 10 días adicionales.' : 'Frame only: 5–7 days. With prescription lenses: up to 10 additional days.' },
-              { q: lang === 'es' ? '¿Todos los armazones se pueden graduar?' : 'Can all frames take prescription lenses?', a: lang === 'es' ? 'Sí. Eyeglasses y Sunglasses son todos graduables.' : 'Yes. Both eyeglasses and sunglasses are all prescription-ready.' },
+              { q: lang === 'es' ? '¿Todos los armazones se pueden graduar?' : 'Can all frames take prescription lenses?', a: lang === 'es' ? 'Sí. Todos nuestros armazones se pueden graduar.' : 'Yes. All our frames are prescription-ready.' },
             ].map((item, i) => (
               <div key={i} style={{ paddingBottom: '1.1rem', marginBottom: '1.1rem', borderBottom: '1px solid var(--border)' }}>
                 <div style={{ fontSize: '0.85rem', fontWeight: 500, color: 'var(--charcoal)', marginBottom: '0.4rem' }}>{item.q}</div>
@@ -332,9 +329,6 @@ export default function Lenses() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 <Link href="/Tienda" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: 'white', color: 'var(--charcoal)', padding: '12px 20px', borderRadius: '2px', fontFamily: 'var(--font-sans)', fontSize: '0.68rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', textDecoration: 'none' }}>
                   {lang === 'es' ? 'Ir a Eyeglasses →' : 'Shop Eyeglasses →'}
-                </Link>
-                <Link href="/sunglasses" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'transparent', color: 'rgba(255,255,255,0.75)', padding: '12px 20px', borderRadius: '2px', fontFamily: 'var(--font-sans)', fontSize: '0.68rem', fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase', textDecoration: 'none', border: '1px solid rgba(255,255,255,0.2)' }}>
-                  {lang === 'es' ? 'Ver Sunglasses' : 'Browse Sunglasses'}
                 </Link>
               </div>
             </div>

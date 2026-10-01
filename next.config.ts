@@ -21,6 +21,11 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // Sunglasses pausado por ahora: los links viejos van a la tienda de eyeglasses.
+  // Para reactivarlo, quita este redirect y regresa el link en Navbar.tsx.
+  async redirects() {
+    return [{ source: "/sunglasses", destination: "/Tienda", permanent: false }];
+  },
   async headers() {
     return [
       {

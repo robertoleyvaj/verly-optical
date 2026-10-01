@@ -189,29 +189,6 @@ export default function Home() {
           </div>
         </section>
 
-        <section style={{ margin: '0 1.25rem 2rem', background: 'var(--sage)', borderRadius: '10px', overflow: 'hidden', position: 'relative' }}>
-          <div style={{ padding: '1.75rem 1.5rem' }}>
-            <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.6rem', fontWeight: 600, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.65)', margin: '0 0 0.6rem' }}>
-              {t('Lentes de sol', 'Sunglasses')}
-            </p>
-            <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.8rem', fontWeight: 400, color: 'white', margin: '0 0 0.15rem', lineHeight: 1.05, letterSpacing: '-0.02em' }}>
-              {t('Lentes de sol', 'Sunglasses')}
-            </h2>
-            <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.8rem', fontWeight: 400, fontStyle: 'italic', color: 'rgba(255,255,255,0.75)', margin: '0 0 1rem', lineHeight: 1.05, letterSpacing: '-0.02em' }}>
-              {t('que se gradúan.', 'made to your Rx.')}
-            </h2>
-            <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.78rem', color: 'rgba(255,255,255,0.7)', lineHeight: 1.7, margin: '0 0 1.25rem', maxWidth: '280px' }}>
-              {t('Todos nuestros lentes de sol se pueden graduar. Sin seguro, sin citas.', 'All our sunglasses can be made with prescription lenses. No insurance, no appointments.')}
-            </p>
-            <Link href="/sunglasses" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'white', color: 'var(--sage)', padding: '0.75rem 1.25rem', borderRadius: '3px', fontFamily: 'var(--font-sans)', fontSize: '0.68rem', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', textDecoration: 'none' }}>
-              {t('Ver lentes de sol', 'Shop sunglasses')}
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
-            </Link>
-          </div>
-          <div style={{ position: 'absolute', top: '-30px', right: '-30px', width: '130px', height: '130px', borderRadius: '50%', background: 'rgba(255,255,255,0.07)', pointerEvents: 'none' }}/>
-          <div style={{ position: 'absolute', bottom: '-20px', right: '40px', width: '80px', height: '80px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', pointerEvents: 'none' }}/>
-        </section>
-
         <section style={{ margin: '0 1.25rem 2rem' }}>
           <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.62rem', fontWeight: 500, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--warm-gray)', marginBottom: '0.75rem' }}>
             {t('Colecciones', 'Collections')}
@@ -259,7 +236,7 @@ export default function Home() {
           <img src="/logo-trasparente.png" alt="Verly Optical" style={{ height: '28px', width: 'auto', marginBottom: '1rem', opacity: 0.8 }}/>
           <p style={{ fontFamily: 'var(--font-sans)', fontSize: '12px', color: 'rgba(255,255,255,0.3)', lineHeight: 1.7, marginBottom: '1.5rem' }}>{t('Lentes accesibles para toda la familia.', 'Affordable eyewear for everyone.')}</p>
           <div style={{ display: 'flex', gap: '1.5rem', marginBottom: '2rem' }}>
-            {[{ href: '/Tienda', label: 'Eyeglasses' }, { href: '/sunglasses', label: 'Sunglasses' }, { href: '#faq', label: 'FAQ' }].map((l, i) => (
+            {[{ href: '/Tienda', label: 'Eyeglasses' }, { href: '#faq', label: 'FAQ' }].map((l, i) => (
               <a key={i} href={l.href} style={{ fontFamily: 'var(--font-sans)', fontSize: '12px', color: 'rgba(255,255,255,0.3)', textDecoration: 'none' }}>{l.label}</a>
             ))}
           </div>
@@ -305,34 +282,6 @@ export default function Home() {
           <svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="var(--charcoal)" strokeWidth="1.2" strokeLinecap="round"/></svg>
         </div>
       </section>
-
-      <Reveal>
-        <section style={{ position: 'relative', width: '100%', height: '500px', overflow: 'hidden' }}>
-          <img src="/promo-banner.jpg" alt="Verly Promo" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }}/>
-          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(237,232,223,0.92) 0%, rgba(237,232,223,0.6) 35%, rgba(237,232,223,0.0) 60%)' }}/>
-          <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', padding: '0 5rem' }}>
-            <div style={{ maxWidth: '440px' }}>
-              <p style={{ fontFamily: 'var(--font-sans)', fontSize: '10px', fontWeight: 600, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--sage)', marginBottom: '1rem' }}>
-                {t('Lentes de sol', 'Sunglasses')}
-              </p>
-              <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2.4rem, 4vw, 3.8rem)', fontWeight: 400, color: 'var(--charcoal)', margin: '0 0 0.5rem', lineHeight: 1.0, letterSpacing: '-0.03em' }}>
-                {t('Lentes de sol', 'Sunglasses')}
-              </h2>
-              <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2.4rem, 4vw, 3.8rem)', fontWeight: 400, fontStyle: 'italic', color: 'var(--sage)', margin: '0 0 1.25rem', lineHeight: 1.0, letterSpacing: '-0.03em' }}>
-                {t('que se gradúan.', 'made to your Rx.')}
-              </h2>
-              <div style={{ width: '40px', height: '1px', background: 'var(--sage)', marginBottom: '1.25rem', opacity: 0.6 }}/>
-              <p style={{ fontFamily: 'var(--font-sans)', fontSize: '13px', color: 'var(--warm-gray)', lineHeight: 1.8, marginBottom: '2rem', maxWidth: '320px' }}>
-                {t('Todos nuestros lentes de sol se pueden graduar. Sin seguro, sin citas.', 'All our sunglasses can be made with prescription lenses. No insurance, no appointments.')}
-              </p>
-              <Link href="/sunglasses" style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', background: 'var(--charcoal)', color: 'white', padding: '13px 28px', borderRadius: '3px', fontFamily: 'var(--font-sans)', fontSize: '11px', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', textDecoration: 'none' }}>
-                {t('Ver lentes de sol', 'Shop sunglasses')}
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
-              </Link>
-            </div>
-          </div>
-        </section>
-      </Reveal>
 
       <Reveal>
         <section style={{ background: 'var(--cream)', padding: '8rem 2rem', overflow: 'hidden' }}>
@@ -519,7 +468,7 @@ export default function Home() {
           <div>
             <h4 style={{ fontFamily: 'var(--font-sans)', color: 'rgba(255,255,255,0.5)', fontSize: '11px', fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '1.25rem' }}>{t('Tienda', 'Shop')}</h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {[{ href: '/Tienda', label: 'Eyeglasses' }, { href: '/sunglasses', label: 'Sunglasses' }].map((l, i) => (
+              {[{ href: '/Tienda', label: 'Eyeglasses' }].map((l, i) => (
                 <a key={i} href={l.href} style={{ fontFamily: 'var(--font-sans)', color: 'rgba(255,255,255,0.3)', textDecoration: 'none', fontSize: '13px', transition: 'color 0.15s' }}
                   onMouseEnter={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.7)')}
                   onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.3)')}

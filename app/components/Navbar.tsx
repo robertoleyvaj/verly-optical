@@ -159,7 +159,6 @@ function CartIcon() {
 
 const navLinks = [
   { href: "/Tienda", label: "Eyeglasses" },
-  { href: "/sunglasses", label: "Sunglasses" },
   { href: "/lenses", label: "Lenses" },
 ];
 

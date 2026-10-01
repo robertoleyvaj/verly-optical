@@ -4,14 +4,15 @@ import { useState, useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import { useLang } from './LanguageContext';
 import { useCart } from '../context/CartContext';
+import { VISION_PRICES, MATERIAL_PRICES, FILTRO_PRICES } from '../lib/precios';
 
 type Expresion = 'neutral' | 'feliz' | 'pensando' | 'recomendando' | 'sorprendida';
 type Mensaje = { de: 'verly' | 'px'; texto: string; paquete?: Paquete };
 
 interface Paquete {
-  nombre: string; material: string; precioMaterial: number;
+  nombre: string; vision: string; precioVision: number; material: string; precioMaterial: number;
   filtros: { nombre: string; precio: number }[];
-  precioOriginal: number; precioFinal: number; descuento: number;
+  precioLentes: number;  // micas recomendadas (sin armazón; el armazón depende del modelo)
   condicion: string; explicacion: string;
 }
 
@@ -26,14 +27,16 @@ interface SesionPx {
   paqueteRecomendado: Paquete | null;
 }
 
+// Mismos nombres y precios que el configurador y el cobro (app/lib/precios.ts).
+// El chat solo RECOMIENDA: no promete descuento (el 10% vive en el configurador).
 const PRECIOS_MATERIAL: Record<string, number> = {
-  'CR-39': 0, 'PolyPlus': 29, 'HD Vision': 39, 'Hi-Index 1.67': 59, 'Súper Hi-Index 1.74': 89,
+  'Standard Vision': MATERIAL_PRICES.cr39, 'Thin & Durable': MATERIAL_PRICES.poly, 'ClearView Plus': MATERIAL_PRICES.hd,
+  'Ultra Thin': MATERIAL_PRICES.hi, 'Ultra Thin Pro': MATERIAL_PRICES.shi,
 };
 const PRECIOS_FILTRO: Record<string, number> = {
-  'AR Normal': 9, 'Blue Light': 17, 'Fotocromático': 39, 'Antiempañante': 15,
-  'AR Premium': 39, 'Polarizado': 89, 'Tinte estético': 28,
+  'Essential AR': FILTRO_PRICES.ar, 'Blue Light Comfort': FILTRO_PRICES.blue, 'Photochromic': FILTRO_PRICES.foto, 'Anti-Fog': FILTRO_PRICES.anti,
+  'Premium Clarity AR': FILTRO_PRICES.arprem, 'Polarized': FILTRO_PRICES.pol, 'Fashion Tint': FILTRO_PRICES.tinte,
 };
-const PRECIO_ARMAZON = 13;
 
 function armarPaquete(receta: Receta, estiloVida: Record<string, boolean>, lang: 'es' | 'en'): Paquete {
   const sph = Math.max(Math.abs(receta.sph_od), Math.abs(receta.sph_oi));
@@ -42,44 +45,44 @@ function armarPaquete(receta: Receta, estiloVida: Record<string, boolean>, lang:
   const tieneAstigmatismo = cyl >= 0.75;
   const tienePresbicia = add > 0;
 
-  let material = 'CR-39';
+  let material = 'Standard Vision';
   let condicion = '';
   let explicacion = '';
 
   if (sph > 5) {
-    material = 'Súper Hi-Index 1.74';
+    material = 'Ultra Thin Pro';
     condicion = lang === 'es' ? 'Graduación muy alta' : 'Very high prescription';
     explicacion = lang === 'es' ? 'Con graduación alta, el Súper Hi-Index 1.74 es el material más delgado del mercado.' : 'With a high prescription, Super Hi-Index 1.74 is the thinnest material available.';
   } else if (sph > 3) {
-    material = 'Hi-Index 1.67';
+    material = 'Ultra Thin';
     condicion = lang === 'es' ? 'Graduación alta' : 'High prescription';
     explicacion = lang === 'es' ? 'El Hi-Index 1.67 reduce el grosor hasta un 30%.' : 'Hi-Index 1.67 reduces thickness up to 30%.';
   } else if (sph > 1.5 || tieneAstigmatismo) {
-    material = 'PolyPlus';
+    material = 'Thin & Durable';
     condicion = tieneAstigmatismo ? (lang === 'es' ? 'Astigmatismo' : 'Astigmatism') : (lang === 'es' ? 'Graduación moderada' : 'Moderate prescription');
     explicacion = lang === 'es' ? 'PolyPlus es el punto perfecto entre calidad y precio.' : 'PolyPlus hits the sweet spot between quality and price.';
   } else {
-    material = 'CR-39';
+    material = 'Standard Vision';
     condicion = lang === 'es' ? 'Graduación baja' : 'Low prescription';
     explicacion = lang === 'es' ? 'CR-39 es perfecto — económico, ligero y excelente calidad óptica.' : 'CR-39 is perfect — affordable, light and excellent optical quality.';
   }
 
   const filtrosRec: { nombre: string; precio: number }[] = [];
-  if (tieneAstigmatismo) filtrosRec.push({ nombre: 'AR Premium', precio: PRECIOS_FILTRO['AR Premium'] });
-  else filtrosRec.push({ nombre: 'AR Normal', precio: PRECIOS_FILTRO['AR Normal'] });
-  if (estiloVida.computadora) filtrosRec.push({ nombre: 'Blue Light', precio: PRECIOS_FILTRO['Blue Light'] });
-  if (estiloVida.manejo && !filtrosRec.find(f => f.nombre === 'AR Premium')) filtrosRec.push({ nombre: 'AR Premium', precio: PRECIOS_FILTRO['AR Premium'] });
-  if (estiloVida.sol) filtrosRec.push({ nombre: 'Fotocromático', precio: PRECIOS_FILTRO['Fotocromático'] });
-  if (estiloVida.exterior && !estiloVida.sol) filtrosRec.push({ nombre: 'Polarizado', precio: PRECIOS_FILTRO['Polarizado'] });
-  if (tienePresbicia) filtrosRec.push({ nombre: 'Antiempañante', precio: PRECIOS_FILTRO['Antiempañante'] });
+  if (tieneAstigmatismo) filtrosRec.push({ nombre: 'Premium Clarity AR', precio: PRECIOS_FILTRO['Premium Clarity AR'] });
+  else filtrosRec.push({ nombre: 'Essential AR', precio: PRECIOS_FILTRO['Essential AR'] });
+  if (estiloVida.computadora) filtrosRec.push({ nombre: 'Blue Light Comfort', precio: PRECIOS_FILTRO['Blue Light Comfort'] });
+  if (estiloVida.manejo && !filtrosRec.find(f => f.nombre === 'Premium Clarity AR')) filtrosRec.push({ nombre: 'Premium Clarity AR', precio: PRECIOS_FILTRO['Premium Clarity AR'] });
+  if (estiloVida.sol) filtrosRec.push({ nombre: 'Photochromic', precio: PRECIOS_FILTRO['Photochromic'] });
+  if (estiloVida.exterior && !estiloVida.sol) filtrosRec.push({ nombre: 'Polarized', precio: PRECIOS_FILTRO['Polarized'] });
+  if (tienePresbicia) filtrosRec.push({ nombre: 'Anti-Fog', precio: PRECIOS_FILTRO['Anti-Fog'] });
 
+  const vision = tienePresbicia ? 'Progressive' : 'Single Vision';
+  const precioVision = tienePresbicia ? VISION_PRICES.prog : VISION_PRICES.mono;
   const precioMaterial = PRECIOS_MATERIAL[material];
   const precioFiltrosTot = filtrosRec.reduce((a, f) => a + f.precio, 0);
-  const precioOriginal = PRECIO_ARMAZON + precioMaterial + precioFiltrosTot;
-  const descuento = Math.round(precioOriginal * 0.10);
-  const precioFinal = precioOriginal - descuento;
+  const precioLentes = precioVision + precioMaterial + precioFiltrosTot;
 
-  return { nombre: lang === 'es' ? `Paquete ${condicion}` : `${condicion} Package`, material, precioMaterial, filtros: filtrosRec, precioOriginal, precioFinal, descuento, condicion, explicacion };
+  return { nombre: lang === 'es' ? `Paquete ${condicion}` : `${condicion} Package`, vision, precioVision, material, precioMaterial, filtros: filtrosRec, precioLentes, condicion, explicacion };
 }
 
 function VerlyAvatar({ expresion, size = 48 }: { expresion: Expresion; size?: number }) {
@@ -139,8 +142,8 @@ function BurbujaPaquete({ paquete, onAceptar, lang }: { paquete: Paquete; onAcep
       <div style={{ fontSize: '12px', color: 'var(--charcoal)', marginBottom: '10px', lineHeight: 1.6 }}>{paquete.explicacion}</div>
       <div style={{ background: 'white', borderRadius: '6px', padding: '0.75rem', marginBottom: '10px', border: '1px solid var(--border)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', padding: '4px 0', borderBottom: '1px solid var(--cream-dark)' }}>
-          <span style={{ color: 'var(--warm-gray)' }}>{lang === 'es' ? 'Armazón' : 'Frame'}</span>
-          <span style={{ fontWeight: 500 }}>${PRECIO_ARMAZON}</span>
+          <span style={{ color: 'var(--warm-gray)' }}>{paquete.vision}</span>
+          <span style={{ fontWeight: 500 }}>+${paquete.precioVision}</span>
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', padding: '4px 0', borderBottom: '1px solid var(--cream-dark)' }}>
           <span style={{ color: 'var(--warm-gray)' }}>{paquete.material}</span>
@@ -155,10 +158,10 @@ function BurbujaPaquete({ paquete, onAceptar, lang }: { paquete: Paquete; onAcep
       </div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
         <div>
-          <div style={{ fontSize: '11px', color: 'var(--warm-gray)', textDecoration: 'line-through' }}>${paquete.precioOriginal} USD</div>
-          <div style={{ fontFamily: 'var(--font-serif)', fontSize: '1.3rem', fontWeight: 300, color: 'var(--sage)' }}>${paquete.precioFinal} USD</div>
+          <div style={{ fontSize: '11px', color: 'var(--warm-gray)' }}>{lang === 'es' ? 'Micas recomendadas' : 'Recommended lenses'}</div>
+          <div style={{ fontFamily: 'var(--font-serif)', fontSize: '1.3rem', fontWeight: 300, color: 'var(--sage)' }}>${paquete.precioLentes} USD</div>
         </div>
-        <div style={{ background: 'var(--sage)', color: 'white', padding: '4px 10px', borderRadius: '4px', fontSize: '11px', fontWeight: 500 }}>-{paquete.descuento}% OFF</div>
+        <div style={{ fontSize: '11px', color: 'var(--warm-gray)', textAlign: 'right' }}>{lang === 'es' ? '+ tu armazón' : '+ your frame'}</div>
       </div>
       <button onClick={onAceptar} style={{ width: '100%', background: 'var(--charcoal)', color: 'white', border: 'none', borderRadius: '4px', padding: '10px', fontSize: '12px', fontWeight: 500, letterSpacing: '0.06em', cursor: 'pointer', fontFamily: 'var(--font-sans)' }}>
         {lang === 'es' ? 'Quiero este paquete →' : 'I want this package →'}
@@ -254,8 +257,8 @@ export default function VerlyBot() {
         setTimeout(() => setExpresion('neutral'), 4000);
         agregarMensaje('verly',
           lang === 'es'
-            ? '¡Leí tu receta! Te armé un paquete personalizado con 10% de descuento:'
-            : 'I read your prescription! Here is a personalized package with 10% off:',
+            ? '¡Leí tu receta! Esto es lo que te recomiendo para tus micas:'
+            : 'I read your prescription! Here is what I recommend for your lenses:',
           paquete
         );
         const nuevaSesion = { ...s, paqueteRecomendado: paquete };

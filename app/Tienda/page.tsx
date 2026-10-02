@@ -11,18 +11,14 @@ import { swatchColor, nombreColor } from '../lib/colores';
 import { nombreMaterial, claveMaterial, nombreBadge } from '../lib/textos';
 import { precioArmazonFinal, VISION_PRICES } from '../lib/precios';
 import { ENVIO_GRATIS_DESDE } from '../lib/envio';
+import { GENEROS, FORMAS, AROS, TALLAS, FAMILIAS, familiasDeColor, normForma, tallaDeMedidas } from '../lib/armazon-web';
 
 type Armazon = {
-  id: number; nombre: string; forma: string; genero: string;
+  id: number; nombre: string | null; modelo?: string | null; forma: string | null; genero: string | null;
   precio: number; color: string; imagen_url?: string;
-  badge?: string; material?: string; talla?: string; tipo?: string;
+  badge?: string; material?: string; talla?: string; tipo?: string; medidas?: string | null; aro?: string | null;
   color1?: string; descuento?: number; descuento_verly?: number;
 };
-
-const FORMAS = ['Rectangle', 'Round', 'Square', 'Oval', 'Aviator'];
-const MATERIALES = ['Acetato', 'Metálico', 'TR-90', 'Titanio', 'Mixto'];
-const TALLAS = ['S', 'M', 'L', 'XL'];
-const FORMA_ES: Record<string, string> = { Rectangle: 'Rectangular', Round: 'Redondo', Square: 'Cuadrado', Oval: 'Ovalado', Aviator: 'Aviador' };
 
 type ColorCard = { armazon_id: number; sku: string | null; color: string; hex?: string | null; imagen_url?: string | null };
 
@@ -51,7 +47,7 @@ function ArmazonCard({
       {/* Foto */}
       <div className="vc-img">
         {imagen ? (
-          <img src={imagen} alt={a.nombre} loading="lazy" />
+          <img src={imagen} alt={a.nombre || a.modelo || ''} loading="lazy" />
         ) : (
           <svg width="72" height="40" viewBox="0 0 160 90" fill="none" style={{ opacity: 0.12 }}>
             <rect x="4" y="12" width="64" height="66" rx="14" stroke="var(--charcoal)" strokeWidth="3"/>
@@ -68,7 +64,7 @@ function ArmazonCard({
         <button
           className={`vc-fav ${liked ? 'on' : ''}`}
           aria-label={t('Favorito', 'Favorite')}
-          onClick={e => { e.preventDefault(); e.stopPropagation(); toggleFavorito({ id: a.id, nombre: a.nombre, imagen_url: a.imagen_url, precio: a.precio, forma: a.forma, material: a.material }); }}
+          onClick={e => { e.preventDefault(); e.stopPropagation(); toggleFavorito({ id: a.id, nombre: a.nombre || a.modelo || '', imagen_url: a.imagen_url, precio: a.precio, forma: a.forma ?? undefined, material: a.material }); }}
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill={liked ? 'var(--sage)' : 'none'} stroke={liked ? 'var(--sage)' : 'var(--charcoal)'} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
@@ -80,7 +76,7 @@ function ArmazonCard({
       <div className="vc-body">
         <div className="vc-row">
           <div style={{ minWidth: 0 }}>
-            <div className="vc-name">{a.nombre}</div>
+            <div className="vc-name">{a.nombre || a.modelo}</div>
             {a.material && <div className="vc-meta">{nombreMaterial(a.material, lang)}</div>}
           </div>
           <div className="vc-price">
@@ -115,22 +111,45 @@ function ArmazonCard({
   );
 }
 
+// ── Íconos de forma (silueta de la mica) ─────────────────
+function IconoForma({ f }: { f: string }) {
+  const p: Record<string, React.ReactNode> = {
+    rectangle: <rect x="3" y="8" width="13" height="9" rx="2" />,
+    square: <rect x="4" y="5.5" width="11" height="11" rx="2.5" />,
+    round: <circle cx="9.5" cy="11" r="6" />,
+    oval: <ellipse cx="9.5" cy="11" rx="7" ry="5" />,
+    aviator: <path d="M3 7.5 h13 c0 6 -3 9.5 -6.5 9.5 S3 13 3 7.5z" />,
+    'cat-eye': <path d="M2.5 9 C6 6 13 6 16.5 6.5 C16 13 12 16 8.5 16 C5 16 3 13 2.5 9z" />,
+    hexagonal: <path d="M6 5.5 h7 l3.5 5.5 l-3.5 5.5 h-7 l-3.5 -5.5z" />,
+  }
+  return <svg width="22" height="22" viewBox="0 0 19 22" fill="none" stroke="currentColor" strokeWidth="1.5">{p[f]}</svg>
+}
+
 // ── PAGE ─────────────────────────────────────────────────
+type Rango = 'm20' | '20a30' | 'p30'
+const RANGOS: { v: Rango; es: string; en: string; ok: (p: number) => boolean }[] = [
+  { v: 'm20', es: 'Menos de $20', en: 'Under $20', ok: p => p < 20 },
+  { v: '20a30', es: '$20 a $30', en: '$20 – $30', ok: p => p >= 20 && p <= 30 },
+  { v: 'p30', es: 'Más de $30', en: 'Over $30', ok: p => p > 30 },
+]
+type Orden = 'rec' | 'precio_asc' | 'precio_desc' | 'nuevos'
+type Filtros = { forma: string[]; aro: string[]; material: string[]; talla: string[]; color: string[]; precio: Rango[] }
+const VACIO: Filtros = { forma: [], aro: [], material: [], talla: [], color: [], precio: [] }
+
 function TiendaContent() {
   const { t, lang } = useLang() as any;
   const searchParams = useSearchParams();
   const [armazones, setArmazones] = useState<Armazon[]>([]);
   const [coloresPorModelo, setColoresPorModelo] = useState<Record<number, ColorCard[]>>({});
   const [loading, setLoading] = useState(true);
-  const [filtersOpen, setFiltersOpen] = useState(false);
-  const [generoTab, setGeneroTab] = useState('all');
-  const [filtroForma, setFiltroForma] = useState<string[]>([]);
-  const [filtroMaterial, setFiltroMaterial] = useState<string[]>([]);
-  const [filtroTalla, setFiltroTalla] = useState<string[]>([]);
+  const [genero, setGenero] = useState('all');
+  const [f, setF] = useState<Filtros>(VACIO);
+  const [orden, setOrden] = useState<Orden>('rec');
+  const [abierto, setAbierto] = useState<string | null>(null);   // qué filtro tiene su ventanita abierta
 
   useEffect(() => {
-    const genero = searchParams.get('genero');
-    if (genero && genero !== 'all') setGeneroTab(genero);
+    const g = searchParams.get('genero');
+    if (g && g !== 'all') setGenero(g);
   }, [searchParams]);
 
   useEffect(() => {
@@ -144,7 +163,6 @@ function TiendaContent() {
         const lista = (data || []) as Armazon[];
         setArmazones(lista);
         setLoading(false);
-        // Colores publicados de cada modelo (circulitos de la tarjeta)
         const ids = lista.map(a => a.id);
         if (!ids.length) return;
         const { data: cols } = await supabase.from('armazon_colores')
@@ -155,37 +173,92 @@ function TiendaContent() {
       });
   }, []);
 
-  const toggleArr = (arr: string[], val: string) =>
-    arr.includes(val) ? arr.filter(x => x !== val) : [...arr, val];
-  const clearAll = () => { setFiltroForma([]); setFiltroMaterial([]); setFiltroTalla([]); };
-  const nombreForma = (f: string) => lang === 'es' ? (FORMA_ES[f] || f) : f;
-  const nActivos = filtroForma.length + filtroMaterial.length + filtroTalla.length;
+  // Datos de cada armazón ya normalizados (sirve para nuevos de OptiOS y viejos)
+  const info = useMemo(() => armazones.map(a => {
+    const cols = coloresPorModelo[a.id] ?? [];
+    const nombresColor = cols.length ? cols.map(c => c.color) : [a.color1 || a.color || ''];
+    return {
+      a,
+      forma: normForma(a.forma),
+      aro: a.aro ?? null,
+      material: claveMaterial(a.material),
+      talla: tallaDeMedidas(a.medidas)?.talla ?? (a.talla || null),
+      colores: [...new Set(nombresColor.flatMap(familiasDeColor))],
+      precio: precioArmazonFinal(a.precio, a.descuento_verly),
+    };
+  }), [armazones, coloresPorModelo]);
+
+  const pasaGenero = (x: typeof info[number]) => genero === 'all' || x.a.genero === genero || (x.a.genero === 'unisex' && genero !== 'nino');
+  const pasa = (x: typeof info[number], fx: Filtros) =>
+    (!fx.forma.length || (x.forma !== null && fx.forma.includes(x.forma))) &&
+    (!fx.aro.length || (x.aro !== null && fx.aro.includes(x.aro))) &&
+    (!fx.material.length || fx.material.includes(x.material)) &&
+    (!fx.talla.length || (x.talla !== null && fx.talla.includes(x.talla))) &&
+    (!fx.color.length || x.colores.some(c => fx.color.includes(c))) &&
+    (!fx.precio.length || fx.precio.some(r => RANGOS.find(z => z.v === r)!.ok(x.precio)))
 
   const filtered = useMemo(() => {
-    let r = [...armazones];
-    if (generoTab !== 'all') r = r.filter(a => a.genero === generoTab || a.genero === 'unisex');
-    if (filtroForma.length) r = r.filter(a => filtroForma.some(f => a.forma?.toLowerCase().includes(f.toLowerCase())));
-    if (filtroMaterial.length) r = r.filter(a => filtroMaterial.some(m => claveMaterial(a.material) === claveMaterial(m)));
-    if (filtroTalla.length) r = r.filter(a => filtroTalla.includes(a.talla || 'M'));
-    return r;
-  }, [armazones, generoTab, filtroForma, filtroMaterial, filtroTalla]);
+    const r = info.filter(x => pasaGenero(x) && pasa(x, f))
+    if (orden === 'precio_asc') r.sort((p, q) => p.precio - q.precio)
+    else if (orden === 'precio_desc') r.sort((p, q) => q.precio - p.precio)
+    else if (orden === 'nuevos') r.sort((p, q) => q.a.id - p.a.id)
+    else r.sort((p, q) => Number(!!q.a.badge) - Number(!!p.a.badge))
+    return r.map(x => x.a)
+  }, [info, genero, f, orden]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Grupo de chips de filtro (se usa en la barra y en el panel del celular)
-  const Grupo = ({ titulo, items, sel, onToggle, etiqueta }: { titulo: string; items: string[]; sel: string[]; onToggle: (v: string) => void; etiqueta: (v: string) => string }) => (
-    <div className="vt-group">
-      <span className="vt-label">{titulo}</span>
-      {items.map(v => (
-        <button key={v} className={`vt-chip ${sel.includes(v) ? 'on' : ''}`} onClick={() => onToggle(v)}>{etiqueta(v)}</button>
-      ))}
-    </div>
-  );
-  const grupos = (
-    <>
-      <Grupo titulo={t('Forma', 'Shape')} items={FORMAS} sel={filtroForma} onToggle={v => setFiltroForma(p => toggleArr(p, v))} etiqueta={nombreForma} />
-      <Grupo titulo="Material" items={MATERIALES} sel={filtroMaterial} onToggle={v => setFiltroMaterial(p => toggleArr(p, v))} etiqueta={v => nombreMaterial(v, lang)} />
-      <Grupo titulo={t('Talla', 'Size')} items={TALLAS} sel={filtroTalla} onToggle={v => setFiltroTalla(p => toggleArr(p, v))} etiqueta={v => v} />
-    </>
-  );
+  // Opciones que de verdad existen (no ofrecer filtros que dejan 0) + cuántos hay de cada una
+  const base = info.filter(pasaGenero)
+  const cuenta = (campo: keyof Filtros, v: string) => base.filter(x => pasa(x, { ...f, [campo]: [v] })).length
+  const toggle = (campo: keyof Filtros, v: string) => setF(p => ({ ...p, [campo]: (p[campo] as string[]).includes(v) ? (p[campo] as string[]).filter(z => z !== v) : [...(p[campo] as string[]), v] }))
+  const limpiar = () => setF(VACIO)
+  const nActivos = Object.values(f).reduce((s, l) => s + l.length, 0)
+
+  const materialesDisp = [...new Set(info.map(x => x.material).filter(Boolean))].sort()
+  const etiquetaMaterial = (k: string) => nombreMaterial(info.find(x => x.material === k)?.a.material ?? k, lang)
+
+  type Opcion = { v: string; label: string; icono?: React.ReactNode; swatch?: string }
+  const FILTROS: { k: keyof Filtros; titulo: string; opciones: Opcion[] }[] = [
+    { k: 'forma', titulo: t('Forma', 'Shape'), opciones: FORMAS.map(o => ({ v: o.v, label: lang === 'es' ? o.es : o.en, icono: <IconoForma f={o.v} /> })) },
+    { k: 'aro', titulo: t('Tipo', 'Frame type'), opciones: AROS.map(o => ({ v: o.v, label: lang === 'es' ? o.es : o.en })) },
+    { k: 'material', titulo: 'Material', opciones: materialesDisp.map(m => ({ v: m, label: etiquetaMaterial(m) })) },
+    { k: 'talla', titulo: t('Talla', 'Size'), opciones: TALLAS.map(o => ({ v: o.v, label: `${o.v} · ${lang === 'es' ? o.es : o.en}` })) },
+    { k: 'color', titulo: 'Color', opciones: FAMILIAS.map(o => ({ v: o.v, label: lang === 'es' ? o.es : o.en, swatch: o.hex })) },
+    { k: 'precio', titulo: t('Precio', 'Price'), opciones: RANGOS.map(o => ({ v: o.v, label: lang === 'es' ? o.es : o.en })) },
+  ]
+  const ORDENES: { v: Orden; label: string }[] = [
+    { v: 'rec', label: t('Recomendados', 'Featured') },
+    { v: 'precio_asc', label: t('Precio: menor a mayor', 'Price: low to high') },
+    { v: 'precio_desc', label: t('Precio: mayor a menor', 'Price: high to low') },
+    { v: 'nuevos', label: t('Lo más nuevo', 'Newest') },
+  ]
+
+  const panel = (fl: typeof FILTROS[number]) => {
+    const opciones = fl.opciones.map(o => ({ ...o, n: cuenta(fl.k, o.v) })).filter(o => o.n > 0 || (f[fl.k] as string[]).includes(o.v))
+    return (
+      <>
+        <div className={`vf-ops ${fl.k === 'forma' ? 'vf-ops-forma' : ''} ${fl.k === 'color' ? 'vf-ops-color' : ''}`}>
+          {opciones.length === 0 && <p className="vf-nada">{t('No hay opciones con los filtros actuales.', 'No options with the current filters.')}</p>}
+          {opciones.map(o => {
+            const on = (f[fl.k] as string[]).includes(o.v)
+            return (
+              <button key={o.v} className={`vf-op ${on ? 'on' : ''}`} onClick={() => toggle(fl.k, o.v)}>
+                {o.icono && <span className="vf-ico">{o.icono}</span>}
+                {o.swatch && <span className="vf-sw" style={{ background: o.swatch }} />}
+                <span className="vf-lb">{o.label}</span>
+                <span className="vf-n">{o.n}</span>
+              </button>
+            )
+          })}
+        </div>
+        <div className="vf-pie">
+          {(f[fl.k] as string[]).length > 0 ? <button className="vf-limpiar" onClick={() => setF(p => ({ ...p, [fl.k]: [] }))}>{t('Quitar', 'Clear')}</button> : <span />}
+          <button className="vt-pill vt-pill-main vf-ver" onClick={() => setAbierto(null)}>{t(`Ver ${filtered.length}`, `Show ${filtered.length}`)}</button>
+        </div>
+      </>
+    )
+  }
+
+  const chipsActivos = FILTROS.flatMap(fl => (f[fl.k] as string[]).map(v => ({ k: fl.k, v, label: fl.opciones.find(o => o.v === v)?.label ?? v })))
 
   return (
     <main className="vt">
@@ -208,35 +281,54 @@ function TiendaContent() {
         </div>
       </header>
 
-      {/* ── BARRA: género + filtros ── */}
+      {/* ── BARRA DE FILTROS (una sola fila) ── */}
       <div className="vt-bar">
-        <div className="vt-wrap vt-bar-in">
+        <div className="vt-wrap vf-fila">
           <div className="vt-seg">
-            {[
-              { val: 'all',    label: t('Todos', 'All') },
-              { val: 'hombre', label: t('Hombre', 'Men') },
-              { val: 'mujer',  label: t('Mujer', 'Women') },
-              { val: 'unisex', label: 'Unisex' },
-            ].map(tab => (
-              <button key={tab.val} className={generoTab === tab.val ? 'on' : ''} onClick={() => setGeneroTab(tab.val)}>{tab.label}</button>
+            {[{ v: 'all', es: 'Todos', en: 'All' }, ...GENEROS].map(g => (
+              <button key={g.v} className={genero === g.v ? 'on' : ''} onClick={() => setGenero(g.v)}>{lang === 'es' ? g.es : g.en}</button>
             ))}
           </div>
-          <div className="vt-bar-r">
-            <span className="vt-count">{filtered.length} {t('estilos', 'styles')}</span>
-            <button className={`vt-filtros ${nActivos ? 'on' : ''}`} onClick={() => setFiltersOpen(o => !o)}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/></svg>
-              {t('Filtros', 'Filters')}{nActivos > 0 && <i>{nActivos}</i>}
-            </button>
+          <div className="vf-botones">
+            {FILTROS.map(fl => {
+              const n = (f[fl.k] as string[]).length
+              return (
+                <div key={fl.k} className="vf-item">
+                  <button className={`vf-btn ${n ? 'activo' : ''} ${abierto === fl.k ? 'abierto' : ''}`} onClick={() => setAbierto(a => a === fl.k ? null : fl.k)}>
+                    {fl.titulo}{n > 0 && <i>{n}</i>}
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><path d="M6 9l6 6 6-6" /></svg>
+                  </button>
+                  {abierto === fl.k && <div className="vf-pop"><div className="vf-pop-h"><b>{fl.titulo}</b><button onClick={() => setAbierto(null)} aria-label={t('Cerrar', 'Close')}>×</button></div>{panel(fl)}</div>}
+                </div>
+              )
+            })}
+            <div className="vf-item vf-orden">
+              <button className={`vf-btn ${abierto === 'orden' ? 'abierto' : ''}`} onClick={() => setAbierto(a => a === 'orden' ? null : 'orden')}>
+                {t('Ordenar', 'Sort')}: <b>{ORDENES.find(o => o.v === orden)?.label}</b>
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><path d="M6 9l6 6 6-6" /></svg>
+              </button>
+              {abierto === 'orden' && (
+                <div className="vf-pop vf-pop-der">
+                  <div className="vf-pop-h"><b>{t('Ordenar', 'Sort')}</b><button onClick={() => setAbierto(null)} aria-label={t('Cerrar', 'Close')}>×</button></div>
+                  <div className="vf-ops">
+                    {ORDENES.map(o => <button key={o.v} className={`vf-op ${orden === o.v ? 'on' : ''}`} onClick={() => { setOrden(o.v); setAbierto(null) }}><span className="vf-lb">{o.label}</span></button>)}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
-        {/* Computadora: los filtros se despliegan debajo de la barra */}
-        {filtersOpen && (
-          <div className="vt-wrap vt-panel vt-desk">
-            {grupos}
-            {nActivos > 0 && <button className="vt-clear" onClick={clearAll}>{t('Limpiar filtros', 'Clear filters')}</button>}
+        {(chipsActivos.length > 0) && (
+          <div className="vt-wrap vf-activos">
+            {chipsActivos.map(c => (
+              <button key={`${c.k}-${c.v}`} className="vf-chip" onClick={() => toggle(c.k, c.v)}>{c.label} <span>×</span></button>
+            ))}
+            <button className="vf-limpiar" onClick={limpiar}>{t('Limpiar todo', 'Clear all')}</button>
+            <span className="vf-total">{filtered.length} {t('estilos', 'styles')}</span>
           </div>
         )}
       </div>
+      {abierto && <div className="vf-fondo" onClick={() => setAbierto(null)} />}
 
       {/* ── CATÁLOGO ── */}
       <section id="catalogo" className="vt-wrap vt-cat">
@@ -248,7 +340,7 @@ function TiendaContent() {
           <div className="vt-empty">
             <h3>{t('Sin resultados', 'No results')}</h3>
             <p>{t('Prueba con otros filtros.', 'Try different filters.')}</p>
-            <button className="vt-pill" onClick={clearAll}>{t('Limpiar filtros', 'Clear filters')}</button>
+            <button className="vt-pill" onClick={() => { limpiar(); setGenero('all') }}>{t('Limpiar filtros', 'Clear filters')}</button>
           </div>
         ) : (
           <div className="vt-grid">
@@ -259,7 +351,7 @@ function TiendaContent() {
         )}
       </section>
 
-      {/* ── POR QUÉ VERLY ── */}
+      {/* ── ASÍ DE FÁCIL ── */}
       <section className="vt-why">
         <div className="vt-wrap">
           <h2>{t('Así de fácil.', 'Easy as that.')}</h2>
@@ -279,21 +371,8 @@ function TiendaContent() {
         </div>
       </section>
 
-      {/* ── CELULAR: panel de filtros desde abajo ── */}
-      <div className={`vt-sheet-bg ${filtersOpen ? 'on' : ''}`} onClick={() => setFiltersOpen(false)} />
-      <div className={`vt-sheet ${filtersOpen ? 'on' : ''}`}>
-        <div className="vt-sheet-h">
-          <b>{t('Filtros', 'Filters')}</b>
-          <button onClick={() => setFiltersOpen(false)} aria-label={t('Cerrar', 'Close')}>×</button>
-        </div>
-        <div className="vt-sheet-b">{grupos}</div>
-        <div className="vt-sheet-f">
-          <button className="vt-pill vt-pill-soft" onClick={() => { clearAll(); }}>{t('Limpiar', 'Clear')}</button>
-          <button className="vt-pill vt-pill-main" onClick={() => setFiltersOpen(false)}>{t(`Ver ${filtered.length} estilos`, `Show ${filtered.length} styles`)}</button>
-        </div>
-      </div>
-
       <style>{`
+
         .vt{font-family:var(--font-sans);background:#fff;color:var(--charcoal);min-height:100vh}
         .vt *{-webkit-tap-highlight-color:transparent}
         .vt-wrap{max-width:1280px;margin:0 auto;padding:0 2rem}
@@ -307,7 +386,7 @@ function TiendaContent() {
         .vt-trust{display:flex;gap:1.5rem;flex-wrap:wrap;font-size:13px;color:#55555a}
 
         /* barra */
-        .vt-bar{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);border-bottom:1px solid #e8e8ea}
+        .vt-bar{position:sticky;top:0;z-index:50;background:#fff;border-bottom:1px solid #e8e8ea}
         .vt-bar-in{display:flex;justify-content:space-between;align-items:center;gap:1rem;height:64px}
         .vt-seg{display:flex;background:#f1f1f3;border-radius:999px;padding:4px;gap:2px;overflow-x:auto;scrollbar-width:none}
         .vt-seg button{border:0;background:none;border-radius:999px;padding:8px 16px;font-size:13px;font-weight:500;color:#6e6e73;cursor:pointer;white-space:nowrap;transition:all .2s}
@@ -399,6 +478,58 @@ function TiendaContent() {
           .vt-sheet-f{display:flex;gap:10px;padding:1rem 1.25rem;border-top:1px solid #eee}
           .vt-sheet-f .vt-pill-main{flex:2}.vt-sheet-f .vt-pill-soft{flex:1}
         }
+      
+        /* filtros compactos */
+        .vf-fila{display:flex;align-items:center;gap:12px;min-height:64px;padding-top:10px;padding-bottom:10px}
+        .vf-botones{display:flex;gap:8px;align-items:center;flex:1;min-width:0}
+        .vf-item{position:relative}
+        .vf-orden{margin-left:auto}
+        .vf-btn{display:inline-flex;align-items:center;gap:6px;border:1px solid #dcdce0;background:#fff;border-radius:999px;padding:8px 14px;font-size:13px;font-weight:500;color:var(--charcoal);cursor:pointer;white-space:nowrap;transition:border-color .15s}
+        .vf-btn:hover,.vf-btn.abierto{border-color:var(--charcoal)}
+        .vf-btn.activo{border-color:var(--sage);background:#f1f4ef}
+        .vf-btn i{font-style:normal;background:var(--sage);color:#fff;border-radius:999px;font-size:11px;padding:0 6px;line-height:17px}
+        .vf-btn b{font-weight:600}
+        .vf-btn svg{opacity:.55}
+        .vf-fondo{position:fixed;inset:0;z-index:49}
+        .vf-pop{position:absolute;top:calc(100% + 8px);left:0;z-index:60;background:#fff;border:1px solid #e6e6e9;border-radius:16px;box-shadow:0 18px 50px rgba(0,0,0,.12);padding:14px;min-width:280px;max-width:360px}
+        .vf-pop-der{left:auto;right:0}
+        .vf-pop-h{display:none}
+        .vf-ops{display:flex;flex-direction:column;gap:2px;max-height:320px;overflow-y:auto}
+        .vf-ops-forma{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+        .vf-ops-color{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+        .vf-op{display:flex;align-items:center;gap:10px;border:1px solid transparent;background:none;border-radius:10px;padding:9px 10px;font-size:13.5px;color:var(--charcoal);cursor:pointer;text-align:left}
+        .vf-op:hover{background:#f5f5f7}
+        .vf-op.on{border-color:var(--sage);background:#f1f4ef;font-weight:600}
+        .vf-ops-forma .vf-op{flex-direction:column;gap:4px;padding:12px 6px;border-color:#ececef;text-align:center}
+        .vf-ops-forma .vf-op.on{border-color:var(--sage)}
+        .vf-ico{color:var(--charcoal);display:flex}
+        .vf-sw{width:18px;height:18px;border-radius:50%;box-shadow:0 0 0 1px rgba(0,0,0,.14);flex-shrink:0}
+        .vf-lb{flex:1}
+        .vf-n{font-size:11.5px;color:var(--warm-gray)}
+        .vf-ops-forma .vf-n{display:none}
+        .vf-nada{font-size:13px;color:var(--warm-gray);padding:6px}
+        .vf-pie{display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:12px;border-top:1px solid #efeff1}
+        .vf-ver{padding:9px 18px;font-size:13px}
+        .vf-limpiar{background:none;border:0;color:var(--warm-gray);text-decoration:underline;font-size:13px;cursor:pointer;padding:0}
+        .vf-activos{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding-bottom:12px}
+        .vf-chip{display:inline-flex;gap:6px;align-items:center;border:0;background:#f1f4ef;color:var(--sage);border-radius:999px;padding:6px 12px;font-size:12.5px;font-weight:600;cursor:pointer}
+        .vf-chip span{font-size:15px;line-height:1;opacity:.7}
+        .vf-total{margin-left:auto;font-size:12.5px;color:var(--warm-gray)}
+        @media (max-width:1100px){.vf-fila{flex-wrap:wrap}.vf-botones{overflow-x:auto;scrollbar-width:none;padding-bottom:2px}.vf-botones::-webkit-scrollbar{display:none}}
+        @media (max-width:900px){
+          .vf-fila{flex-direction:column;align-items:stretch;gap:10px}
+          .vt-seg{align-self:flex-start;max-width:100%}
+          .vf-orden{margin-left:0}
+          .vf-item{position:static}
+          .vf-pop,.vf-pop-der{position:fixed;left:0;right:0;bottom:0;top:auto;max-width:none;min-width:0;border-radius:20px 20px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom));max-height:78vh;display:flex;flex-direction:column;animation:vfsube .25s ease}
+          .vf-pop-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+          .vf-pop-h button{width:32px;height:32px;border-radius:50%;border:0;background:#f1f1f3;font-size:18px;cursor:pointer}
+          .vf-ops{max-height:none;flex:1}
+          .vf-fondo{background:rgba(0,0,0,.35)}
+          .vf-op{padding:12px 10px;font-size:14.5px}
+          .vf-total{width:100%;margin-left:0}
+        }
+        @keyframes vfsube{from{transform:translateY(100%)}to{transform:none}}
       `}</style>
     </main>
   );

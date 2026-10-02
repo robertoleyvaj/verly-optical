@@ -217,7 +217,7 @@ export default function Gracias() {
           </Link>
 
           
-            <a href="mailto:customerservice@verlyoptical.com" style={{ fontFamily: 'var(--font-sans)', fontSize: '0.75rem', color: 'var(--warm-gray)', textDecoration: 'none', letterSpacing: '0.04em' }}>
+            <a href="mailto:support@verlyoptical.com" style={{ fontFamily: 'var(--font-sans)', fontSize: '0.75rem', color: 'var(--warm-gray)', textDecoration: 'none', letterSpacing: '0.04em' }}>
             {t('¿Preguntas? Contáctanos', 'Questions? Contact us')}
           </a>
         </div>

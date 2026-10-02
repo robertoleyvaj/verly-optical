@@ -10,6 +10,8 @@ import { supabase } from '../../lib/supabase';
 import { fbTrack } from '../../lib/fpixel';
 import { useCart, generateCartId } from '../../context/CartContext';
 import { swatchColor, nombreColor } from '../../lib/colores';
+import Garantias from '../../components/Garantias';
+import { entregaEstimada } from '../../lib/marca';
 import { nombreMaterial, nombreBadge } from '../../lib/textos';
 
 type Armazon = {
@@ -1286,21 +1288,16 @@ export default function DetalleArmazon() {
                 {esSolar ? t('Configurar mis lentes →', 'Configure my lenses →') : t('Personaliza tus micas →', 'Customize my lenses →')}
               </button>
             )}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '0', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)', padding: '1.5rem 0', marginBottom: '2.5rem' }}>
-              {[
-                { icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4a2 2 0 0 1 2 2v6H16V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>, label: t('Envío rápido', 'Fast shipping'), sub: t('5–7 días', '5–7 days') },
-                { icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>, label: t('Pago seguro', 'Secure pay'), sub: 'Stripe' },
-                { icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>, label: t('Soporte', 'Support'), sub: t('Rápido', 'Fast') },
-                { icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>, label: t('Sin aseguranza', 'No insurance'), sub: t('Directo', 'Direct') },
-              ].map((b, i) => (
-                <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', padding: '0 8px', textAlign: 'center', borderRight: i < 3 ? '1px solid var(--border)' : 'none' }}>
-                  <div style={{ color: 'var(--warm-gray)' }}>{b.icon}</div>
-                  <div>
-                    <div style={{ fontSize: '10px', fontWeight: 600, color: 'var(--charcoal)', marginBottom: '2px' }}>{b.label}</div>
-                    <div style={{ fontSize: '9px', color: 'var(--warm-gray)' }}>{b.sub}</div>
-                  </div>
+            {/* Qué incluye + entrega estimada + garantías */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '2.5rem' }}>
+              <div style={{ background: 'var(--cream)', borderRadius: '16px', padding: '14px 16px', fontSize: '13px', color: 'var(--warm-gray)', lineHeight: 1.6 }}>
+                <div style={{ color: 'var(--charcoal)', fontWeight: 600, marginBottom: '4px' }}>{t('Incluye', 'What’s included')}</div>
+                {t('Armazón · micas con tu graduación · estuche · paño de limpieza', 'Frame · prescription lenses · case · cleaning cloth')}
+                <div style={{ marginTop: '8px' }}>
+                  {t('Llega aprox. ', 'Arrives approx. ')}<b style={{ color: 'var(--charcoal)' }}>{entregaEstimada(lang)}</b>
                 </div>
-              ))}
+              </div>
+              <Garantias variante="compacta" />
             </div>
             <div style={{ borderBottom: '1px solid var(--border)' }}>
               <Acordeon titulo={t('Detalles del armazón', 'Frame details')}>

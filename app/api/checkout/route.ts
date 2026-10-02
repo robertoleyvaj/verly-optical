@@ -90,7 +90,8 @@ export async function POST(req: NextRequest) {
     // Envío: solo EE.UU.; gratis desde $70 (sobre el total ya con descuento), si no $9.95
     const envio = costoEnvio(total);
     const baseParams: Stripe.Checkout.SessionCreateParams = {
-      payment_method_types: ['card'],
+      // Sin payment_method_types: Stripe muestra los métodos activados en el Dashboard
+      // (tarjeta, Apple Pay, Google Pay, Klarna, Afterpay, Cash App…).
       mode: 'payment',
       shipping_address_collection: { allowed_countries: ['US'] },
       // Teléfono opcional (phone_number_collection de Stripe siempre es obligatorio, por eso campo propio)

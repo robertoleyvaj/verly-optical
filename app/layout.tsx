@@ -4,6 +4,7 @@ import Script from "next/script";
 import { Cormorant_Garamond, DM_Sans } from "next/font/google";
 import "./globals.css";
 import VerlyBot from "./components/verlybot";
+import Footer from "./components/Footer";
 import PixelPageView from "./components/PixelPageView";
 import { LangProvider } from "./components/LanguageContext";
 import { CartProvider } from "./context/CartContext";
@@ -204,6 +205,7 @@ export default function RootLayout({
           <CartProvider>
             <FavoritosProvider>
               {children}
+              <Footer />
               <VerlyBot />
             </FavoritosProvider>
           </CartProvider>

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Navbar from './components/Navbar';
 import Asistente from './components/Asistente';
+import Garantias from './components/Garantias';
 import { useLang } from './components/LanguageContext';
 import { supabase } from './lib/supabase';
 import { nombreBadge } from './lib/textos';
@@ -181,14 +182,15 @@ export default function Home() {
           <div style={{ position: 'absolute', bottom: '1.75rem', left: '1.5rem', right: '40%' }}>
             <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.6rem', fontWeight: 600, color: 'white', lineHeight: 1.15, margin: '0 0 0.5rem', letterSpacing: '-0.01em' }}>
               {lang === 'es'
-                ? <>Lentes graduados<br />desde <em style={{ fontStyle: 'italic', color: 'rgba(255,255,255,0.7)' }}>$28.</em></>
-                : <>Prescription glasses<br />from <em style={{ fontStyle: 'italic', color: 'rgba(255,255,255,0.7)' }}>$28.</em></>}
+                ? <>Tus lentes con graduación,<br />desde <em style={{ fontStyle: 'normal', color: 'rgba(255,255,255,0.85)' }}>$28.</em></>
+                : <>Prescription glasses,<br />complete, from <em style={{ fontStyle: 'normal', color: 'rgba(255,255,255,0.85)' }}>$28.</em></>}
             </h1>
             <Link href="/Tienda?tipo=optico" style={{ display: 'inline-block', fontFamily: 'var(--font-sans)', fontSize: '0.68rem', fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--charcoal)', background: 'white', padding: '0.65rem 1.1rem', borderRadius: '2px', textDecoration: 'none' }}>
               {t('Ver lentes graduados', 'Shop eyeglasses')}
             </Link>
           </div>
         </section>
+        <Garantias />
 
         <section style={{ margin: '0 1.25rem 2rem' }}>
           <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.62rem', fontWeight: 500, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--warm-gray)', marginBottom: '0.75rem' }}>
@@ -233,16 +235,6 @@ export default function Home() {
           </div>
         </section>
 
-        <footer style={{ background: 'var(--charcoal)', padding: '2.5rem 1.25rem 2rem' }}>
-          <img src="/logo-trasparente.png" alt="Verly Optical" style={{ height: '28px', width: 'auto', marginBottom: '1rem', opacity: 0.8 }}/>
-          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '12px', color: 'rgba(255,255,255,0.3)', lineHeight: 1.7, marginBottom: '1.5rem' }}>{t('Lentes accesibles para toda la familia.', 'Affordable eyewear for everyone.')}</p>
-          <div style={{ display: 'flex', gap: '1.5rem', marginBottom: '2rem' }}>
-            {[{ href: '/Tienda', label: 'Eyeglasses' }, { href: '#faq', label: 'FAQ' }].map((l, i) => (
-              <a key={i} href={l.href} style={{ fontFamily: 'var(--font-sans)', fontSize: '12px', color: 'rgba(255,255,255,0.3)', textDecoration: 'none' }}>{l.label}</a>
-            ))}
-          </div>
-          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '11px', color: 'rgba(255,255,255,0.15)', margin: 0 }}>2026 Verly Optical</p>
-        </footer>
         <style>{`div::-webkit-scrollbar { display: none; }`}</style>
       </main>
     );
@@ -259,15 +251,15 @@ export default function Home() {
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(247,244,239,0.98) 0%, rgba(247,244,239,0.88) 38%, rgba(247,244,239,0.0) 65%)' }}/>
         <div style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: '1180px', margin: '0 auto', padding: '0 2rem' }}>
           <p style={{ fontFamily: 'var(--font-sans)', fontSize: '11px', fontWeight: 500, letterSpacing: '2.5px', textTransform: 'uppercase', color: 'var(--sage)', marginBottom: '1.25rem' }}>
-            {t('Estilo atemporal. Confianza diaria.', 'Timeless style. Everyday confidence.')}
+            {t('No necesitas aseguranza', 'No insurance needed')}
           </p>
           <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(3.5rem, 5.5vw, 5rem)', fontWeight: 600, lineHeight: 1.05, letterSpacing: '-0.02em', color: 'var(--charcoal)', marginBottom: '1.25rem', maxWidth: '580px' }}>
             {lang === 'es'
-              ? <>Lentes graduados<br />desde <em style={{ fontStyle: 'italic', color: 'var(--sage)' }}>$28.</em></>
-              : <>Prescription glasses<br />from <em style={{ fontStyle: 'italic', color: 'var(--sage)' }}>$28.</em></>}
+              ? <>Tus lentes con graduación,<br />desde <em style={{ fontStyle: 'normal', color: 'var(--sage)' }}>$28.</em></>
+              : <>Prescription glasses,<br />complete, from <em style={{ fontStyle: 'normal', color: 'var(--sage)' }}>$28.</em></>}
           </h1>
           <p style={{ fontFamily: 'var(--font-sans)', fontSize: '15px', color: 'var(--warm-gray)', lineHeight: 1.8, marginBottom: '2.5rem', maxWidth: '360px', fontWeight: 400 }}>
-            {t('Armazones de calidad. Micas graduadas. Precios justos.', 'Quality frames. Prescription lenses. Fair prices.')}
+            {t('Armazón y micas con tu graduación, completos. Sube una foto de tu receta y nosotros hacemos lo demás.', 'Frame and prescription lenses, complete. Upload a photo of your prescription and we do the rest.')}
           </p>
           <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
             <Link href="/Tienda?tipo=optico" style={{ background: 'var(--sage)', color: 'white', padding: '15px 36px', borderRadius: '999px', fontFamily: 'var(--font-sans)', fontSize: '12px', fontWeight: 500, letterSpacing: '0', textDecoration: 'none', display: 'inline-block', cursor: 'pointer' }}>
@@ -283,6 +275,7 @@ export default function Home() {
           <svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="var(--charcoal)" strokeWidth="1.2" strokeLinecap="round"/></svg>
         </div>
       </section>
+      <Garantias />
 
       <Reveal>
         <section style={{ background: 'var(--cream)', padding: '8rem 2rem', overflow: 'hidden' }}>
@@ -460,41 +453,6 @@ export default function Home() {
         ))}
       </section>
 
-      <footer style={{ background: 'var(--charcoal)', color: 'rgba(255,255,255,0.35)', padding: '4rem 2rem 2rem' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '2.5rem', maxWidth: '1100px', margin: '0 auto 3rem' }}>
-          <div>
-            <img src="/logo-trasparente.png" alt="Verly Optical" style={{ height: '32px', width: 'auto', marginBottom: '1rem', opacity: 0.85 }}/>
-            <p style={{ fontFamily: 'var(--font-sans)', fontSize: '13px', lineHeight: 1.8, maxWidth: '200px', color: 'rgba(255,255,255,0.35)' }}>{t('Lentes accesibles para toda la familia.', 'Affordable eyewear for everyone.')}</p>
-          </div>
-          <div>
-            <h4 style={{ fontFamily: 'var(--font-sans)', color: 'rgba(255,255,255,0.5)', fontSize: '11px', fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '1.25rem' }}>{t('Tienda', 'Shop')}</h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {[{ href: '/Tienda', label: 'Eyeglasses' }].map((l, i) => (
-                <a key={i} href={l.href} style={{ fontFamily: 'var(--font-sans)', color: 'rgba(255,255,255,0.3)', textDecoration: 'none', fontSize: '13px', transition: 'color 0.15s' }}
-                  onMouseEnter={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.7)')}
-                  onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.3)')}
-                >{l.label}</a>
-              ))}
-            </div>
-          </div>
-          <div>
-            <h4 style={{ fontFamily: 'var(--font-sans)', color: 'rgba(255,255,255,0.5)', fontSize: '11px', fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '1.25rem' }}>{t('Ayuda', 'Help')}</h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <a href="#faq" style={{ fontFamily: 'var(--font-sans)', color: 'rgba(255,255,255,0.3)', textDecoration: 'none', fontSize: '13px' }}
-                onMouseEnter={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.7)')}
-                onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.3)')}
-              >FAQ</a>
-              <a href="mailto:customerservice@verlyoptical.com" style={{ fontFamily: 'var(--font-sans)', color: 'rgba(255,255,255,0.3)', textDecoration: 'none', fontSize: '13px' }}
-                onMouseEnter={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.7)')}
-                onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.3)')}
-              >{t('Contactanos', 'Contact us')}</a>
-            </div>
-          </div>
-        </div>
-        <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '1.5rem', textAlign: 'center', fontFamily: 'var(--font-sans)', fontSize: '12px', maxWidth: '1100px', margin: '0 auto', color: 'rgba(255,255,255,0.2)' }}>
-          2026 Verly Optical
-        </div>
-      </footer>
     </main>
   );
 }

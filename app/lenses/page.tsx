@@ -306,7 +306,7 @@ export default function Lenses() {
             {[
               { q: lang === 'es' ? '¿Puedo subir mi receta después?' : 'Can I upload my prescription later?', a: lang === 'es' ? 'Sí. Puedes pagar primero y subir tu receta antes de que procesemos tu pedido.' : 'Yes. Pay first and upload your prescription before we process your order.' },
               { q: lang === 'es' ? '¿Necesito seguro médico?' : 'Do I need insurance?', a: lang === 'es' ? 'No. Nuestros precios son directos al consumidor, sin intermediarios.' : 'No. Our prices are direct-to-consumer, no middlemen.' },
-              { q: lang === 'es' ? '¿Cuánto tarda el pedido?' : 'How long does the order take?', a: lang === 'es' ? 'Armazón solo: 5–7 días. Con micas graduadas: hasta 10 días adicionales.' : 'Frame only: 5–7 days. With prescription lenses: up to 10 additional days.' },
+              { q: lang === 'es' ? '¿Cuánto tarda el pedido?' : 'How long does the order take?', a: lang === 'es' ? 'Hacemos tus micas en 1 a 3 días hábiles y el envío tarda 4 a 7 días hábiles.' : 'We make your lenses in 1–3 business days and shipping takes 4–7 business days.' },
               { q: lang === 'es' ? '¿Todos los armazones se pueden graduar?' : 'Can all frames take prescription lenses?', a: lang === 'es' ? 'Sí. Todos nuestros armazones se pueden graduar.' : 'Yes. All our frames are prescription-ready.' },
             ].map((item, i) => (
               <div key={i} style={{ paddingBottom: '1.1rem', marginBottom: '1.1rem', borderBottom: '1px solid var(--border)' }}>

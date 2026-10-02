@@ -16,7 +16,7 @@ export default function Garantias({ variante = 'franja' }: { variante?: 'franja'
     { href: '/warranty', ico: 'M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z M9 12l2 2 4-4', h: t(`Garantía de ${GARANTIA_DIAS} días`, `${GARANTIA_DIAS}-day guarantee`), p: t('Si tu graduación no queda, rehacemos tus micas gratis.', 'If your prescription isn’t right, we remake your lenses free.') },
     { href: '/returns', ico: 'M4 12a8 8 0 1 0 3-6.2 M4 4v4h4', h: t(`${DEVOLUCION_DIAS} días para devolver`, `${DEVOLUCION_DIAS}-day returns`), p: t('¿No te convencieron? Te regresamos tu dinero.', 'Not happy? Get a full refund.') },
     { href: '/shipping', ico: 'M3 7h11v9H3z M14 10h4l3 3v3h-7z M7 19a1.5 1.5 0 1 0 0-.01 M17 19a1.5 1.5 0 1 0 0-.01', h: t('Envío gratis desde $' + ENVIO_GRATIS_DESDE, 'Free shipping over $' + ENVIO_GRATIS_DESDE), p: t('A todo Estados Unidos, con número de guía.', 'Anywhere in the US, with tracking.') },
-    { href: '/shipping', ico: 'M5 11h14v9H5z M8 11V8a4 4 0 0 1 8 0v3', h: t('Pago seguro', 'Secure checkout'), p: t('Tarjeta, Apple Pay, Google Pay o en pagos.', 'Card, Apple Pay, Google Pay or pay later.') },
+    { href: '/shipping', ico: 'M5 11h14v9H5z M8 11V8a4 4 0 0 1 8 0v3', h: t('Pago seguro', 'Secure checkout'), p: t('Tarjeta, Apple Pay o Google Pay.', 'Card, Apple Pay or Google Pay.') },
   ];
 
   if (variante === 'compacta') {

@@ -49,7 +49,7 @@ export default function Footer() {
       <div className="vft-base">
         <span>© {new Date().getFullYear()} Verly Optical</span>
         <div className="vft-pagos" aria-label={t('Formas de pago', 'Payment methods')}>
-          {['Visa', 'Mastercard', 'Amex', 'Apple Pay', 'Google Pay', 'Klarna'].map(p => <span key={p}>{p}</span>)}
+          {['Visa', 'Mastercard', 'Amex', 'Apple Pay', 'Google Pay'].map(p => <span key={p}>{p}</span>)}
         </div>
       </div>
       <style>{`

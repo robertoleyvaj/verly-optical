@@ -148,7 +148,7 @@ export async function enviarEmailCompraPedido(lineas: LineaCompra[], cliente_ema
           ${descuento > 0 ? `<p class="text" style="margin:16px 0 0;">Discount: −$${esc(descuento)} USD</p>` : ''}
           <p class="label" style="margin-top:16px;">Total paid</p>
           <p class="value" style="font-size:18px;">$${esc(total)} USD</p>
-          <p class="text" style="margin:0;">Shipping: standard shipping within the US, 5–10 business days after your lenses are ready.</p>
+          <p class="text" style="margin:0;">Your lenses are made in 1–3 business days and shipping takes 4–7 business days within the US. Every pair includes a case and a microfiber cleaning cloth.</p>
           <hr class="divider"/>
           <p class="text" style="margin:0;">Questions? Reach us at <a href="mailto:support@verlyoptical.com" style="color:#4A5940;">support@verlyoptical.com</a></p>
         </div>

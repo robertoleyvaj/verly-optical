@@ -31,7 +31,7 @@ export default function GlassesFrom28Page() {
         { icon: "◌", label: "From $28 complete", desc: "Frame + prescription lenses included" },
         { icon: "◈", label: "Anti-reflective coating", desc: "Essential AR available on every pair" },
         { icon: "◉", label: "All prescriptions", desc: "Single vision, progressive, and bifocal" },
-        { icon: "◎", label: "5-7 day shipping", desc: "Made for your prescription and shipped fast" },
+        { icon: "◎", label: "Fast turnaround", desc: "Lenses made in 1–3 days, delivered in 4–7 more" },
       ]}
       faq={[
         {

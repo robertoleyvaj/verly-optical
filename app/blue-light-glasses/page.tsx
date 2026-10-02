@@ -45,7 +45,7 @@ export default function BlueLightGlassesPage() {
         },
         {
           q: "How long does delivery take?",
-          a: "Most orders ship within 5–7 business days after prescription verification. You'll receive a tracking number as soon as your glasses are on their way.",
+          a: "We make your lenses in 1–3 business days and shipping takes 4–7 business days. You'll receive a tracking number as soon as your glasses are on their way.",
         },
       ]}
       relatedLinks={[

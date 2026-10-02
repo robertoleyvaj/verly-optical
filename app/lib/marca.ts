@@ -10,8 +10,8 @@ export const GARANTIA_DIAS = 30        // rehacer micas gratis si la graduación
 export const DEVOLUCION_DIAS = 30      // reembolso completo
 
 // Tiempos: hacemos las micas y luego se envían (días hábiles)
-export const DIAS_FABRICACION = { min: 3, max: 5 }
-export const DIAS_ENVIO = { min: 5, max: 10 }
+export const DIAS_FABRICACION = { min: 1, max: 3 }
+export const DIAS_ENVIO = { min: 4, max: 7 }
 
 // Fecha estimada de entrega (suma días hábiles a hoy)
 export function entregaEstimada(lang: string, hoy = new Date()): string {

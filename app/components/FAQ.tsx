@@ -36,7 +36,7 @@ const faqs = [
   {
     question: 'How long does shipping take?',
     answer:
-      'Most orders are prepared and shipped within a few business days. Delivery time depends on your location and lens options.',
+      'We make your lenses in 1–3 business days, then delivery takes 4–7 business days anywhere in the US.',
   },
   {
     question: 'Do you ship across the United States?',

@@ -434,7 +434,7 @@ export default function Home() {
         </Reveal>
         {[
           { q_es: 'Necesito aseguranza medica?', q_en: 'Do I need health insurance?', a_es: 'No. Vendemos directamente al cliente, sin necesidad de seguro medico.', a_en: 'No. We sell directly to you, no insurance needed.' },
-          { q_es: 'Cuanto tarda la entrega?', q_en: 'How long does delivery take?', a_es: 'Envio express en 3 a 5 dias habiles.', a_en: 'Express delivery in 3 to 5 business days.' },
+          { q_es: 'Cuanto tarda la entrega?', q_en: 'How long does delivery take?', a_es: 'Hacemos tus micas en 1 a 3 días hábiles y te llegan en 4 a 7 días hábiles más.', a_en: 'We make your lenses in 1–3 business days, then delivery takes 4–7 business days.' },
           { q_es: 'Como ingreso mi graduacion?', q_en: 'How do I enter my prescription?', a_es: 'Puedes escribir los numeros o subir una foto de tu receta.', a_en: 'You can enter the numbers manually or upload a photo.' },
           { q_es: 'Puedo devolver mis lentes?', q_en: 'Can I return my glasses?', a_es: 'Si, tienes 30 dias para hacer una devolucion sin complicaciones.', a_en: 'Yes, you have 30 days for a hassle-free return.' },
           { q_es: 'Que metodos de pago aceptan?', q_en: 'What payment methods do you accept?', a_es: 'Aceptamos todas las tarjetas de credito y debito.', a_en: 'We accept all major credit and debit cards.' },

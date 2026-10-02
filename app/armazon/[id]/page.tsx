@@ -1292,7 +1292,7 @@ export default function DetalleArmazon() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '2.5rem' }}>
               <div style={{ background: 'var(--cream)', borderRadius: '16px', padding: '14px 16px', fontSize: '13px', color: 'var(--warm-gray)', lineHeight: 1.6 }}>
                 <div style={{ color: 'var(--charcoal)', fontWeight: 600, marginBottom: '4px' }}>{t('Incluye', 'What’s included')}</div>
-                {t('Armazón · micas con tu graduación · estuche · paño de limpieza', 'Frame · prescription lenses · case · cleaning cloth')}
+                {t('Armazón · micas con tu graduación · estuche · paño de microfibra', 'Frame · prescription lenses · case · microfiber cleaning cloth')}
                 <div style={{ marginTop: '8px' }}>
                   {t('Llega aprox. ', 'Arrives approx. ')}<b style={{ color: 'var(--charcoal)' }}>{entregaEstimada(lang)}</b>
                 </div>
@@ -1313,7 +1313,7 @@ export default function DetalleArmazon() {
                 {t('Mide el ancho de tu cara de sien a sien. Menos de 13cm → S, 13–14cm → M, 14–15cm → L, más de 15cm → XL. La talla de este armazón es', 'Measure from temple to temple. Under 5.1" → S, 5.1–5.5" → M, 5.5–5.9" → L, over 5.9" → XL. This frame is size')} <strong style={{ color: 'var(--charcoal)' }}>{armazon.talla || 'M'}</strong>.
               </Acordeon>
               <Acordeon titulo={t('Envío y devoluciones', 'Shipping & returns')}>
-                {t('Enviamos a toda la Unión Americana en 5–7 días hábiles. Los lentes graduados tardan hasta 10 días adicionales.', 'We ship across the US in 5–7 business days. Prescription lenses take up to 10 additional days.')}
+                {t('Hacemos tus micas en 1 a 3 días hábiles y te llegan en 4 a 7 días hábiles más, a todo Estados Unidos.', 'We make your lenses in 1–3 business days, then they arrive in 4–7 business days anywhere in the US.')}
               </Acordeon>
               <Acordeon titulo={t('¿Por qué Verly?', 'Why Verly?')}>
                 {t('Armazones de calidad a una fracción del precio de una óptica tradicional. Sin aseguranza, sin citas.', 'Quality frames at a fraction of traditional optical prices. No insurance, no appointments.')}
@@ -1390,7 +1390,7 @@ export default function DetalleArmazon() {
               { icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.65)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>, titulo: t('Calidad accesible', 'Accessible quality'), sub: t('Gafas premium a precios justos.', 'Premium frames at fair prices.') },
               { icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.65)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/></svg>, titulo: t('Listos para tu receta', 'Ready for your prescription'), sub: t('Micas graduadas para tu estilo de vida.', 'Prescription lenses for your lifestyle.') },
               { icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.65)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>, titulo: t('Estilo atemporal', 'Timeless style'), sub: t('Diseños modernos que duran.', 'Modern designs that last.') },
-              { icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.65)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4a2 2 0 0 1 2 2v6H16V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>, titulo: t('Envío rápido', 'Fast shipping'), sub: t('Recibe tus lentes en 5–7 días.', 'Receive your glasses in 5–7 days.') },
+              { icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.65)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4a2 2 0 0 1 2 2v6H16V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>, titulo: t('Envío rápido', 'Fast shipping'), sub: t('Recibe tus lentes en 5 a 10 días hábiles.', 'Get your glasses in 5–10 business days.') },
             ].map((h, i) => (
               <div key={i} style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
                 <div style={{ flexShrink: 0, marginTop: '2px' }}>{h.icon}</div>
@@ -1455,7 +1455,7 @@ export default function DetalleArmazon() {
             {t('Talla S: menos de 13cm · M: 13–14cm · L: 14–15cm · XL: más de 15cm.', 'Size S: under 5.1" · M: 5.1–5.5" · L: 5.5–5.9" · XL: over 5.9".')}
           </Acordeon>
           <Acordeon titulo={t('Envío y devoluciones', 'Shipping & returns')}>
-            {t('5–7 días hábiles. Graduados hasta 10 días adicionales. Satisfacción garantizada.', '5–7 business days. Prescription up to 10 additional days. Satisfaction guaranteed.')}
+            {t('Listos en 1–3 días hábiles, en tu casa en 4–7 más. Garantía de 30 días.', 'Ready in 1–3 business days, at your door 4–7 days later. 30-day guarantee.')}
           </Acordeon>
           <Acordeon titulo={t('¿Por qué Verly?', 'Why Verly?')}>
             {t('Calidad premium sin el precio de óptica. Sin aseguranza, sin complicaciones.', 'Premium quality without the optical store price. No insurance, no complications.')}

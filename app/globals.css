@@ -5,18 +5,19 @@
 }
 
 :root {
-  --cream: #F7F4EF;
-  --cream-dark: #EDE8DF;
+  --cream: #F5F5F7;
+  --cream-dark: #ECECEF;
   --sage: #4A5940;
   --sage-light: #6B7A5E;
   --charcoal: #1C1C1A;
-  --warm-gray: #8C8680;
-  --warm-gray-light: #C4BDB6;
-  --border: #E2DDD6;
+  --warm-gray: #6E6E73;
+  --warm-gray-light: #C7C7CC;
+  --border: #E6E6E9;
   --white: #FFFFFF;
   --accent: #3BA89E;
 
-  --font-serif: var(--font-cormorant), 'Georgia', serif;
+  /* Rediseño: los títulos usan la misma letra moderna (antes Cormorant) */
+  --font-serif: var(--font-dm), 'Inter', sans-serif;
   --font-sans: var(--font-dm), 'Inter', sans-serif;
 
   --cols-detalle: 1fr 1fr;
@@ -40,6 +41,6 @@ button { font-family: var(--font-sans); }
 
 h1, h2, h3 {
   font-family: var(--font-serif);
-  font-weight: 400;
-  letter-spacing: -0.01em;
+  font-weight: 600;
+  letter-spacing: -0.03em;
 }

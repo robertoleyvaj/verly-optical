@@ -93,7 +93,7 @@ export default function Gracias() {
         <h1 style={{
           fontFamily: 'var(--font-serif)',
           fontSize: 'clamp(2rem, 5vw, 2.8rem)',
-          fontWeight: 300,
+          fontWeight: 600,
           letterSpacing: '-0.01em',
           lineHeight: 1.15,
           marginBottom: '1.25rem',
@@ -174,11 +174,10 @@ export default function Gracias() {
               <span style={{
                 fontFamily: 'var(--font-serif)',
                 fontSize: '1.1rem',
-                fontWeight: 300,
+                fontWeight: 600,
                 color: 'var(--sage)',
                 flexShrink: 0,
-                lineHeight: 1.3,
-              }}>
+                lineHeight: 1.3,}}>
                 {s.num}
               </span>
               <div>

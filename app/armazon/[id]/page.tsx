@@ -208,7 +208,7 @@ function CeldaReceta({ value, onChange, options, disabled, unit }: {
           {usarGrid ? (
             <div ref={listRef} style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '2px', padding: '6px', maxHeight: '200px', overflowY: 'auto' }}>
               {opcionesFiltradas.map(opt => (
-                <div key={opt} data-val={opt} onClick={() => { onChange(opt); setOpen(false); setBusqueda(''); }} style={{ padding: '8px 4px', cursor: 'pointer', textAlign: 'center', fontSize: '12px', fontWeight: value === opt ? 700 : 400, color: value === opt ? 'white' : 'var(--charcoal)', background: value === opt ? 'var(--sage)' : 'var(--cream)', borderRadius: '3px', transition: 'all 0.1s' }}>{formatVal(opt)}</div>
+                <div key={opt} data-val={opt} onClick={() => { onChange(opt); setOpen(false); setBusqueda(''); }} style={{ padding: '8px 4px', cursor: 'pointer', textAlign: 'center', fontSize: '12px', fontWeight: value === opt ? 700 : 400, color: value === opt ? 'white' : 'var(--charcoal)', background: value === opt ? 'var(--sage)' : 'var(--cream)', borderRadius: '999px', transition: 'all 0.1s' }}>{formatVal(opt)}</div>
               ))}
             </div>
           ) : (
@@ -341,7 +341,7 @@ function VerlyModalPaquete({ paquete, armazonNombre, onAceptar, onManual, lang }
           <>
             <div style={{ background: 'var(--charcoal)', padding: '1.5rem', textAlign: 'center' }}>
               <div style={{ fontSize: '0.65rem', letterSpacing: '0.16em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.45)', marginBottom: '0.5rem' }}>{lang === 'es' ? 'Verly recomienda' : 'Verly recommends'}</div>
-              <div style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', fontWeight: 300, color: 'white', lineHeight: 1.2 }}>{lang === 'es' ? 'El paquete perfecto para ti' : 'The perfect package for you'}</div>
+              <div style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', fontWeight: 600, color: 'white', lineHeight: 1.2}}>{lang === 'es' ? 'El paquete perfecto para ti' : 'The perfect package for you'}</div>
             </div>
             <div style={{ padding: '1.25rem 1.5rem' }}>
               <div style={{ background: 'var(--cream)', borderRadius: '6px', padding: '0.85rem 1rem', marginBottom: '1.25rem', fontSize: '13px', color: 'var(--charcoal)', lineHeight: 1.6 }}>{paquete.explicacion}</div>
@@ -365,16 +365,16 @@ function VerlyModalPaquete({ paquete, armazonNombre, onAceptar, onManual, lang }
                 <div style={{ padding: '0.75rem 1rem', background: 'var(--cream)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
                     <div style={{ fontSize: '11px', color: 'var(--warm-gray)', textDecoration: 'line-through' }}>${paquete.precioOriginal} USD</div>
-                    <div style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', fontWeight: 300, color: 'var(--sage)' }}>${paquete.precioFinal} USD</div>
+                    <div style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', fontWeight: 600, color: 'var(--sage)'}}>${paquete.precioFinal} USD</div>
                   </div>
                   <div style={{ fontSize: '11px', color: 'var(--warm-gray)' }}>{lang === 'es' ? `Ahorras $${paquete.descuento}` : `You save $${paquete.descuento}`}</div>
                 </div>
               </div>
               {/* DRAWER ACTION → TURQUESA */}
-              <button onClick={() => setPaso('upsell')} style={{ width: '100%', background: TURQUESA, color: 'white', border: 'none', borderRadius: '6px', padding: '14px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '10px', fontFamily: 'var(--font-sans)', transition: 'background 0.2s' }} onMouseEnter={e => (e.currentTarget.style.background = TURQUESA_DARK)} onMouseLeave={e => (e.currentTarget.style.background = TURQUESA)}>
+              <button onClick={() => setPaso('upsell')} style={{ width: '100%', background: TURQUESA, color: 'white', border: 'none', borderRadius: '999px', padding: '14px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', letterSpacing: '0', marginBottom: '10px', fontFamily: 'var(--font-sans)', transition: 'background 0.2s' }} onMouseEnter={e => (e.currentTarget.style.background = TURQUESA_DARK)} onMouseLeave={e => (e.currentTarget.style.background = TURQUESA)}>
                 {lang === 'es' ? 'Sí, quiero este paquete →' : 'Yes, I want this package →'}
               </button>
-              <button onClick={onManual} style={{ width: '100%', background: 'white', color: 'var(--warm-gray)', border: '1px solid var(--border)', borderRadius: '6px', padding: '12px', fontSize: '13px', cursor: 'pointer', fontFamily: 'var(--font-sans)' }}>
+              <button onClick={onManual} style={{ width: '100%', background: 'white', color: 'var(--warm-gray)', border: '1px solid var(--border)', borderRadius: '999px', padding: '12px', fontSize: '13px', cursor: 'pointer', fontFamily: 'var(--font-sans)' }}>
                 {lang === 'es' ? 'Prefiero elegir manualmente' : 'I prefer to choose manually'}
               </button>
             </div>
@@ -382,12 +382,12 @@ function VerlyModalPaquete({ paquete, armazonNombre, onAceptar, onManual, lang }
         ) : (
           <>
             <div style={{ background: 'var(--cream-dark)', padding: '1.25rem 1.5rem', textAlign: 'center', borderBottom: '1px solid var(--border)' }}>
-              <div style={{ fontFamily: 'var(--font-serif)', fontSize: '1.2rem', fontWeight: 300, color: 'var(--charcoal)' }}>{lang === 'es' ? '¿Le añadimos algo más?' : 'Shall we add anything else?'}</div>
+              <div style={{ fontFamily: 'var(--font-serif)', fontSize: '1.2rem', fontWeight: 600, color: 'var(--charcoal)'}}>{lang === 'es' ? '¿Le añadimos algo más?' : 'Shall we add anything else?'}</div>
               <div style={{ fontSize: '0.7rem', letterSpacing: '0.08em', color: 'var(--warm-gray)', marginTop: '4px' }}>{lang === 'es' ? 'Opcional' : 'Optional'}</div>
             </div>
             <div style={{ padding: '1.25rem 1.5rem' }}>
               {paquete.upsells.map(u => (
-                <div key={u.id} onClick={() => toggleExtra(u.id)} style={{ border: extras.includes(u.id) ? `1.5px solid var(--sage)` : '1px solid var(--border)', borderRadius: '6px', padding: '1rem', cursor: 'pointer', background: extras.includes(u.id) ? 'rgba(74,89,64,0.06)' : 'white', marginBottom: '0.75rem', transition: 'all 0.15s', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div key={u.id} onClick={() => toggleExtra(u.id)} style={{ border: extras.includes(u.id) ? `1.5px solid var(--sage)` : '1px solid var(--border)', borderRadius: '999px', padding: '1rem', cursor: 'pointer', background: extras.includes(u.id) ? 'rgba(74,89,64,0.06)' : 'white', marginBottom: '0.75rem', transition: 'all 0.15s', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <div style={{ width: '20px', height: '20px', borderRadius: '3px', border: '1.5px solid', borderColor: extras.includes(u.id) ? 'var(--sage)' : 'var(--border)', background: extras.includes(u.id) ? 'var(--sage)' : 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '11px', flexShrink: 0 }}>{extras.includes(u.id) ? '✓' : ''}</div>
                     <div>
@@ -400,13 +400,13 @@ function VerlyModalPaquete({ paquete, armazonNombre, onAceptar, onManual, lang }
               ))}
               <div style={{ background: 'var(--cream)', borderRadius: '6px', padding: '0.9rem 1rem', marginBottom: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ fontSize: '0.8rem', color: 'var(--warm-gray)' }}>Total</span>
-                <span style={{ fontFamily: 'var(--font-serif)', fontSize: '1.3rem', fontWeight: 300, color: 'var(--charcoal)' }}>${paquete.precioFinal + precioExtras} USD</span>
+                <span style={{ fontFamily: 'var(--font-serif)', fontSize: '1.3rem', fontWeight: 600, color: 'var(--charcoal)'}}>${paquete.precioFinal + precioExtras} USD</span>
               </div>
               {/* DRAWER ACTION → TURQUESA */}
-              <button onClick={() => onAceptar(extras)} style={{ width: '100%', background: TURQUESA, color: 'white', border: 'none', borderRadius: '6px', padding: '14px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '10px', fontFamily: 'var(--font-sans)', transition: 'background 0.2s' }} onMouseEnter={e => (e.currentTarget.style.background = TURQUESA_DARK)} onMouseLeave={e => (e.currentTarget.style.background = TURQUESA)}>
+              <button onClick={() => onAceptar(extras)} style={{ width: '100%', background: TURQUESA, color: 'white', border: 'none', borderRadius: '999px', padding: '14px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', letterSpacing: '0', marginBottom: '10px', fontFamily: 'var(--font-sans)', transition: 'background 0.2s' }} onMouseEnter={e => (e.currentTarget.style.background = TURQUESA_DARK)} onMouseLeave={e => (e.currentTarget.style.background = TURQUESA)}>
                 {lang === 'es' ? 'Ir al resumen →' : 'Go to summary →'}
               </button>
-              <button onClick={() => onAceptar([])} style={{ width: '100%', background: 'white', color: 'var(--warm-gray)', border: '1px solid var(--border)', borderRadius: '6px', padding: '11px', fontSize: '13px', cursor: 'pointer', fontFamily: 'var(--font-sans)' }}>
+              <button onClick={() => onAceptar([])} style={{ width: '100%', background: 'white', color: 'var(--warm-gray)', border: '1px solid var(--border)', borderRadius: '999px', padding: '11px', fontSize: '13px', cursor: 'pointer', fontFamily: 'var(--font-sans)' }}>
                 {lang === 'es' ? 'No gracias, ir al resumen' : 'No thanks, go to summary'}
               </button>
             </div>
@@ -778,7 +778,7 @@ export default function DetalleArmazon() {
   if (loading) return (
     <main style={{ background: 'var(--cream)', minHeight: '100vh' }}>
       <Navbar />
-      <div style={{ textAlign: 'center', padding: '8rem', color: 'var(--warm-gray)', fontFamily: 'var(--font-serif)', fontSize: '1.2rem', fontWeight: 300 }}>{t('Cargando...', 'Loading...')}</div>
+      <div style={{ textAlign: 'center', padding: '8rem', color: 'var(--warm-gray)', fontFamily: 'var(--font-serif)', fontSize: '1.2rem', fontWeight: 600}}>{t('Cargando...', 'Loading...')}</div>
     </main>
   );
 
@@ -786,7 +786,7 @@ export default function DetalleArmazon() {
     <main style={{ background: 'var(--cream)', minHeight: '100vh' }}>
       <Navbar />
       <div style={{ textAlign: 'center', padding: '8rem', color: 'var(--warm-gray)' }}>
-        <p style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', fontWeight: 300 }}>{t('Armazón no encontrado.', 'Frame not found.')}</p>
+        <p style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', fontWeight: 600}}>{t('Armazón no encontrado.', 'Frame not found.')}</p>
         <a href="/Tienda" style={{ color: 'var(--sage)', fontSize: '0.8rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>{t('← Volver', '← Back')}</a>
       </div>
     </main>
@@ -817,7 +817,7 @@ export default function DetalleArmazon() {
           )}
           {fotos.length > 1 && (
             <div style={{ position: 'absolute', bottom: '1.25rem', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '8px' }}>
-              {fotos.map((f, i) => <button key={i} onClick={() => irFoto(i)} style={{ width: '44px', height: '44px', borderRadius: '4px', overflow: 'hidden', border: fotoActiva === i ? '2px solid white' : '2px solid rgba(255,255,255,0.2)', background: 'transparent', cursor: 'pointer', padding: 0, opacity: fotoActiva === i ? 1 : 0.5, transition: 'all 0.2s' }}><img src={f} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }}/></button>)}
+              {fotos.map((f, i) => <button key={i} onClick={() => irFoto(i)} style={{ width: '44px', height: '44px', borderRadius: '999px', overflow: 'hidden', border: fotoActiva === i ? '2px solid white' : '2px solid rgba(255,255,255,0.2)', background: 'transparent', cursor: 'pointer', padding: 0, opacity: fotoActiva === i ? 1 : 0.5, transition: 'all 0.2s' }}><img src={f} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }}/></button>)}
             </div>
           )}
         </div>
@@ -830,7 +830,7 @@ export default function DetalleArmazon() {
         <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, background: 'white', zIndex: 1 }}>
           <div>
             <p style={{ fontSize: '0.58rem', fontWeight: 600, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--warm-gray)', margin: 0 }}>{t('Personalizando', 'Customizing')}</p>
-            <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.2rem', fontWeight: 300, margin: '3px 0 0', color: 'var(--charcoal)' }}>{armazon.nombre}</h3>
+            <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.2rem', fontWeight: 600, margin: '3px 0 0', color: 'var(--charcoal)'}}>{armazon.nombre}</h3>
           </div>
           <button onClick={() => setDrawerOpen(false)} style={{ background: 'var(--cream)', border: 'none', borderRadius: '50%', width: '36px', height: '36px', cursor: 'pointer', fontSize: '18px', color: 'var(--warm-gray)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
         </div>
@@ -839,7 +839,7 @@ export default function DetalleArmazon() {
         {drawerEstado === 'inicio_solar' && (
           <div style={{ padding: '2rem', flex: 1 }}>
             <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-              <p style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', fontWeight: 300, color: 'var(--charcoal)', marginBottom: '0.5rem' }}>{t('¿Cómo quieres tus lentes?', 'How do you want your lenses?')}</p>
+              <p style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', fontWeight: 600, color: 'var(--charcoal)', marginBottom: '0.5rem'}}>{t('¿Cómo quieres tus lentes?', 'How do you want your lenses?')}</p>
               <p style={{ fontSize: '0.8rem', color: 'var(--warm-gray)' }}>{t('Puedes llevarlos como vienen o personalizarlos.', 'Wear them as-is or customize them.')}</p>
             </div>
             {[
@@ -850,7 +850,7 @@ export default function DetalleArmazon() {
                 onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-1px)'; (e.currentTarget as HTMLDivElement).style.boxShadow = '0 4px 20px rgba(28,28,26,0.08)'; }}
                 onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)'; (e.currentTarget as HTMLDivElement).style.boxShadow = 'none'; }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
-                  <span style={{ fontFamily: 'var(--font-serif)', fontSize: '1.2rem', fontWeight: 300, color: opt.dark ? 'white' : 'var(--charcoal)' }}>{opt.title}</span>
+                  <span style={{ fontFamily: 'var(--font-serif)', fontSize: '1.2rem', fontWeight: 600, color: opt.dark ? 'white' : 'var(--charcoal)'}}>{opt.title}</span>
                   <span style={{ fontSize: '0.8rem', fontWeight: 500, color: opt.dark ? 'rgba(255,255,255,0.65)' : 'var(--warm-gray)' }}>{opt.precio}</span>
                 </div>
                 <p style={{ fontSize: '0.8rem', color: opt.dark ? 'rgba(255,255,255,0.55)' : 'var(--warm-gray)', lineHeight: 1.6, margin: 0 }}>{opt.desc}</p>
@@ -863,7 +863,7 @@ export default function DetalleArmazon() {
         {drawerEstado === 'inicio' && (
           <div style={{ padding: '2rem', flex: 1 }}>
             <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-              <p style={{ fontFamily: 'var(--font-serif)', fontSize: '1.3rem', fontWeight: 300, color: 'var(--charcoal)', marginBottom: '6px' }}>{t('¿Tienes tu graduación?', 'Do you have your prescription?')}</p>
+              <p style={{ fontFamily: 'var(--font-serif)', fontSize: '1.3rem', fontWeight: 600, color: 'var(--charcoal)', marginBottom: '6px'}}>{t('¿Tienes tu graduación?', 'Do you have your prescription?')}</p>
               <p style={{ fontSize: '0.8rem', color: 'var(--warm-gray)' }}>{t('Úsala para personalizar tus micas o agrégala después', 'Use it to customize your lenses or add it later')}</p>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -892,10 +892,10 @@ export default function DetalleArmazon() {
         {drawerEstado === 'manual' && (
           <div style={{ padding: '2rem', flex: 1 }}>
             <button onClick={() => setDrawerEstado(esSolar ? 'inicio_solar' : 'inicio')} style={{ background: 'none', border: 'none', color: 'var(--sage)', fontSize: '13px', cursor: 'pointer', marginBottom: '1.5rem', padding: 0, fontFamily: 'var(--font-sans)' }}>← {t('Atrás', 'Back')}</button>
-            <p style={{ fontFamily: 'var(--font-serif)', fontSize: '1.1rem', fontWeight: 300, color: 'var(--charcoal)', marginBottom: '1rem' }}>{t('Tu receta óptica', 'Your optical prescription')}</p>
+            <p style={{ fontFamily: 'var(--font-serif)', fontSize: '1.1rem', fontWeight: 600, color: 'var(--charcoal)', marginBottom: '1rem'}}>{t('Tu receta óptica', 'Your optical prescription')}</p>
             <FormReceta receta={receta} onChange={setReceta} errores={errores} t={t}/>
             {/* DRAWER ACTION → TURQUESA */}
-            <button onClick={guardarRecetaManual} style={{ width: '100%', background: TURQUESA, color: 'white', border: 'none', borderRadius: '6px', padding: '14px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: '1rem', fontFamily: 'var(--font-sans)', transition: 'background 0.2s' }} onMouseEnter={e => (e.currentTarget.style.background = TURQUESA_DARK)} onMouseLeave={e => (e.currentTarget.style.background = TURQUESA)}>
+            <button onClick={guardarRecetaManual} style={{ width: '100%', background: TURQUESA, color: 'white', border: 'none', borderRadius: '999px', padding: '14px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', letterSpacing: '0', marginTop: '1rem', fontFamily: 'var(--font-sans)', transition: 'background 0.2s' }} onMouseEnter={e => (e.currentTarget.style.background = TURQUESA_DARK)} onMouseLeave={e => (e.currentTarget.style.background = TURQUESA)}>
               {t('Guardar y ver recomendación →', 'Save & see recommendation →')}
             </button>
             <button onClick={() => { setRecetaEstado('despues'); setDrawerEstado('config'); setPaso(1); }} style={{ width: '100%', background: 'none', border: 'none', color: 'var(--warm-gray)', fontSize: '12px', cursor: 'pointer', fontFamily: 'var(--font-sans)', padding: '10px', marginTop: '4px' }}>
@@ -908,7 +908,7 @@ export default function DetalleArmazon() {
         {drawerEstado === 'foto' && (
           <div style={{ padding: '2rem', flex: 1 }}>
             <button onClick={() => setDrawerEstado(esSolar ? 'inicio_solar' : 'inicio')} style={{ background: 'none', border: 'none', color: 'var(--sage)', fontSize: '13px', cursor: 'pointer', marginBottom: '1.5rem', padding: 0, fontFamily: 'var(--font-sans)' }}>← {t('Atrás', 'Back')}</button>
-            <p style={{ fontFamily: 'var(--font-serif)', fontSize: '1.1rem', fontWeight: 300, color: 'var(--charcoal)', marginBottom: '1rem' }}>{t('Sube tu receta', 'Upload your prescription')}</p>
+            <p style={{ fontFamily: 'var(--font-serif)', fontSize: '1.1rem', fontWeight: 600, color: 'var(--charcoal)', marginBottom: '1rem'}}>{t('Sube tu receta', 'Upload your prescription')}</p>
             {fotoReceta ? (
               <div style={{ marginBottom: '1rem' }}>
                 <div style={{ position: 'relative' }}>
@@ -945,7 +945,7 @@ export default function DetalleArmazon() {
             )}
             {fotoReceta && !subiendoFoto && fotoRecetaPath && (
               // DRAWER ACTION → TURQUESA
-              <button onClick={() => { setRecetaEstado('foto'); setDrawerEstado('config'); setPaso(1); }} style={{ width: '100%', background: TURQUESA, color: 'white', border: 'none', borderRadius: '6px', padding: '14px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', letterSpacing: '0.1em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)', transition: 'background 0.2s' }} onMouseEnter={e => (e.currentTarget.style.background = TURQUESA_DARK)} onMouseLeave={e => (e.currentTarget.style.background = TURQUESA)}>
+              <button onClick={() => { setRecetaEstado('foto'); setDrawerEstado('config'); setPaso(1); }} style={{ width: '100%', background: TURQUESA, color: 'white', border: 'none', borderRadius: '999px', padding: '14px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', letterSpacing: '0', fontFamily: 'var(--font-sans)', transition: 'background 0.2s' }} onMouseEnter={e => (e.currentTarget.style.background = TURQUESA_DARK)} onMouseLeave={e => (e.currentTarget.style.background = TURQUESA)}>
                 {t('Foto guardada — continuar →', 'Photo saved — continue →')}
               </button>
             )}
@@ -978,13 +978,13 @@ export default function DetalleArmazon() {
                 <div style={{ background: 'var(--cream)', borderRadius: '8px', padding: '1.25rem', marginBottom: '1.5rem', border: '1px solid var(--border)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', fontSize: '13px', borderBottom: '1px solid var(--border)' }}><span style={{ color: 'var(--warm-gray)' }}>{armazon.nombre}</span><span style={{ fontWeight: 500 }}>${precioArmazon}</span></div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', fontSize: '13px' }}><span style={{ color: 'var(--warm-gray)' }}>{t('Lentes oscuros estándar', 'Standard dark lenses')}</span><span style={{ color: 'var(--sage)', fontWeight: 500 }}>{t('Incluido', 'Included')}</span></div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0 0', fontFamily: 'var(--font-serif)', fontSize: '1.4rem', fontWeight: 300 }}><span>Total</span><span>${precioArmazon} USD</span></div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0 0', fontFamily: 'var(--font-serif)', fontSize: '1.4rem', fontWeight: 600}}><span>Total</span><span>${precioArmazon} USD</span></div>
                 </div>
-                <button onClick={() => { setSoloArmazon(false); setDrawerEstado('inicio_solar'); }} style={{ width: '100%', background: 'none', border: '1px solid var(--border)', borderRadius: '6px', padding: '11px', fontSize: '12px', color: 'var(--warm-gray)', cursor: 'pointer', fontFamily: 'var(--font-sans)', marginBottom: '10px' }}>
+                <button onClick={() => { setSoloArmazon(false); setDrawerEstado('inicio_solar'); }} style={{ width: '100%', background: 'none', border: '1px solid var(--border)', borderRadius: '999px', padding: '11px', fontSize: '12px', color: 'var(--warm-gray)', cursor: 'pointer', fontFamily: 'var(--font-sans)', marginBottom: '10px' }}>
                   {t('← Personalizar mis micas', '← Customize my lenses')}
                 </button>
                 {/* DRAWER ACTION → TURQUESA */}
-                <button onClick={handleAddToCart} style={{ width: '100%', background: TURQUESA, color: 'white', border: 'none', borderRadius: '6px', padding: '16px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', letterSpacing: '0.12em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)', transition: 'background 0.2s' }} onMouseEnter={e => (e.currentTarget.style.background = TURQUESA_DARK)} onMouseLeave={e => (e.currentTarget.style.background = TURQUESA)}>
+                <button onClick={handleAddToCart} style={{ width: '100%', background: TURQUESA, color: 'white', border: 'none', borderRadius: '999px', padding: '16px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', letterSpacing: '0', fontFamily: 'var(--font-sans)', transition: 'background 0.2s' }} onMouseEnter={e => (e.currentTarget.style.background = TURQUESA_DARK)} onMouseLeave={e => (e.currentTarget.style.background = TURQUESA)}>
                   {t('Agregar al carrito →', 'Add to cart →')}
                 </button>
               </div>
@@ -1009,7 +1009,7 @@ export default function DetalleArmazon() {
                   {/* Paso 1: Visión */}
                   {paso === 1 && (
                     <div>
-                      <h4 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.2rem', fontWeight: 300, marginBottom: '0.25rem', color: 'var(--charcoal)' }}>{t('Tipo de visión', 'Vision type')}</h4>
+                      <h4 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.2rem', fontWeight: 600, marginBottom: '0.25rem', color: 'var(--charcoal)'}}>{t('Tipo de visión', 'Vision type')}</h4>
                       <p style={{ fontSize: '0.78rem', color: 'var(--warm-gray)', marginBottom: '1.25rem' }}>{t('¿Cómo ves?', 'How do you see?')}</p>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         {visionOpts.map(o => (
@@ -1027,7 +1027,7 @@ export default function DetalleArmazon() {
                   {/* Paso 2: Material */}
                   {paso === 2 && (
                     <div>
-                      <h4 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.2rem', fontWeight: 300, marginBottom: '0.25rem', color: 'var(--charcoal)' }}>{t('Material de la mica', 'Lens material')}</h4>
+                      <h4 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.2rem', fontWeight: 600, marginBottom: '0.25rem', color: 'var(--charcoal)'}}>{t('Material de la mica', 'Lens material')}</h4>
                       <p style={{ fontSize: '0.78rem', color: 'var(--warm-gray)', marginBottom: '1.25rem' }}>{t('Afecta el grosor y peso.', 'Affects thickness and weight.')}</p>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         {materialOpts.map(o => (
@@ -1045,7 +1045,7 @@ export default function DetalleArmazon() {
                   {/* Paso 3: Filtros */}
                   {paso === 3 && (
                     <div>
-                      <h4 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.2rem', fontWeight: 300, marginBottom: '0.25rem', color: 'var(--charcoal)' }}>{t('Filtros y protecciones', 'Filters & coatings')}</h4>
+                      <h4 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.2rem', fontWeight: 600, marginBottom: '0.25rem', color: 'var(--charcoal)'}}>{t('Filtros y protecciones', 'Filters & coatings')}</h4>
                       <p style={{ fontSize: '0.78rem', color: 'var(--warm-gray)', marginBottom: '1.25rem' }}>{t('Opcionales. Puedes elegir varios.', 'Optional. You can choose multiple.')}</p>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         {filtrosActivos.map(o => {
@@ -1077,9 +1077,9 @@ export default function DetalleArmazon() {
                   {/* Paso 4: Resumen */}
                   {paso === 4 && (
                     <div>
-                      <h4 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.2rem', fontWeight: 300, marginBottom: '1.25rem', color: 'var(--charcoal)' }}>{t('Resumen de tu pedido', 'Order summary')}</h4>
+                      <h4 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.2rem', fontWeight: 600, marginBottom: '1.25rem', color: 'var(--charcoal)'}}>{t('Resumen de tu pedido', 'Order summary')}</h4>
                       <div style={{ marginBottom: '1.25rem', background: 'var(--cream)', borderRadius: '8px', padding: '1rem', border: '1px solid var(--border)' }}>
-                        <h4 style={{ fontFamily: 'var(--font-serif)', fontSize: '1rem', fontWeight: 400, color: 'var(--charcoal)', margin: '0 0 4px' }}>{t('¿Para quién son?', 'Who are these for?')}</h4>
+                        <h4 style={{ fontFamily: 'var(--font-serif)', fontSize: '1rem', fontWeight: 600, color: 'var(--charcoal)', margin: '0 0 4px'}}>{t('¿Para quién son?', 'Who are these for?')}</h4>
                         <p style={{ fontSize: '12px', color: 'var(--warm-gray)', margin: '0 0 0.75rem' }}>{t('Opcional — útil si compras para varias personas.', 'Optional — helpful if buying for multiple people.')}</p>
                         {recetasSesion.length > 0 && (
                           <div style={{ marginBottom: '0.75rem' }}>
@@ -1113,7 +1113,7 @@ export default function DetalleArmazon() {
                             <span style={{ fontWeight: 500 }}>{item.value}</span>
                           </div>
                         ))}
-                        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '14px 0 0', fontFamily: 'var(--font-serif)', fontSize: '1.4rem', fontWeight: 300 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '14px 0 0', fontFamily: 'var(--font-serif)', fontSize: '1.4rem', fontWeight: 600}}>
                           <span>Total</span><span>${total} USD</span>
                         </div>
                       </div>
@@ -1124,11 +1124,11 @@ export default function DetalleArmazon() {
                             <div style={{ fontSize: '12px', fontWeight: 500, color: '#92400e' }}>{t('Graduación pendiente', 'Prescription pending')}</div>
                             <div style={{ fontSize: '11px', color: '#a16207' }}>{t('Se pedirá antes de finalizar el pago', 'Will be requested before payment')}</div>
                           </div>
-                          <button onClick={() => setDrawerEstado('inicio')} style={{ background: 'var(--charcoal)', border: 'none', borderRadius: '3px', padding: '5px 12px', fontSize: '11px', fontWeight: 600, cursor: 'pointer', color: 'white', fontFamily: 'var(--font-sans)' }}>{t('Agregar', 'Add')}</button>
+                          <button onClick={() => setDrawerEstado('inicio')} style={{ background: 'var(--charcoal)', border: 'none', borderRadius: '999px', padding: '5px 12px', fontSize: '11px', fontWeight: 600, cursor: 'pointer', color: 'white', fontFamily: 'var(--font-sans)' }}>{t('Agregar', 'Add')}</button>
                         </div>
                       )}
                       {/* DRAWER ACTION → TURQUESA */}
-                      <button onClick={handleAddToCart} style={{ width: '100%', background: TURQUESA, color: 'white', border: 'none', borderRadius: '6px', padding: '16px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', letterSpacing: '0.12em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)', transition: 'background 0.2s' }} onMouseEnter={e => (e.currentTarget.style.background = TURQUESA_DARK)} onMouseLeave={e => (e.currentTarget.style.background = TURQUESA)}>
+                      <button onClick={handleAddToCart} style={{ width: '100%', background: TURQUESA, color: 'white', border: 'none', borderRadius: '999px', padding: '16px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', letterSpacing: '0', fontFamily: 'var(--font-sans)', transition: 'background 0.2s' }} onMouseEnter={e => (e.currentTarget.style.background = TURQUESA_DARK)} onMouseLeave={e => (e.currentTarget.style.background = TURQUESA)}>
                         {t('Agregar al carrito →', 'Add to cart →')}
                       </button>
                     </div>
@@ -1139,8 +1139,8 @@ export default function DetalleArmazon() {
                 {paso < 4 && (
                   <div style={{ padding: '1.25rem 1.5rem', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', bottom: 0, background: 'white' }}>
                     {paso > 1
-                      ? <button onClick={() => setPaso(p => p - 1)} style={{ background: 'none', border: '1px solid var(--border)', borderRadius: '6px', padding: '10px 20px', fontSize: '12px', cursor: 'pointer', color: 'var(--warm-gray)', fontFamily: 'var(--font-sans)' }}>← {t('Atrás', 'Back')}</button>
-                      : <button onClick={() => setDrawerEstado(esSolar ? 'inicio_solar' : 'inicio')} style={{ background: 'none', border: '1px solid var(--border)', borderRadius: '6px', padding: '10px 20px', fontSize: '12px', cursor: 'pointer', color: 'var(--warm-gray)', fontFamily: 'var(--font-sans)' }}>← {t('Mi receta', 'My prescription')}</button>
+                      ? <button onClick={() => setPaso(p => p - 1)} style={{ background: 'none', border: '1px solid var(--border)', borderRadius: '999px', padding: '10px 20px', fontSize: '12px', cursor: 'pointer', color: 'var(--warm-gray)', fontFamily: 'var(--font-sans)' }}>← {t('Atrás', 'Back')}</button>
+                      : <button onClick={() => setDrawerEstado(esSolar ? 'inicio_solar' : 'inicio')} style={{ background: 'none', border: '1px solid var(--border)', borderRadius: '999px', padding: '10px 20px', fontSize: '12px', cursor: 'pointer', color: 'var(--warm-gray)', fontFamily: 'var(--font-sans)' }}>← {t('Mi receta', 'My prescription')}</button>
                     }
                     {/* DRAWER ACTION → TURQUESA (when enabled) */}
                     <button
@@ -1177,7 +1177,7 @@ export default function DetalleArmazon() {
             {fotos.length > 1 && !esMobil && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '68px', flexShrink: 0 }}>
                 {fotos.map((foto, i) => (
-                  <button key={i} onClick={() => irFoto(i)} style={{ width: '68px', height: '68px', borderRadius: '6px', overflow: 'hidden', border: fotoActiva === i ? '2px solid var(--charcoal)' : '2px solid transparent', background: 'white', cursor: 'pointer', padding: 0, transition: 'all 0.2s', boxShadow: '0 1px 6px rgba(28,28,26,0.06)', opacity: fotoActiva === i ? 1 : 0.65 }}>
+                  <button key={i} onClick={() => irFoto(i)} style={{ width: '68px', height: '68px', borderRadius: '999px', overflow: 'hidden', border: fotoActiva === i ? '2px solid var(--charcoal)' : '2px solid transparent', background: 'white', cursor: 'pointer', padding: 0, transition: 'all 0.2s', boxShadow: '0 1px 6px rgba(28,28,26,0.06)', opacity: fotoActiva === i ? 1 : 0.65 }}>
                     <img src={foto} alt={`${armazon.nombre} ${i + 1}`} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '6px', boxSizing: 'border-box' }}/>
                   </button>
                 ))}
@@ -1203,7 +1203,7 @@ export default function DetalleArmazon() {
                 </div>
 
                 {esMobil && fotos.length > 0 && (
-                  <button onClick={() => setLightboxOpen(true)} style={{ position: 'absolute', bottom: '14px', right: '14px', background: 'rgba(247,244,239,0.92)', border: '1px solid var(--border)', borderRadius: '6px', padding: '6px 10px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11px', color: 'var(--warm-gray)', fontFamily: 'var(--font-sans)', fontWeight: 500, backdropFilter: 'blur(4px)' }}>
+                  <button onClick={() => setLightboxOpen(true)} style={{ position: 'absolute', bottom: '14px', right: '14px', background: 'rgba(247,244,239,0.92)', border: '1px solid var(--border)', borderRadius: '999px', padding: '6px 10px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11px', color: 'var(--warm-gray)', fontFamily: 'var(--font-sans)', fontWeight: 500, backdropFilter: 'blur(4px)' }}>
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
                     {t('Ampliar', 'Zoom')}
                   </button>
@@ -1226,7 +1226,7 @@ export default function DetalleArmazon() {
               {fotos.length > 1 && esMobil && (
                 <div style={{ display: 'flex', gap: '8px', padding: '12px 1.25rem 0', overflowX: 'auto', scrollbarWidth: 'none' }}>
                   {fotos.map((foto, i) => (
-                    <button key={i} onClick={() => irFoto(i)} style={{ flexShrink: 0, width: '56px', height: '56px', borderRadius: '6px', overflow: 'hidden', border: fotoActiva === i ? '2px solid var(--charcoal)' : '2px solid transparent', background: 'white', cursor: 'pointer', padding: 0, transition: 'all 0.2s', opacity: fotoActiva === i ? 1 : 0.6 }}>
+                    <button key={i} onClick={() => irFoto(i)} style={{ flexShrink: 0, width: '56px', height: '56px', borderRadius: '999px', overflow: 'hidden', border: fotoActiva === i ? '2px solid var(--charcoal)' : '2px solid transparent', background: 'white', cursor: 'pointer', padding: 0, transition: 'all 0.2s', opacity: fotoActiva === i ? 1 : 0.6 }}>
                       <img src={foto} alt="" style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '4px', boxSizing: 'border-box' }}/>
                     </button>
                   ))}
@@ -1243,12 +1243,12 @@ export default function DetalleArmazon() {
               </span>
               {armazon.badge && <span style={{ fontSize: '0.58rem', fontWeight: 600, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--warm-gray)', padding: '5px 12px', border: '1px solid var(--border)', borderRadius: '2px' }}>{nombreBadge(armazon.badge, lang)}</span>}
             </div>
-            <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: esMobil ? '2.8rem' : '4rem', fontWeight: 400, letterSpacing: '-0.03em', margin: '0 0 0.5rem', lineHeight: 1, color: 'var(--charcoal)' }}>{armazon.nombre}</h1>
+            <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: esMobil ? '2.8rem' : '4rem', fontWeight: 600, letterSpacing: '-0.03em', margin: '0 0 0.5rem', lineHeight: 1, color: 'var(--charcoal)' }}>{armazon.nombre}</h1>
             <p style={{ fontSize: '1rem', color: 'var(--warm-gray)', marginBottom: '2rem', letterSpacing: '0.01em', fontWeight: 400 }}>
               {[nombreMaterial(armazon.material, lang), armazon.forma && `${armazon.forma.charAt(0).toUpperCase() + armazon.forma.slice(1)}`].filter(Boolean).join(' · ')}
             </p>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginBottom: '0.5rem' }}>
-              <span style={{ fontFamily: 'var(--font-serif)', fontSize: '3rem', fontWeight: 400, letterSpacing: '-0.02em', lineHeight: 1 }}>${armazon.precio}</span>
+              <span style={{ fontFamily: 'var(--font-serif)', fontSize: '3rem', fontWeight: 600, letterSpacing: '-0.02em', lineHeight: 1 }}>${armazon.precio}</span>
               <span style={{ fontSize: '0.85rem', color: 'var(--warm-gray)', fontWeight: 400 }}>USD</span>
               {!!armazon.descuento && armazon.descuento > 0 && <span style={{ background: 'var(--charcoal)', color: 'white', fontSize: '11px', fontWeight: 700, padding: '3px 8px', borderRadius: '2px' }}>-{armazon.descuento}%</span>}
             </div>
@@ -1280,7 +1280,7 @@ export default function DetalleArmazon() {
             </div>
             {/* PAGE CTA → SAGE */}
             {!esMobil && (
-              <button onClick={abrirDrawer} style={{ display: 'block', width: '100%', textAlign: 'center', background: 'var(--sage)', color: 'white', padding: '20px 32px', borderRadius: '6px', fontSize: '0.78rem', fontWeight: 700, letterSpacing: '0.16em', textTransform: 'uppercase', border: 'none', cursor: 'pointer', marginBottom: '2.5rem', transition: 'all 0.3s ease', fontFamily: 'var(--font-sans)' }}
+              <button onClick={abrirDrawer} style={{ display: 'block', width: '100%', textAlign: 'center', background: 'var(--sage)', color: 'white', padding: '20px 32px', borderRadius: '999px', fontSize: '0.78rem', fontWeight: 700, letterSpacing: '0', border: 'none', cursor: 'pointer', marginBottom: '2.5rem', transition: 'all 0.3s ease', fontFamily: 'var(--font-sans)' }}
                 onMouseEnter={e => { (e.currentTarget.style.background = 'var(--charcoal)'); (e.currentTarget.style.transform = 'translateY(-1px)'); }}
                 onMouseLeave={e => { (e.currentTarget.style.background = 'var(--sage)'); (e.currentTarget.style.transform = 'translateY(0)'); }}>
                 {esSolar ? t('Configurar mis lentes →', 'Configure my lenses →') : t('Personaliza tus micas →', 'Customize my lenses →')}
@@ -1333,9 +1333,9 @@ export default function DetalleArmazon() {
             <div style={{ display: 'grid', gridTemplateColumns: esMobil ? '1fr' : '200px 1fr', gap: esMobil ? '1.5rem' : '3rem', alignItems: 'center' }}>
               <div>
                 <p style={{ fontSize: '0.58rem', fontWeight: 700, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--warm-gray)', margin: '0 0 6px' }}>{t('MEDIDAS', 'MEASUREMENTS')}</p>
-                <p style={{ fontFamily: 'var(--font-serif)', fontSize: esMobil ? '1.5rem' : '2rem', fontWeight: 400, color: 'var(--charcoal)', margin: '0 0 4px', lineHeight: 1 }}>{t('TALLA', 'SIZE')} {armazon.talla || 'M'}</p>
+                <p style={{ fontFamily: 'var(--font-serif)', fontSize: esMobil ? '1.5rem' : '2rem', fontWeight: 600, color: 'var(--charcoal)', margin: '0 0 4px', lineHeight: 1}}>{t('TALLA', 'SIZE')} {armazon.talla || 'M'}</p>
                 <p style={{ fontSize: '0.78rem', color: 'var(--warm-gray)', margin: '0 0 1.5rem' }}>{t('Para rostros medianos a grandes', 'For medium to large faces')}</p>
-                <button style={{ background: 'var(--charcoal)', color: 'white', border: 'none', borderRadius: '3px', padding: '10px 20px', fontSize: '11px', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', cursor: 'pointer', fontFamily: 'var(--font-sans)' }}>{t('Guía de medidas', 'Size guide')}</button>
+                <button style={{ background: 'var(--charcoal)', color: 'white', border: 'none', borderRadius: '999px', padding: '10px 20px', fontSize: '11px', fontWeight: 600, letterSpacing: '0', cursor: 'pointer', fontFamily: 'var(--font-sans)' }}>{t('Guía de medidas', 'Size guide')}</button>
               </div>
               <div style={{ display: 'flex', gap: '0', flexWrap: esMobil ? 'wrap' : 'nowrap' }}>
                 {[
@@ -1347,7 +1347,7 @@ export default function DetalleArmazon() {
                 ].map((m, i) => (
                   <div key={i} style={{ flex: esMobil ? '0 0 calc(33% - 8px)' : 1, minWidth: '80px', padding: esMobil ? '0 0 1rem' : '0 2rem 0 0', borderRight: !esMobil && i < 4 ? '1px solid var(--border)' : 'none', marginRight: !esMobil && i < 4 ? '2rem' : 0 }}>
                     <div style={{ marginBottom: '0.75rem', opacity: 0.6 }}>{m.icon}</div>
-                    <div style={{ fontFamily: 'var(--font-serif)', fontSize: esMobil ? '1.2rem' : '1.5rem', fontWeight: 400, color: 'var(--charcoal)', marginBottom: '4px' }}>{m.valor}</div>
+                    <div style={{ fontFamily: 'var(--font-serif)', fontSize: esMobil ? '1.2rem' : '1.5rem', fontWeight: 600, color: 'var(--charcoal)', marginBottom: '4px'}}>{m.valor}</div>
                     <div style={{ fontSize: '0.7rem', color: 'var(--warm-gray)' }}>{m.label}</div>
                   </div>
                 ))}
@@ -1361,7 +1361,7 @@ export default function DetalleArmazon() {
       <div style={{ display: 'grid', gridTemplateColumns: esMobil ? '1fr' : '1fr 1fr 280px', minHeight: esMobil ? 'auto' : '420px' }}>
         <div style={{ background: 'var(--cream)', padding: esMobil ? '2.5rem 1.25rem' : '4rem 3rem 4rem 4rem', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
           <p style={{ fontSize: '0.58rem', fontWeight: 700, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--warm-gray)', margin: '0 0 1.5rem' }}>Verly Optical</p>
-          <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: esMobil ? '2rem' : '3rem', fontWeight: 400, color: 'var(--charcoal)', margin: '0 0 1rem', lineHeight: 1.15, letterSpacing: '-0.02em' }}>
+          <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: esMobil ? '2rem' : '3rem', fontWeight: 600, color: 'var(--charcoal)', margin: '0 0 1rem', lineHeight: 1.15, letterSpacing: '-0.02em' }}>
             {t('Diseñado para', 'Designed for')}<br/><em style={{ fontStyle: 'italic' }}>{t('tu día a día', 'your daily life')}</em>
           </h2>
           <p style={{ fontSize: '0.9rem', color: 'var(--warm-gray)', margin: '0 0 2rem', lineHeight: 1.7 }}>{t('Estilo, comodidad y calidad que se adaptan a ti.', 'Style, comfort and quality that adapt to you.')}</p>
@@ -1373,7 +1373,7 @@ export default function DetalleArmazon() {
               </div>
             ))}
           </div>
-          <button onClick={abrirDrawer} style={{ alignSelf: 'flex-start', background: 'var(--charcoal)', color: 'white', border: 'none', borderRadius: '3px', padding: '12px 24px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', cursor: 'pointer', fontFamily: 'var(--font-sans)' }}>
+          <button onClick={abrirDrawer} style={{ alignSelf: 'flex-start', background: 'var(--charcoal)', color: 'white', border: 'none', borderRadius: '999px', padding: '12px 24px', fontSize: '11px', fontWeight: 700, letterSpacing: '0', cursor: 'pointer', fontFamily: 'var(--font-sans)' }}>
             {t('Ver en modelo', 'See on model')}
           </button>
         </div>
@@ -1412,7 +1412,7 @@ export default function DetalleArmazon() {
         <div style={{ background: 'var(--cream)', padding: esMobil ? '3rem 0' : '4rem 0' }}>
           <div style={{ maxWidth: '1440px', margin: '0 auto', padding: esMobil ? '0 1.25rem' : '0 3rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2rem' }}>
-              <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: esMobil ? '1.6rem' : '2rem', fontWeight: 400, color: 'var(--charcoal)', margin: 0 }}>{t('También te puede gustar', 'You might also like')}</h2>
+              <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: esMobil ? '1.6rem' : '2rem', fontWeight: 600, color: 'var(--charcoal)', margin: 0}}>{t('También te puede gustar', 'You might also like')}</h2>
               <a href={esSolar ? '/sunglasses' : '/Tienda'} style={{ fontSize: '0.72rem', color: 'var(--warm-gray)', textDecoration: 'none', letterSpacing: '0.08em', textTransform: 'uppercase', borderBottom: '1px solid var(--border)', paddingBottom: '2px' }}>{t('Ver todos →', 'See all →')}</a>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: esMobil ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', gap: esMobil ? '10px' : '14px' }}>
@@ -1425,7 +1425,7 @@ export default function DetalleArmazon() {
                       {r.imagen_url ? <img src={r.imagen_url} alt={r.nombre} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '1.25rem', boxSizing: 'border-box' }}/> : <div style={{ opacity: 0.25 }}><LenteSVG color="var(--sage)" forma={r.forma} size="small"/></div>}
                     </div>
                     <div style={{ padding: '0.85rem 1rem 1rem' }}>
-                      <div style={{ fontFamily: 'var(--font-serif)', fontSize: '1rem', fontWeight: 400, color: 'var(--charcoal)', marginBottom: '4px' }}>{r.nombre}</div>
+                      <div style={{ fontFamily: 'var(--font-serif)', fontSize: '1rem', fontWeight: 600, color: 'var(--charcoal)', marginBottom: '4px'}}>{r.nombre}</div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div style={{ fontSize: '0.85rem', color: 'var(--charcoal)', fontWeight: 500 }}>${r.precio}</div>
                         <div style={{ fontSize: '0.62rem', color: 'var(--warm-gray)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>USD</div>
@@ -1442,7 +1442,7 @@ export default function DetalleArmazon() {
       {/* ── EDITORIAL FINAL ── */}
       <div style={{ background: 'var(--cream-dark)', padding: esMobil ? '3rem 1.25rem' : '5rem 4rem', display: 'grid', gridTemplateColumns: esMobil ? '1fr' : '1fr 1fr', gap: esMobil ? '2.5rem' : '4rem', alignItems: 'center' }}>
         <div>
-          <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: esMobil ? '2rem' : '3.5rem', fontWeight: 400, color: 'var(--charcoal)', margin: '0 0 1rem', lineHeight: 1.1, letterSpacing: '-0.02em' }}>
+          <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: esMobil ? '2rem' : '3.5rem', fontWeight: 600, color: 'var(--charcoal)', margin: '0 0 1rem', lineHeight: 1.1, letterSpacing: '-0.02em' }}>
             Verly Optical<br/><em style={{ fontStyle: 'italic', color: 'var(--warm-gray)' }}>I see the difference.</em>
           </h2>
           <p style={{ fontSize: '0.85rem', color: 'var(--warm-gray)', margin: 0 }}>{t('Unos lentes, miles de historias.', 'One pair of glasses, thousands of stories.')}</p>
@@ -1469,7 +1469,7 @@ export default function DetalleArmazon() {
       {/* ── BOTÓN STICKY MÓVIL (PAGE → SAGE) ── */}
       {esMobil && (
         <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, padding: '1rem 1.25rem', background: 'white', borderTop: '1px solid var(--border)', zIndex: 100, boxShadow: '0 -4px 20px rgba(28,28,26,0.06)' }}>
-          <button onClick={abrirDrawer} style={{ display: 'block', width: '100%', textAlign: 'center', background: 'var(--sage)', color: 'white', padding: '18px 32px', borderRadius: '4px', fontSize: '0.78rem', fontWeight: 700, letterSpacing: '0.16em', textTransform: 'uppercase', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-sans)' }}>
+          <button onClick={abrirDrawer} style={{ display: 'block', width: '100%', textAlign: 'center', background: 'var(--sage)', color: 'white', padding: '18px 32px', borderRadius: '999px', fontSize: '0.78rem', fontWeight: 700, letterSpacing: '0', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-sans)' }}>
             {esSolar ? t('Configurar mis lentes →', 'Configure my lenses →') : t('Personalizar mis micas →', 'Customize my lenses →')}
           </button>
         </div>

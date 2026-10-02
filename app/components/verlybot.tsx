@@ -159,11 +159,11 @@ function BurbujaPaquete({ paquete, onAceptar, lang }: { paquete: Paquete; onAcep
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
         <div>
           <div style={{ fontSize: '11px', color: 'var(--warm-gray)' }}>{lang === 'es' ? 'Micas recomendadas' : 'Recommended lenses'}</div>
-          <div style={{ fontFamily: 'var(--font-serif)', fontSize: '1.3rem', fontWeight: 300, color: 'var(--sage)' }}>${paquete.precioLentes} USD</div>
+          <div style={{ fontFamily: 'var(--font-serif)', fontSize: '1.3rem', fontWeight: 600, color: 'var(--sage)'}}>${paquete.precioLentes} USD</div>
         </div>
         <div style={{ fontSize: '11px', color: 'var(--warm-gray)', textAlign: 'right' }}>{lang === 'es' ? '+ tu armazón' : '+ your frame'}</div>
       </div>
-      <button onClick={onAceptar} style={{ width: '100%', background: 'var(--charcoal)', color: 'white', border: 'none', borderRadius: '4px', padding: '10px', fontSize: '12px', fontWeight: 500, letterSpacing: '0.06em', cursor: 'pointer', fontFamily: 'var(--font-sans)' }}>
+      <button onClick={onAceptar} style={{ width: '100%', background: 'var(--charcoal)', color: 'white', border: 'none', borderRadius: '999px', padding: '10px', fontSize: '12px', fontWeight: 500, letterSpacing: '0.06em', cursor: 'pointer', fontFamily: 'var(--font-sans)' }}>
         {lang === 'es' ? 'Quiero este paquete →' : 'I want this package →'}
       </button>
     </div>
@@ -376,7 +376,7 @@ export default function VerlyBot() {
           <div style={{ background: 'var(--charcoal)', padding: '1rem 1.25rem', display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
             <VerlyAvatar expresion={expresion} size={40}/>
             <div style={{ flex: 1 }}>
-              <div style={{ fontFamily: 'var(--font-serif)', fontSize: '1rem', fontWeight: 300, color: 'white' }}>Verly</div>
+              <div style={{ fontFamily: 'var(--font-serif)', fontSize: '1rem', fontWeight: 600, color: 'white'}}>Verly</div>
               <div style={{ fontSize: '0.65rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.45)' }}>
                 {lang === 'es' ? 'Asistente virtual' : 'Virtual assistant'}
               </div>

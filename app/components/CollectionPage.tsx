@@ -70,7 +70,7 @@ export default async function CollectionPage({
             <div style={{ height: "1px", width: "32px", background: "var(--sage)" }}/>
             <p style={{ fontFamily: "var(--font-sans)", fontSize: "10px", fontWeight: 600, letterSpacing: "0.22em", textTransform: "uppercase", color: "#6B7A5E", margin: 0 }}>{subtitle}</p>
           </div>
-          <h1 style={{ fontFamily: "var(--font-serif)", fontSize: "clamp(3rem, 6vw, 5.5rem)", fontWeight: 400, color: "var(--cream)", lineHeight: 0.95, letterSpacing: "-0.02em", margin: "0 0 1.5rem" }}>{heroKeyword}</h1>
+          <h1 style={{ fontFamily: "var(--font-serif)", fontSize: "clamp(3rem, 6vw, 5.5rem)", fontWeight: 600, color: "var(--cream)", lineHeight: 0.95, letterSpacing: "-0.02em", margin: "0 0 1.5rem" }}>{heroKeyword}</h1>
           <p style={{ fontFamily: "var(--font-sans)", fontSize: "15px", color: "var(--warm-gray)", lineHeight: 1.8, maxWidth: "520px", margin: "0 0 2.5rem" }}>{description}</p>
           <div style={{ display: "flex", alignItems: "center", gap: "2rem", flexWrap: "wrap" }}>
             <Link href="/Tienda" style={{ display: "inline-block", fontFamily: "var(--font-sans)", fontSize: "12px", fontWeight: 500, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--cream)", background: "var(--sage)", padding: "14px 32px", borderRadius: "2px", textDecoration: "none" }}>
@@ -102,7 +102,7 @@ export default async function CollectionPage({
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "2.5rem" }}>
           <div>
             <p style={{ fontFamily: "var(--font-sans)", fontSize: "10px", fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--warm-gray)", margin: "0 0 6px" }}>Featured frames</p>
-            <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "clamp(1.8rem, 3vw, 2.4rem)", fontWeight: 400, color: "var(--charcoal)", margin: 0 }}>
+            <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "clamp(1.8rem, 3vw, 2.4rem)", fontWeight: 600, color: "var(--charcoal)", margin: 0}}>
               {frames.length > 0 ? `${frames.length} styles available` : "All frames"}
             </h2>
           </div>
@@ -132,7 +132,7 @@ export default async function CollectionPage({
                     )}
                 </div>
                 <div style={{ padding: "1rem 1.1rem 1.1rem" }}>
-                  <p style={{ fontFamily: "var(--font-serif)", fontSize: "1.05rem", fontWeight: 400, color: "var(--charcoal)", margin: "0 0 4px" }}>{frame.nombre}</p>
+                  <p style={{ fontFamily: "var(--font-serif)", fontSize: "1.05rem", fontWeight: 600, color: "var(--charcoal)", margin: "0 0 4px"}}>{frame.nombre}</p>
                   <p style={{ fontFamily: "var(--font-sans)", fontSize: "12px", color: "var(--warm-gray)", margin: 0 }}>From ${frame.precio + 15} complete</p>
                 </div>
               </div>
@@ -145,7 +145,7 @@ export default async function CollectionPage({
       <section style={{ background: "var(--cream-dark)", padding: "5rem 2rem" }}>
         <div style={{ maxWidth: "900px", margin: "0 auto" }}>
           <p style={{ fontFamily: "var(--font-sans)", fontSize: "10px", fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--warm-gray)", margin: "0 0 0.75rem", textAlign: "center" }}>Simple process</p>
-          <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "clamp(2rem, 3.5vw, 3rem)", fontWeight: 400, color: "var(--charcoal)", textAlign: "center", margin: "0 0 4rem", lineHeight: 1.1 }}>From frame to your door</h2>
+          <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "clamp(2rem, 3.5vw, 3rem)", fontWeight: 600, color: "var(--charcoal)", textAlign: "center", margin: "0 0 4rem", lineHeight: 1.1}}>From frame to your door</h2>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "3rem" }}>
             {[
               { step: "01", title: "Choose your frame", desc: "Browse our collection and pick the shape that suits you." },
@@ -155,7 +155,7 @@ export default async function CollectionPage({
               <div key={s.step}>
                 <p style={{ fontFamily: "var(--font-sans)", fontSize: "13px", color: "var(--sage)", letterSpacing: "0.15em", margin: "0 0 0.75rem" }}>{s.step}</p>
                 <div style={{ height: "1px", background: "var(--border)", marginBottom: "1.25rem" }}/>
-                <h3 style={{ fontFamily: "var(--font-serif)", fontSize: "1.2rem", fontWeight: 400, color: "var(--charcoal)", margin: "0 0 0.5rem" }}>{s.title}</h3>
+                <h3 style={{ fontFamily: "var(--font-serif)", fontSize: "1.2rem", fontWeight: 600, color: "var(--charcoal)", margin: "0 0 0.5rem"}}>{s.title}</h3>
                 <p style={{ fontFamily: "var(--font-sans)", fontSize: "13px", color: "var(--warm-gray)", lineHeight: 1.75, margin: 0 }}>{s.desc}</p>
               </div>
             ))}
@@ -167,7 +167,7 @@ export default async function CollectionPage({
       {faq.length > 0 && (
         <section style={{ maxWidth: "700px", margin: "0 auto", padding: "5rem 2rem" }}>
           <p style={{ fontFamily: "var(--font-sans)", fontSize: "10px", fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--warm-gray)", margin: "0 0 0.75rem" }}>Questions</p>
-          <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "clamp(1.8rem, 3vw, 2.4rem)", fontWeight: 400, color: "var(--charcoal)", margin: "0 0 2.5rem" }}>Frequently asked</h2>
+          <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "clamp(1.8rem, 3vw, 2.4rem)", fontWeight: 600, color: "var(--charcoal)", margin: "0 0 2.5rem"}}>Frequently asked</h2>
           <div>
             {faq.map((item) => (
               <details key={item.q} style={{ borderBottom: "1px solid var(--border)" }}>
@@ -205,7 +205,7 @@ export default async function CollectionPage({
 
       {/* CTA */}
       <section style={{ background: "var(--sage)", padding: "5rem 2rem", textAlign: "center" }}>
-        <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "clamp(2rem, 4vw, 3.5rem)", fontWeight: 400, color: "var(--cream)", margin: "0 0 1rem", lineHeight: 1.1 }}>Complete pair from $28</h2>
+        <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "clamp(2rem, 4vw, 3.5rem)", fontWeight: 600, color: "var(--cream)", margin: "0 0 1rem", lineHeight: 1.1}}>Complete pair from $28</h2>
         <p style={{ fontFamily: "var(--font-sans)", fontSize: "14px", color: "rgba(247,244,239,0.7)", margin: "0 auto 2.5rem", maxWidth: "400px", lineHeight: 1.7 }}>
           Frame + lenses included. No hidden fees. Prescription verified by our opticians.
         </p>

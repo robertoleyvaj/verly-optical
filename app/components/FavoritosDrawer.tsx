@@ -43,7 +43,7 @@ export default function FavoritosDrawer() {
             <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.6rem', fontWeight: 600, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--warm-gray)', margin: 0 }}>
               {t('Guardados', 'Saved')}
             </p>
-            <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.2rem', fontWeight: 300, margin: '3px 0 0', color: 'var(--charcoal)' }}>
+            <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.2rem', fontWeight: 600, margin: '3px 0 0', color: 'var(--charcoal)'}}>
               {t('Mis favoritos', 'My favorites')}
               {favoritos.length > 0 && (
                 <span style={{ fontFamily: 'var(--font-sans)', fontSize: '0.8rem', fontWeight: 400, color: 'var(--warm-gray)', marginLeft: '8px' }}>
@@ -62,13 +62,13 @@ export default function FavoritosDrawer() {
               <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--border)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: '1rem' }}>
                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
               </svg>
-              <p style={{ fontFamily: 'var(--font-serif)', fontSize: '1.1rem', fontWeight: 300, color: 'var(--warm-gray)', margin: '0 0 0.5rem' }}>
+              <p style={{ fontFamily: 'var(--font-serif)', fontSize: '1.1rem', fontWeight: 600, color: 'var(--warm-gray)', margin: '0 0 0.5rem'}}>
                 {t('Aún no tienes favoritos', 'No favorites yet')}
               </p>
               <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.78rem', color: 'var(--warm-gray)', margin: '0 0 1.5rem', lineHeight: 1.6 }}>
                 {t('Toca el ❤️ en cualquier armazón para guardarlo aquí.', 'Tap the ❤️ on any frame to save it here.')}
               </p>
-              <button onClick={() => setFavoritosOpen(false)} style={{ background: 'var(--charcoal)', color: 'white', border: 'none', borderRadius: '4px', padding: '10px 24px', fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', cursor: 'pointer', fontFamily: 'var(--font-sans)' }}>
+              <button onClick={() => setFavoritosOpen(false)} style={{ background: 'var(--charcoal)', color: 'white', border: 'none', borderRadius: '999px', padding: '10px 24px', fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0', cursor: 'pointer', fontFamily: 'var(--font-sans)' }}>
                 {t('Explorar', 'Browse frames')}
               </button>
             </div>
@@ -86,7 +86,7 @@ export default function FavoritosDrawer() {
                   {/* Info */}
                   <div style={{ flex: 1, padding: '0.75rem 0.75rem 0.75rem 0', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                     <div>
-                      <p style={{ fontFamily: 'var(--font-serif)', fontSize: '1rem', fontWeight: 400, color: 'var(--charcoal)', margin: '0 0 2px' }}>{f.nombre}</p>
+                      <p style={{ fontFamily: 'var(--font-serif)', fontSize: '1rem', fontWeight: 600, color: 'var(--charcoal)', margin: '0 0 2px'}}>{f.nombre}</p>
                       {f.material && <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.7rem', color: 'var(--warm-gray)', margin: 0, textTransform: 'capitalize' }}>{nombreMaterial(f.material, lang)}</p>}
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

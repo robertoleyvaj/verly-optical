@@ -50,7 +50,7 @@ export default function CheckoutPage() {
     <main style={{ background: 'var(--cream)', minHeight: '100vh', fontFamily: 'var(--font-sans)', color: 'var(--charcoal)' }}>
       <Navbar />
       <div style={{ maxWidth: '760px', margin: '0 auto', padding: '3rem 1.25rem 5rem' }}>
-        <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(1.8rem, 4vw, 2.6rem)', fontWeight: 400, margin: '0 0 0.4rem' }}>
+        <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(1.8rem, 4vw, 2.6rem)', fontWeight: 600, margin: '0 0 0.4rem'}}>
           {t('Finaliza tu compra', 'Checkout')}
         </h1>
         <p style={{ fontSize: '13px', color: 'var(--warm-gray)', margin: '0 0 2rem' }}>

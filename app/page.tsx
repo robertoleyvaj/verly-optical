@@ -75,7 +75,7 @@ function QuizModal({ onClose, t, lang }: { onClose: () => void; t: any; lang: st
           <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)', marginBottom: '0.75rem' }}>
             {paso === 1 ? t('Paso 1 de 2', 'Step 1 of 2') : t('Paso 2 de 2', 'Step 2 of 2')}
           </p>
-          <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(1.8rem, 4vw, 2.8rem)', fontWeight: 400, color: 'white', margin: '0 0 0.5rem', lineHeight: 1.1 }}>
+          <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(1.8rem, 4vw, 2.8rem)', fontWeight: 600, color: 'white', margin: '0 0 0.5rem', lineHeight: 1.1}}>
             {paso === 1 ? t('Que buscas?', 'What are you looking for?') : t('Para quien?', 'Who is it for?')}
           </h2>
           <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.7rem', fontWeight: 500, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.45)', margin: 0 }}>
@@ -90,7 +90,7 @@ function QuizModal({ onClose, t, lang }: { onClose: () => void; t: any; lang: st
               <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.05) 100%)' }}/>
               <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '1.5rem', textAlign: 'left' }}>
                 {paso === 1 && (card as any).icon && <div style={{ marginBottom: '0.75rem', opacity: 0.9 }}>{(card as any).icon}</div>}
-                <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(1.4rem, 3vw, 2rem)', fontWeight: 400, color: 'white', margin: '0 0 0.4rem', lineHeight: 1.1 }}>{(card as any).title}</h3>
+                <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(1.4rem, 3vw, 2rem)', fontWeight: 600, color: 'white', margin: '0 0 0.4rem', lineHeight: 1.1}}>{(card as any).title}</h3>
                 <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.8rem', color: 'rgba(255,255,255,0.7)', margin: '0 0 1.25rem', lineHeight: 1.5 }}>{(card as any).desc}</p>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <span style={{ fontFamily: 'var(--font-sans)', fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'white' }}>{t('EXPLORAR', 'EXPLORE')}</span>
@@ -143,7 +143,7 @@ export default function Home() {
           <div style={{ padding: '0 1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '1rem' }}>
             <div>
               <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.62rem', fontWeight: 500, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--warm-gray)', marginBottom: '4px' }}>{t('Esta semana', 'This week')}</p>
-              <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', fontWeight: 300, color: 'var(--charcoal)', margin: 0, lineHeight: 1.1 }}>{t('Armazones destacados', 'Featured frames')}</h2>
+              <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', fontWeight: 600, color: 'var(--charcoal)', margin: 0, lineHeight: 1.1}}>{t('Armazones destacados', 'Featured frames')}</h2>
             </div>
             <Link href="/Tienda" style={{ fontFamily: 'var(--font-sans)', fontSize: '0.7rem', color: 'var(--warm-gray)', textDecoration: 'none', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>{t('Ver todos', 'View all')}</Link>
           </div>
@@ -164,7 +164,7 @@ export default function Home() {
                     {a.badge && <div style={{ position: 'absolute', top: '8px', left: '8px', fontFamily: 'var(--font-sans)', fontSize: '0.6rem', fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--charcoal)', background: 'var(--cream)', padding: '3px 7px', border: '1px solid var(--border)', borderRadius: '2px' }}>{nombreBadge(a.badge, lang)}</div>}
                   </div>
                   <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.6rem', fontWeight: 400, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--warm-gray)', margin: '0 0 2px' }}>{a.forma}</p>
-                  <p style={{ fontFamily: 'var(--font-serif)', fontSize: '0.95rem', fontWeight: 300, color: 'var(--charcoal)', margin: '0 0 4px', lineHeight: 1.2 }}>{a.nombre}</p>
+                  <p style={{ fontFamily: 'var(--font-serif)', fontSize: '0.95rem', fontWeight: 600, color: 'var(--charcoal)', margin: '0 0 4px', lineHeight: 1.2}}>{a.nombre}</p>
                   <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.82rem', fontWeight: 500, color: 'var(--charcoal)', margin: 0 }}>${a.precio} <span style={{ fontWeight: 400, color: 'var(--warm-gray)', fontSize: '0.7rem' }}>USD</span></p>
                 </div>
               </Link>
@@ -179,7 +179,7 @@ export default function Home() {
           <img src="/hero-mobile.jpg" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top' }}/>
           <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(28,28,26,0.72) 0%, rgba(28,28,26,0.3) 55%, rgba(28,28,26,0.0) 100%)' }}/>
           <div style={{ position: 'absolute', bottom: '1.75rem', left: '1.5rem', right: '40%' }}>
-            <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.6rem', fontWeight: 300, color: 'white', lineHeight: 1.15, margin: '0 0 0.5rem', letterSpacing: '-0.01em' }}>
+            <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.6rem', fontWeight: 600, color: 'white', lineHeight: 1.15, margin: '0 0 0.5rem', letterSpacing: '-0.01em' }}>
               {lang === 'es'
                 ? <>Lentes graduados<br />desde <em style={{ fontStyle: 'italic', color: 'rgba(255,255,255,0.7)' }}>$28.</em></>
                 : <>Prescription glasses<br />from <em style={{ fontStyle: 'italic', color: 'rgba(255,255,255,0.7)' }}>$28.</em></>}
@@ -207,7 +207,7 @@ export default function Home() {
                     <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.6rem', fontWeight: 600, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)', margin: '0 0 0.35rem' }}>
                       {lang === 'es' ? c.sub_es : c.sub_en}
                     </p>
-                    <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '2rem', fontWeight: 400, color: 'white', margin: '0 0 0.75rem', lineHeight: 1, letterSpacing: '-0.02em' }}>
+                    <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '2rem', fontWeight: 600, color: 'white', margin: '0 0 0.75rem', lineHeight: 1, letterSpacing: '-0.02em' }}>
                       {lang === 'es' ? c.titulo_es : c.titulo_en}
                     </h3>
                     <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
@@ -225,9 +225,9 @@ export default function Home() {
         <section style={{ margin: '0 1.25rem 2.5rem', background: 'var(--charcoal)', borderRadius: '10px', padding: '2rem 1.5rem', position: 'relative', overflow: 'hidden' }}>
           <div style={{ position: 'absolute', top: '-40px', right: '-40px', width: '160px', height: '160px', borderRadius: '50%', background: 'rgba(74,89,64,0.15)', pointerEvents: 'none' }}/>
           <div style={{ position: 'relative', zIndex: 1 }}>
-            <p style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', fontWeight: 300, color: 'white', lineHeight: 1.15, margin: '0 0 0.4rem' }}>{t('Tu primer par.', 'Your first pair.')}</p>
-            <p style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', fontWeight: 300, fontStyle: 'italic', color: 'rgba(255,255,255,0.55)', margin: '0 0 1rem', lineHeight: 1.15 }}>{t('Nuestro mejor precio.', 'Our best price.')}</p>
-            <button onClick={() => setQuizOpen(true)} style={{ display: 'inline-block', fontFamily: 'var(--font-sans)', fontSize: '0.68rem', fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--charcoal)', background: 'white', padding: '0.75rem 1.5rem', borderRadius: '2px', border: 'none', cursor: 'pointer' }}>
+            <p style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', fontWeight: 600, color: 'white', lineHeight: 1.15, margin: '0 0 0.4rem'}}>{t('Tu primer par.', 'Your first pair.')}</p>
+            <p style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', fontWeight: 600, fontStyle: 'italic', color: 'rgba(255,255,255,0.55)', margin: '0 0 1rem', lineHeight: 1.15}}>{t('Nuestro mejor precio.', 'Our best price.')}</p>
+            <button onClick={() => setQuizOpen(true)} style={{ display: 'inline-block', fontFamily: 'var(--font-sans)', fontSize: '0.68rem', fontWeight: 500, letterSpacing: '0', color: 'var(--charcoal)', background: 'white', padding: '0.75rem 1.5rem', borderRadius: '999px', border: 'none', cursor: 'pointer' }}>
               {t('Encontrar mi par', 'Find my frames')}
             </button>
           </div>
@@ -261,7 +261,7 @@ export default function Home() {
           <p style={{ fontFamily: 'var(--font-sans)', fontSize: '11px', fontWeight: 500, letterSpacing: '2.5px', textTransform: 'uppercase', color: 'var(--sage)', marginBottom: '1.25rem' }}>
             {t('Estilo atemporal. Confianza diaria.', 'Timeless style. Everyday confidence.')}
           </p>
-          <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(3.5rem, 5.5vw, 5rem)', fontWeight: 400, lineHeight: 1.05, letterSpacing: '-0.02em', color: 'var(--charcoal)', marginBottom: '1.25rem', maxWidth: '580px' }}>
+          <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(3.5rem, 5.5vw, 5rem)', fontWeight: 600, lineHeight: 1.05, letterSpacing: '-0.02em', color: 'var(--charcoal)', marginBottom: '1.25rem', maxWidth: '580px' }}>
             {lang === 'es'
               ? <>Lentes graduados<br />desde <em style={{ fontStyle: 'italic', color: 'var(--sage)' }}>$28.</em></>
               : <>Prescription glasses<br />from <em style={{ fontStyle: 'italic', color: 'var(--sage)' }}>$28.</em></>}
@@ -270,10 +270,10 @@ export default function Home() {
             {t('Armazones de calidad. Micas graduadas. Precios justos.', 'Quality frames. Prescription lenses. Fair prices.')}
           </p>
           <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-            <Link href="/Tienda?tipo=optico" style={{ background: 'var(--sage)', color: 'white', padding: '15px 36px', borderRadius: '3px', fontFamily: 'var(--font-sans)', fontSize: '12px', fontWeight: 500, letterSpacing: '1.2px', textTransform: 'uppercase', textDecoration: 'none', display: 'inline-block', cursor: 'pointer' }}>
+            <Link href="/Tienda?tipo=optico" style={{ background: 'var(--sage)', color: 'white', padding: '15px 36px', borderRadius: '999px', fontFamily: 'var(--font-sans)', fontSize: '12px', fontWeight: 500, letterSpacing: '0', textDecoration: 'none', display: 'inline-block', cursor: 'pointer' }}>
               {t('Ver lentes graduados', 'Shop eyeglasses')}
             </Link>
-            <button onClick={() => setQuizOpen(true)} style={{ background: 'rgba(255,255,255,0.8)', color: 'var(--charcoal)', padding: '14px 28px', borderRadius: '3px', fontFamily: 'var(--font-sans)', fontSize: '12px', fontWeight: 500, letterSpacing: '1px', textTransform: 'uppercase', border: '1px solid var(--border)', cursor: 'pointer', backdropFilter: 'blur(8px)' }}>
+            <button onClick={() => setQuizOpen(true)} style={{ background: 'rgba(255,255,255,0.8)', color: 'var(--charcoal)', padding: '14px 28px', borderRadius: '999px', fontFamily: 'var(--font-sans)', fontSize: '12px', fontWeight: 500, letterSpacing: '0', border: '1px solid var(--border)', cursor: 'pointer', backdropFilter: 'blur(8px)' }}>
               {t('Encontrar mi par', 'Find my frames')}
             </button>
           </div>
@@ -358,7 +358,7 @@ export default function Home() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2.5rem' }}>
             <div>
               <p style={{ fontFamily: 'var(--font-sans)', fontSize: '10px', fontWeight: 600, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--sage)', margin: '0 0 6px' }}>{t('Best sellers', 'Best sellers')}</p>
-              <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(1.8rem, 3vw, 2.4rem)', fontWeight: 400, color: 'var(--charcoal)', margin: 0 }}>{t('Los mas populares', 'Most popular')}</h2>
+              <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(1.8rem, 3vw, 2.4rem)', fontWeight: 600, color: 'var(--charcoal)', margin: 0}}>{t('Los mas populares', 'Most popular')}</h2>
             </div>
             <Link href="/Tienda" style={{ fontFamily: 'var(--font-sans)', fontSize: '12px', color: 'var(--warm-gray)', textDecoration: 'none', letterSpacing: '0.06em', display: 'flex', alignItems: 'center', gap: '6px' }}>
               {t('Ver todos', 'View all')} <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
@@ -388,7 +388,7 @@ export default function Home() {
                     {a.badge && <div style={{ position: 'absolute', top: '10px', left: '10px', fontSize: '0.55rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', padding: '3px 8px', borderRadius: '3px', background: '#1d1d1d', color: 'white' }}>{nombreBadge(a.badge, lang)}</div>}
                   </div>
                   <div style={{ padding: '1rem 1.1rem 1.1rem' }}>
-                    <div style={{ fontFamily: 'var(--font-serif)', fontSize: '1.05rem', fontWeight: 400, color: '#1d1d1d', marginBottom: '6px' }}>{a.nombre}</div>
+                    <div style={{ fontFamily: 'var(--font-serif)', fontSize: '1.05rem', fontWeight: 600, color: '#1d1d1d', marginBottom: '6px'}}>{a.nombre}</div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <div style={{ fontSize: '0.88rem', fontWeight: 600, color: '#1d1d1d' }}>${a.precio}</div>
                       <div style={{ fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--sage)' }}>{t('Ver', 'View')}</div>
@@ -416,7 +416,7 @@ export default function Home() {
                   <img src={c.img} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 20%', transition: 'transform 0.7s ease' }}/>
                   <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.0) 55%)' }}/>
                   <div style={{ position: 'absolute', bottom: '2rem', left: '2rem' }}>
-                    <div style={{ fontFamily: 'var(--font-serif)', fontSize: '2.2rem', fontWeight: 400, color: 'white', lineHeight: 1, marginBottom: '0.6rem' }}>
+                    <div style={{ fontFamily: 'var(--font-serif)', fontSize: '2.2rem', fontWeight: 600, color: 'white', lineHeight: 1, marginBottom: '0.6rem'}}>
                       {lang === 'es' ? c.titulo_es : c.titulo_en}
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -436,7 +436,7 @@ export default function Home() {
         <Reveal>
           <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
             <p style={{ fontFamily: 'var(--font-sans)', fontSize: '10px', fontWeight: 600, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--sage)', marginBottom: '0.75rem' }}>FAQ</p>
-            <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(1.8rem, 3vw, 2.4rem)', fontWeight: 400, color: 'var(--charcoal)', margin: 0 }}>{t('Preguntas frecuentes', 'Common questions')}</h2>
+            <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(1.8rem, 3vw, 2.4rem)', fontWeight: 600, color: 'var(--charcoal)', margin: 0}}>{t('Preguntas frecuentes', 'Common questions')}</h2>
           </div>
         </Reveal>
         {[

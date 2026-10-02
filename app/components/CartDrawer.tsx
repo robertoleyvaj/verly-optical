@@ -66,8 +66,8 @@ function ResolverReceta({ item }: { item: CartItem }) {
         <div>
           <FormReceta receta={receta} onChange={setReceta} errores={errores} t={t} />
           <div style={{ display: 'flex', gap: '6px', marginTop: '8px' }}>
-            <button onClick={guardarManual} style={{ flex: 1, background: TURQUESA, color: 'white', border: 'none', borderRadius: '6px', padding: '10px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--font-sans)' }}>{t('Guardar receta', 'Save prescription')}</button>
-            <button onClick={() => setModo('opciones')} style={{ background: '#f5f3ef', color: '#6f6a63', border: 'none', borderRadius: '6px', padding: '10px 12px', fontSize: '12px', cursor: 'pointer', fontFamily: 'var(--font-sans)' }}>{t('Atrás', 'Back')}</button>
+            <button onClick={guardarManual} style={{ flex: 1, background: TURQUESA, color: 'white', border: 'none', borderRadius: '999px', padding: '10px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--font-sans)' }}>{t('Guardar receta', 'Save prescription')}</button>
+            <button onClick={() => setModo('opciones')} style={{ background: '#f5f3ef', color: '#6f6a63', border: 'none', borderRadius: '999px', padding: '10px 12px', fontSize: '12px', cursor: 'pointer', fontFamily: 'var(--font-sans)' }}>{t('Atrás', 'Back')}</button>
           </div>
         </div>
       )}
@@ -127,8 +127,8 @@ function ItemCard({ item, onRemove }: { item: CartItem; onRemove: () => void }) 
                 placeholder={t('Nombre...', 'Name...')}
                 style={{ flex: 1, padding: '4px 8px', borderRadius: '6px', border: '1.5px solid #55624c', fontSize: '12px', fontFamily: 'var(--font-sans)', outline: 'none' }}
               />
-              <button onClick={guardarNombre} style={{ background: '#55624c', color: 'white', border: 'none', borderRadius: '6px', padding: '4px 10px', fontSize: '11px', fontWeight: 600, cursor: 'pointer' }}>✓</button>
-              <button onClick={() => setEditandoPaciente(false)} style={{ background: '#f5f3ef', color: '#6f6a63', border: 'none', borderRadius: '6px', padding: '4px 8px', fontSize: '11px', cursor: 'pointer' }}>✕</button>
+              <button onClick={guardarNombre} style={{ background: '#55624c', color: 'white', border: 'none', borderRadius: '999px', padding: '4px 10px', fontSize: '11px', fontWeight: 600, cursor: 'pointer' }}>✓</button>
+              <button onClick={() => setEditandoPaciente(false)} style={{ background: '#f5f3ef', color: '#6f6a63', border: 'none', borderRadius: '999px', padding: '4px 8px', fontSize: '11px', cursor: 'pointer' }}>✕</button>
             </div>
           ) : (
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
@@ -145,7 +145,7 @@ function ItemCard({ item, onRemove }: { item: CartItem; onRemove: () => void }) 
             </div>
           )}
 
-          <div style={{ fontFamily: 'var(--font-serif)', fontSize: '1rem', fontWeight: 400, color: '#1d1d1d', marginBottom: '4px', lineHeight: 1.2 }}>{item.armazon_nombre}</div>
+          <div style={{ fontFamily: 'var(--font-serif)', fontSize: '1rem', fontWeight: 600, color: '#1d1d1d', marginBottom: '4px', lineHeight: 1.2}}>{item.armazon_nombre}</div>
           {item.armazon_color && (
             <div style={{ fontSize: '11px', color: '#6f6a63', marginBottom: '4px' }}>
               {t('Color', 'Color')}: <span style={{ color: '#1d1d1d', fontWeight: 500 }}>{nombreColor(item.armazon_color.nombre, lang)}</span>
@@ -182,7 +182,7 @@ function ItemCard({ item, onRemove }: { item: CartItem; onRemove: () => void }) 
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px', flexShrink: 0 }}>
-          <div style={{ fontFamily: 'var(--font-serif)', fontSize: '1.1rem', fontWeight: 400, color: '#1d1d1d' }}>${item.precio_total}</div>
+          <div style={{ fontFamily: 'var(--font-serif)', fontSize: '1.1rem', fontWeight: 600, color: '#1d1d1d'}}>${item.precio_total}</div>
           <button onClick={onRemove} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9a9a9a', fontSize: '11px', fontFamily: 'var(--font-sans)', textDecoration: 'underline', padding: 0 }}>
             {t('Eliminar', 'Remove')}
           </button>
@@ -298,7 +298,7 @@ export default function CartDrawer() {
         {/* Header */}
         <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid #f0ede8', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.2rem', fontWeight: 400, margin: 0, color: '#1d1d1d' }}>
+            <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.2rem', fontWeight: 600, margin: 0, color: '#1d1d1d'}}>
               {t('Tu carrito', 'Your cart')}
             </h3>
             {totalItems > 0 && (
@@ -317,7 +317,7 @@ export default function CartDrawer() {
               <div style={{ marginBottom: '1rem', opacity: 0.3 }}>
                 <svg width="48" height="28" viewBox="0 0 160 90" fill="none"><rect x="4" y="12" width="64" height="66" rx="14" stroke="#1d1d1d" strokeWidth="3"/><rect x="92" y="12" width="64" height="66" rx="14" stroke="#1d1d1d" strokeWidth="3"/><path d="M68 38 C72 32, 88 32, 92 38" stroke="#1d1d1d" strokeWidth="2.5" fill="none" strokeLinecap="round"/></svg>
               </div>
-              <p style={{ fontFamily: 'var(--font-serif)', fontSize: '1.2rem', fontWeight: 300, color: '#1d1d1d', marginBottom: '0.5rem' }}>
+              <p style={{ fontFamily: 'var(--font-serif)', fontSize: '1.2rem', fontWeight: 600, color: '#1d1d1d', marginBottom: '0.5rem'}}>
                 {t('Tu carrito está vacío', 'Your cart is empty')}
               </p>
               <p style={{ fontSize: '13px', color: '#9a9a9a', marginBottom: '1.5rem' }}>
@@ -392,7 +392,7 @@ export default function CartDrawer() {
             {/* Total */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '1.25rem', paddingTop: '0.75rem', borderTop: '1px solid #f0ede8' }}>
               <span style={{ fontFamily: 'var(--font-sans)', fontSize: '13px', fontWeight: 600, color: '#1d1d1d', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Total</span>
-              <span style={{ fontFamily: 'var(--font-serif)', fontSize: '1.6rem', fontWeight: 400, color: '#1d1d1d' }}>
+              <span style={{ fontFamily: 'var(--font-serif)', fontSize: '1.6rem', fontWeight: 600, color: '#1d1d1d'}}>
                 {cupon && cupon.descuento > 0 && <span style={{ fontSize: '1rem', color: '#9a9a9a', textDecoration: 'line-through', marginRight: '8px' }}>${totalPrecio}</span>}
                 {dinero(totalConEnvio)} <span style={{ fontSize: '0.75rem', color: '#9a9a9a', fontFamily: 'var(--font-sans)' }}>USD</span>
               </span>

@@ -159,7 +159,7 @@ export default function Asistente({ onClose, t, lang }: { onClose: () => void; t
                 {color && chip(opcionesColor.find(o => o.val === color)?.label || '')}
               </div>
             )}
-            <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(1.7rem, 4vw, 2.4rem)', fontWeight: 400, color: 'white', margin: '0 0 0.35rem', lineHeight: 1.1 }}>{tituloPaso}</h2>
+            <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(1.7rem, 4vw, 2.4rem)', fontWeight: 600, color: 'white', margin: '0 0 0.35rem', lineHeight: 1.1}}>{tituloPaso}</h2>
             {subPaso && <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.82rem', color: 'rgba(255,255,255,0.55)', margin: 0 }}>{subPaso}</p>}
           </div>
 

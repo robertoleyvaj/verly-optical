@@ -108,7 +108,7 @@ export default function Lenses() {
             <p style={{ fontSize: '0.57rem', fontWeight: 700, letterSpacing: '0.24em', textTransform: 'uppercase', color: 'var(--warm-gray)', margin: '0 0 0.75rem' }}>
               VERLY OPTICAL — LENSES
             </p>
-            <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: esMobil ? '3rem' : '5rem', fontWeight: 300, letterSpacing: '-0.03em', margin: '0 0 1rem', lineHeight: 1.0, color: 'var(--charcoal)' }}>
+            <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: esMobil ? '3rem' : '5rem', fontWeight: 600, letterSpacing: '-0.03em', margin: '0 0 1rem', lineHeight: 1.0, color: 'var(--charcoal)' }}>
               {lang === 'es' ? 'Tus micas,\na tu medida.' : 'Your lenses,\nyour way.'}
             </h1>
             <div style={{ width: '32px', height: '1px', background: 'var(--sage)', margin: '0 0 1.25rem' }}/>
@@ -135,7 +135,7 @@ export default function Lenses() {
                 { paso: '05', label: lang === 'es' ? 'Tu receta' : 'Your prescription', sub: lang === 'es' ? 'Manual, foto o después' : 'Manual, photo or later' },
               ].map((s, i) => (
                 <div key={i} style={{ background: 'var(--cream)', padding: '1rem 1.25rem', display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-                  <span style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', fontWeight: 300, color: 'var(--border)', minWidth: '32px' }}>{s.paso}</span>
+                  <span style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', fontWeight: 600, color: 'var(--border)', minWidth: '32px'}}>{s.paso}</span>
                   <div>
                     <div style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--charcoal)', marginBottom: '2px' }}>{s.label}</div>
                     <div style={{ fontSize: '0.72rem', color: 'var(--warm-gray)' }}>{s.sub}</div>
@@ -152,7 +152,7 @@ export default function Lenses() {
         <p style={{ fontSize: '0.57rem', fontWeight: 700, letterSpacing: '0.24em', textTransform: 'uppercase', color: 'var(--warm-gray)', margin: '0 0 0.5rem' }}>
           {lang === 'es' ? 'PASO 1' : 'STEP 1'}
         </p>
-        <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: esMobil ? '2rem' : '3rem', fontWeight: 300, letterSpacing: '-0.02em', margin: '0 0 0.75rem', color: 'var(--charcoal)' }}>
+        <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: esMobil ? '2rem' : '3rem', fontWeight: 600, letterSpacing: '-0.02em', margin: '0 0 0.75rem', color: 'var(--charcoal)' }}>
           {lang === 'es' ? 'Tipo de visión' : 'Vision type'}
         </h2>
         <p style={{ fontSize: '0.88rem', color: 'var(--warm-gray)', margin: '0 0 3rem', lineHeight: 1.7, maxWidth: '480px' }}>
@@ -169,7 +169,7 @@ export default function Lenses() {
                 </div>
               )}
               <div style={{ color: 'var(--sage)', marginBottom: '1.25rem' }}>{v.icono}</div>
-              <div style={{ fontFamily: 'var(--font-serif)', fontSize: esMobil ? '1.4rem' : '1.8rem', fontWeight: 300, color: 'var(--charcoal)', marginBottom: '0.25rem', letterSpacing: '-0.01em' }}>
+              <div style={{ fontFamily: 'var(--font-serif)', fontSize: esMobil ? '1.4rem' : '1.8rem', fontWeight: 600, color: 'var(--charcoal)', marginBottom: '0.25rem', letterSpacing: '-0.01em' }}>
                 {lang === 'es' ? v.nombre_es : v.nombre_en}
               </div>
               <div style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--sage)', marginBottom: '0.75rem' }}>+${v.precio} USD</div>
@@ -191,7 +191,7 @@ export default function Lenses() {
           <p style={{ fontSize: '0.57rem', fontWeight: 700, letterSpacing: '0.24em', textTransform: 'uppercase', color: 'var(--warm-gray)', margin: '0 0 0.5rem' }}>
             {lang === 'es' ? 'PASO 2' : 'STEP 2'}
           </p>
-          <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: esMobil ? '2rem' : '3rem', fontWeight: 300, letterSpacing: '-0.02em', margin: '0 0 0.75rem', color: 'var(--charcoal)' }}>
+          <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: esMobil ? '2rem' : '3rem', fontWeight: 600, letterSpacing: '-0.02em', margin: '0 0 0.75rem', color: 'var(--charcoal)' }}>
             {lang === 'es' ? 'Material de la mica' : 'Lens material'}
           </h2>
           <p style={{ fontSize: '0.88rem', color: 'var(--warm-gray)', margin: '0 0 3rem', lineHeight: 1.7, maxWidth: '480px' }}>
@@ -265,7 +265,7 @@ export default function Lenses() {
         <p style={{ fontSize: '0.57rem', fontWeight: 700, letterSpacing: '0.24em', textTransform: 'uppercase', color: 'var(--warm-gray)', margin: '0 0 0.5rem' }}>
           {lang === 'es' ? 'PASO 3' : 'STEP 3'}
         </p>
-        <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: esMobil ? '2rem' : '3rem', fontWeight: 300, letterSpacing: '-0.02em', margin: '0 0 0.75rem', color: 'var(--charcoal)' }}>
+        <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: esMobil ? '2rem' : '3rem', fontWeight: 600, letterSpacing: '-0.02em', margin: '0 0 0.75rem', color: 'var(--charcoal)' }}>
           {lang === 'es' ? 'Filtros y protecciones' : 'Filters & coatings'}
         </h2>
         <p style={{ fontSize: '0.88rem', color: 'var(--warm-gray)', margin: '0 0 3rem', lineHeight: 1.7, maxWidth: '480px' }}>
@@ -300,7 +300,7 @@ export default function Lenses() {
       <div style={{ background: 'var(--cream-dark)', borderTop: '1px solid var(--border)', padding: esMobil ? '3rem 1.5rem' : '4rem 5rem' }}>
         <div style={{ maxWidth: '1360px', margin: '0 auto', display: 'grid', gridTemplateColumns: esMobil ? '1fr' : '1fr 1fr', gap: esMobil ? '2.5rem' : '4rem' }}>
           <div>
-            <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: esMobil ? '1.5rem' : '2rem', fontWeight: 300, color: 'var(--charcoal)', margin: '0 0 1.5rem', letterSpacing: '-0.01em' }}>
+            <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: esMobil ? '1.5rem' : '2rem', fontWeight: 600, color: 'var(--charcoal)', margin: '0 0 1.5rem', letterSpacing: '-0.01em' }}>
               {lang === 'es' ? 'Preguntas frecuentes' : 'Quick questions'}
             </h3>
             {[
@@ -318,7 +318,7 @@ export default function Lenses() {
           <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
             <div style={{ background: 'var(--sage)', borderRadius: '4px', padding: '2.5rem' }}>
               <p style={{ fontSize: '0.57rem', fontWeight: 700, letterSpacing: '0.24em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', margin: '0 0 0.6rem' }}>Verly Optical</p>
-              <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: esMobil ? '1.6rem' : '2rem', fontWeight: 300, color: 'white', margin: '0 0 1rem', lineHeight: 1.2, letterSpacing: '-0.01em' }}>
+              <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: esMobil ? '1.6rem' : '2rem', fontWeight: 600, color: 'white', margin: '0 0 1rem', lineHeight: 1.2, letterSpacing: '-0.01em' }}>
                 {lang === 'es' ? '¿No sabes qué elegir?' : "Not sure what to pick?"}
               </h3>
               <p style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.6)', lineHeight: 1.75, margin: '0 0 1.75rem' }}>

@@ -15,6 +15,11 @@ const MATERIAL: Record<string, { es: string; en: string }> = {
   'TRES PIEZAS': { es: 'Tres piezas', en: 'Rimless' },
   'AL AIRE': { es: 'Al aire', en: 'Semi-rimless' },
   PLASTICO: { es: 'Plástico', en: 'Plastic' },
+  ULTEM: { es: 'Ultem', en: 'Ultem' },
+  'B-ULTEM': { es: 'Ultem', en: 'Ultem' },
+  'BETA ULTEM': { es: 'Ultem', en: 'Ultem' },
+  'TR 90': { es: 'TR-90', en: 'TR-90' },
+  ACERO: { es: 'Acero', en: 'Stainless steel' },
 }
 
 // Clave común para filtrar sin importar mayúsculas/acentos/idioma ("METÁLICO" = "Metálico" = "Metal")

@@ -63,7 +63,7 @@ export function PromoAncho({ clave, margen = '0', enGrid = false, compacto = fal
       <style>{`
         .pa{position:relative;display:block;overflow:hidden;text-decoration:none}
         .pa img{display:block;width:100%;height:clamp(220px,19vw,320px);object-fit:cover}
-        .pa-grid{grid-column:1/-1;border-radius:20px;margin:6px 0 !important}
+        .pa-grid{grid-column:1/-1;border-radius:4px;margin:6px 0 !important}
         .pa-grid .pa-tx{left:40px}
         .pa-comp{border-radius:6px}
         .pa-comp img{height:210px}
@@ -106,7 +106,7 @@ export function PromoVertical({ clave }: { clave: Clave }) {
         <span className="pv-cta">{p.txt.cta[i]} →</span>
       </div>
       <style>{`
-        .pv{position:relative;display:block;grid-row:span 2;border-radius:20px;overflow:hidden;text-decoration:none;color:var(--charcoal);min-height:420px}
+        .pv{position:relative;display:block;grid-row:span 2;border-radius:4px;overflow:hidden;text-decoration:none;color:var(--charcoal);min-height:420px}
         .pv img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
         .pv::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(247,244,239,.95) 0%,rgba(247,244,239,.8) 22%,rgba(247,244,239,0) 40%)}
         .pv-tx{position:relative;z-index:1;padding:24px 22px}
@@ -114,7 +114,7 @@ export function PromoVertical({ clave }: { clave: Clave }) {
         .pv h3{font-size:1.55rem;font-weight:500;letter-spacing:-.03em;line-height:1.08;margin:0 0 8px;color:inherit}
         .pv p{font-size:13px;line-height:1.5;margin:0 0 12px;opacity:.85}
         .pv-cta{font-size:12.5px;font-weight:500;border-bottom:1px solid currentColor;padding-bottom:2px}
-        @media (max-width:900px){.pv{border-radius:16px}.pv-tx{padding:16px 14px}.pv h3{font-size:1.2rem}.pv p{font-size:12px}}
+        @media (max-width:900px){.pv{}.pv-tx{padding:16px 14px}.pv h3{font-size:1.2rem}.pv p{font-size:12px}}
       `}</style>
     </Link>
   );

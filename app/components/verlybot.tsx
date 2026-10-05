@@ -226,6 +226,15 @@ export default function VerlyBot() {
 
   // ── PANEL ABIERTO (lentes o carrito) → el asistente se mueve a la izquierda ──
   const { cartOpen } = useCart();
+  // En celular: se esconde mientras la persona hace scroll, para no tapar el contenido
+  const [scrolleando, setScrolleando] = useState(false);
+  useEffect(() => {
+    if (!esMobil) return;
+    let tm: ReturnType<typeof setTimeout>;
+    const onScroll = () => { setScrolleando(true); clearTimeout(tm); tm = setTimeout(() => setScrolleando(false), 900); };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => { window.removeEventListener('scroll', onScroll); clearTimeout(tm); };
+  }, [esMobil]);
   const [panelLentes, setPanelLentes] = useState(false);
   useEffect(() => {
     const leer = () => setPanelLentes(document.body.dataset.panelLentes === '1');
@@ -350,7 +359,7 @@ export default function VerlyBot() {
   const ladoX = lado === 'left' ? 24 : pos.x;
 
   const bottonStyle: React.CSSProperties = esMobil
-    ? { position: 'fixed', bottom: '90px', right: '16px', zIndex: 999 }
+    ? { position: 'fixed', bottom: '90px', right: '12px', zIndex: 999, transition: 'opacity .25s, transform .25s', opacity: scrolleando && !abierto ? 0 : 1, transform: scrolleando && !abierto ? 'translateX(20px)' : 'none', pointerEvents: scrolleando && !abierto ? 'none' : 'auto' }
     : { position: 'fixed', bottom: `${pos.y}px`, [lado]: `${ladoX}px`, zIndex: 999 };
 
   const chatStyle: React.CSSProperties = esMobil
@@ -457,8 +466,8 @@ export default function VerlyBot() {
           onMouseDown={onMouseDown}
           onClick={handleClick}
           style={{
-            width: '56px',
-            height: '56px',
+            width: esMobil ? '46px' : '56px',
+            height: esMobil ? '46px' : '56px',
             borderRadius: '50%',
             background: 'white',
             border: '2px solid var(--border)',
@@ -474,7 +483,7 @@ export default function VerlyBot() {
           onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.boxShadow = '0 8px 28px rgba(0,0,0,0.18)'; (e.currentTarget as HTMLDivElement).style.transform = 'scale(1.05)'; }}
           onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.boxShadow = '0 4px 20px rgba(0,0,0,0.12)'; (e.currentTarget as HTMLDivElement).style.transform = 'scale(1)'; }}
         >
-          <VerlyAvatar expresion={abierto ? 'feliz' : expresion} size={40}/>
+          <VerlyAvatar expresion={abierto ? 'feliz' : expresion} size={esMobil ? 32 : 40}/>
         </div>
 
         {/* Dot verde */}

@@ -37,7 +37,7 @@ const estilos = `
   body { margin: 0; padding: 0; background: #F7F4EF; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
   .wrapper { max-width: 560px; margin: 0 auto; padding: 40px 20px; }
   .card { background: white; border-radius: 8px; border: 1px solid #E2DDD6; overflow: hidden; }
-  .header { background: #1C1C1A; padding: 32px 40px; text-align: center; }
+  .header { background: #1F3D2C; padding: 32px 40px; text-align: center; }
   .header img { height: 32px; }
   .body { padding: 40px; }
   .title { font-family: Georgia, 'Times New Roman', serif; font-size: 24px; font-weight: 300; color: #1C1C1A; margin: 0 0 12px; line-height: 1.3; }
@@ -52,7 +52,8 @@ const estilos = `
   .footer-text { font-size: 11px; color: #8C8680; line-height: 1.7; margin: 0; }
 `;
 
-const logo = `${BASE_URL}/logo-trasparente.png`;
+// Logo de texto (sin isotipo), igual que en la página. Texto real: se ve aunque el correo bloquee imágenes.
+const logoTexto = `<div style="font-family:Helvetica,Arial,sans-serif;color:#ffffff;line-height:1"><div style="font-size:22px;font-weight:500;letter-spacing:8px;padding-left:8px">VERLY</div><div style="font-size:8px;font-weight:500;letter-spacing:4px;padding-left:4px;margin-top:6px;opacity:.8">OPTICAL</div></div>`;
 
 function footer() {
   return `
@@ -75,7 +76,7 @@ export async function enviarEmailCompra(order_id: number, cliente_email: string,
     <!DOCTYPE html><html><head><style>${estilos}</style></head><body>
     <div class="wrapper">
       <div class="card">
-        <div class="header"><img src="${logo}" alt="Verly Optical"/></div>
+        <div class="header">${logoTexto}</div>
         <div class="body">
           <p class="title">Thank you for<br/>your order, ${cliente_nombre.split(' ')[0]}!</p>
           <p class="text">We've received your order and our team will review it shortly. We'll notify you as soon as we start crafting your lenses.</p>
@@ -139,7 +140,7 @@ export async function enviarEmailCompraPedido(lineas: LineaCompra[], cliente_ema
     <!DOCTYPE html><html><head><style>${estilos}</style></head><body>
     <div class="wrapper">
       <div class="card">
-        <div class="header"><img src="${logo}" alt="Verly Optical"/></div>
+        <div class="header">${logoTexto}</div>
         <div class="body">
           <p class="title">Thank you for<br/>your order, ${nombre}!</p>
           <p class="text">We've received your payment. Our team will review your prescription and we'll email you as soon as we start crafting your lenses.</p>
@@ -199,7 +200,7 @@ export async function enviarEmailFabricacion(order_id: number, cliente_email: st
     <!DOCTYPE html><html><head><style>${estilos}</style></head><body>
     <div class="wrapper">
       <div class="card">
-        <div class="header"><img src="${logo}" alt="Verly Optical"/></div>
+        <div class="header">${logoTexto}</div>
         <div class="body">
           <p class="title">Your lenses are<br/>being crafted</p>
           <p class="text">Hi ${cliente_nombre.split(' ')[0]}, we've reviewed your prescription and started crafting your lenses. This process typically takes 2 to 4 business days.</p>
@@ -237,7 +238,7 @@ export async function enviarEmailEnviado(order_id: number, cliente_email: string
     <!DOCTYPE html><html><head><style>${estilos}</style></head><body>
     <div class="wrapper">
       <div class="card">
-        <div class="header"><img src="${logo}" alt="Verly Optical"/></div>
+        <div class="header">${logoTexto}</div>
         <div class="body">
           <p class="title">Your order<br/>is on its way!</p>
           <p class="text">Hi ${cliente_nombre.split(' ')[0]}, your order has been shipped and is on its way to you. Estimated delivery: 3 to 7 business days.</p>
@@ -280,7 +281,7 @@ export async function enviarEmailEntregado(order_id: number, cliente_email: stri
     <!DOCTYPE html><html><head><style>${estilos}</style></head><body>
     <div class="wrapper">
       <div class="card">
-        <div class="header"><img src="${logo}" alt="Verly Optical"/></div>
+        <div class="header">${logoTexto}</div>
         <div class="body">
           <p class="title">Your order<br/>has been delivered!</p>
           <p class="text">Hi ${cliente_nombre.split(' ')[0]}, we hope you love your new glasses! Remember you have a 90-day warranty and 30-day hassle-free returns.</p>
@@ -327,7 +328,7 @@ export async function enviarEmailSeguimiento(order_id: number, cliente_email: st
     <!DOCTYPE html><html><head><style>${estilos}</style></head><body>
     <div class="wrapper">
       <div class="card">
-        <div class="header"><img src="${logo}" alt="Verly Optical"/></div>
+        <div class="header">${logoTexto}</div>
         <div class="body">
           <p class="title">How are your<br/>new glasses?</p>
           <p class="text">Hi ${cliente_nombre.split(' ')[0]}, it's been 30 days since you received your order <span class="code" style="font-size:13px;">${code}</span>. We'd love to hear how everything's going.</p>

@@ -299,11 +299,12 @@ export default function Home() {
         }
         @media (max-width:768px){
           .vh{padding-top:106px}
-          /* Celular: foto completa arriba y una tarjeta crema que se monta sobre la orilla de abajo */
-          .vh-hero{background:var(--cream);overflow:visible}
-          .vh-hero img{height:auto;aspect-ratio:1/1;object-position:center 75%}
-          .vh-hero-tx{position:relative;inset:auto;margin-top:-44px;background:var(--cream);border-radius:22px 22px 0 0;padding:26px 1.25rem 8px;z-index:1}
-          .vh-hero h1{font-size:2rem;margin-bottom:10px}
+          /* Celular: todo sobre la foto. Título arriba (pared clara), botones abajo (piedra clara) */
+          .vh-hero img{height:auto;aspect-ratio:4/5;object-position:center}
+          .vh-hero::after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(to bottom,rgba(253,252,250,.85) 0%,rgba(253,252,250,0) 26%,rgba(253,252,250,0) 78%,rgba(253,252,250,.7) 100%)}
+          .vh-hero-tx{inset:0;justify-content:space-between;padding:22px 1.25rem 22px;z-index:1}
+          .vh-hero-tx > p{display:none}
+          .vh-hero h1{font-size:1.9rem;margin:0}
           .vh-hero p{font-size:14px;margin-bottom:18px;max-width:300px}
           .vh-btn{padding:12px 20px;font-size:13px}
           .vh-sec{padding:64px 1.25rem 0}

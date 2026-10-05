@@ -343,8 +343,10 @@ function TiendaContent() {
             {filtered.map((a, i) => (
               <Fragment key={a.id}>
                 <ArmazonCard a={a} t={t} lang={lang} colores={coloresPorModelo[a.id]} />
-                {i === 7 && filtered.length > 10 && <PromoVertical clave="fotocromatico" />}
-                {i === 19 && filtered.length > 24 && <PromoAncho clave="progresivos" enGrid />}
+                {/* Fotocromático arriba: después de 2 armazones, ocupa 2 filas */}
+                {i === 1 && filtered.length > 6 && <PromoVertical clave="fotocromatico" />}
+                {/* Progresivos entre la 3ª y 4ª fila (6 armazones junto al vertical + 4 de la 3ª) */}
+                {i === 9 && filtered.length > 12 && <PromoAncho clave="progresivos" enGrid />}
               </Fragment>
             ))}
           </div>

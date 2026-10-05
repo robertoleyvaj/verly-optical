@@ -10,8 +10,9 @@ import { supabase } from '../../lib/supabase';
 import { fbTrack } from '../../lib/fpixel';
 import { useCart, generateCartId } from '../../context/CartContext';
 import { swatchColor, nombreColor } from '../../lib/colores';
-import Garantias from '../../components/Garantias';
-import { entregaEstimada } from '../../lib/marca';
+import { entregaEstimada, GARANTIA_DIAS, DEVOLUCION_DIAS, DIAS_FABRICACION, DIAS_ENVIO } from '../../lib/marca';
+import { ENVIO_GRATIS_DESDE } from '../../lib/envio';
+import { FORMAS, AROS, normForma, tallaDeMedidas } from '../../lib/armazon-web';
 import { nombreMaterial, nombreBadge } from '../../lib/textos';
 
 type Armazon = {
@@ -21,6 +22,7 @@ type Armazon = {
   imagen4_url?: string; imagen5_url?: string; tipo?: string;
   material?: string; medidas?: string; talla?: string; descuento?: number;
   color1?: string; color2?: string; color3?: string; modelo?: string;
+  aro?: string | null; descripcion_es?: string | null; descripcion_en?: string | null; descuento_verly?: number | null;
 };
 
 type PaqueteVerly = {
@@ -455,7 +457,8 @@ export default function DetalleArmazon() {
   const { addItem, recetasSesion } = useCart();
   const [armazon, setArmazon] = useState<Armazon | null>(null);
   const viewContentRef = useRef<string | null>(null);
-  const [relacionados, setRelacionados] = useState<Armazon[]>([]);
+  type RelInfo = { id: number; nombre: string; precio: number; foto: string; colores: { color: string; hex?: string | null }[] };
+  const [relInfo, setRelInfo] = useState<RelInfo[]>([]);
   const [loading, setLoading] = useState(true);
   type ColorPub = {
     id?: number; sku?: string | null; color: string; hex?: string | null;
@@ -690,8 +693,26 @@ export default function DetalleArmazon() {
       const { data } = await supabase.from('armazones').select('*').eq('id', id).single();
       if (data) {
         setArmazon(data);
-        const { data: rel } = await supabase.from('armazones').select('*').eq('activo', true).eq('publicar_verly', true).neq('id', id).limit(6);
-        setRelacionados(rel || []);
+        // Recomendados: mismo tipo, con foto (del modelo o de algún color)
+        const { data: rel } = await supabase.from('armazones').select('*').eq('activo', true).eq('publicar_verly', true)
+          .eq('tipo', data.tipo || 'optico').neq('id', id).limit(30);
+        const relIds = (rel || []).map((a: any) => a.id);
+        if (relIds.length) {
+          const { data: rc } = await supabase.from('armazon_colores').select('armazon_id, color, hex, imagen_url, orden')
+            .in('armazon_id', relIds).eq('publicar_verly', true).order('orden');
+          const pm: Record<number, any[]> = {};
+          for (const c of rc || []) (pm[c.armazon_id] ||= []).push(c);
+          const mezclados = [...(rel || [])].sort(() => Math.random() - 0.5);
+          const out: RelInfo[] = [];
+          for (const a of mezclados as any[]) {
+            const cs = pm[a.id] || [];
+            const foto = a.imagen_url || cs.find(c => c.imagen_url)?.imagen_url;
+            if (!foto) continue;
+            out.push({ id: a.id, nombre: a.nombre, precio: precioArmazonFinal(a.precio, a.descuento_verly), foto, colores: cs.length ? cs : [{ color: a.color || '' }] });
+            if (out.length === 4) break;
+          }
+          setRelInfo(out);
+        }
         // Colores publicados en Verly de este modelo (con sus fotos)
         const { data: cols } = await supabase.from('armazon_colores')
           .select('*')
@@ -729,8 +750,12 @@ export default function DetalleArmazon() {
   const fotos = (fotosColor.length > 0
     ? fotosColor
     : [armazon?.imagen_url, armazon?.imagen2_url, armazon?.imagen3_url, armazon?.imagen4_url].filter(Boolean)) as string[];
-  const fotoLifestyle = armazon?.imagen5_url || null;
-  const partesMedidas = armazon?.medidas?.split('-') || [];
+  const partesMedidas = armazon?.medidas?.match(/\d{2,3}/g) || [];
+  const medidas = tallaDeMedidas(armazon?.medidas);
+  const fk = normForma(armazon?.forma);
+  const formaTxt = fk ? (FORMAS.find(f => f.v === fk)?.[lang === 'es' ? 'es' : 'en'] ?? '') : '';
+  const aroTxt = AROS.find(a => a.v === armazon?.aro)?.[lang === 'es' ? 'es' : 'en'] ?? '';
+  const descripcion = (lang === 'es' ? armazon?.descripcion_es : armazon?.descripcion_en) || armazon?.descripcion_es || '';
   // Agotado solo aplica al inventario nuevo (SKU VRL-1xxx); el viejo no lleva stock confiable por color
   const inventarioNuevo = /^VRL-1\d{3}$/.test(String((armazon as any)?.sku ?? ''));
   const stockColor = (c: ColorPub) => ['stock_baja', 'stock_mayo', 'stock_plaza', 'stock_online', 'bodega']
@@ -1162,312 +1187,184 @@ export default function DetalleArmazon() {
       </div>
 
       {/* ── BREADCRUMB ── */}
-      <div style={{ maxWidth: '1440px', margin: '72px auto 0', padding: '1rem 2rem', fontSize: '0.7rem', color: 'var(--warm-gray)', letterSpacing: '0.02em' }}>
-        <a href="/" style={{ color: 'var(--warm-gray)', textDecoration: 'none' }}>{t('Inicio', 'Home')}</a>
-        <span style={{ margin: '0 8px', opacity: 0.5 }}>›</span>
-        <a href={esSolar ? '/sunglasses' : '/Tienda'} style={{ color: 'var(--warm-gray)', textDecoration: 'none' }}>{esSolar ? 'Sunglasses' : t('Tienda', 'Store')}</a>
-        <span style={{ margin: '0 8px', opacity: 0.5 }}>›</span>
-        <span style={{ color: 'var(--charcoal)' }}>{armazon.nombre}</span>
+      <div className="va-crumb">
+        <a href="/">{t('Inicio', 'Home')}</a><span>/</span>
+        <a href={esSolar ? '/sunglasses' : '/Tienda'}>{esSolar ? 'Sunglasses' : t('Armazones', 'Frames')}</a><span>/</span>
+        <b>{armazon.nombre}</b>
       </div>
 
       {/* ── PRODUCTO PRINCIPAL ── */}
-      <div style={{ maxWidth: '1440px', margin: '0 auto', padding: esMobil ? '0 0 5rem' : '2rem 3rem 4rem' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: esMobil ? '1fr' : '1fr 440px', gap: esMobil ? '0' : '6rem', alignItems: 'start' }}>
-
-          {/* Galería */}
-          <div style={{ display: 'flex', flexDirection: esMobil ? 'column' : 'row', gap: '16px' }}>
-            {fotos.length > 1 && !esMobil && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '68px', flexShrink: 0 }}>
-                {fotos.map((foto, i) => (
-                  <button key={i} onClick={() => irFoto(i)} style={{ width: '68px', height: '68px', borderRadius: '999px', overflow: 'hidden', border: fotoActiva === i ? '2px solid var(--charcoal)' : '2px solid transparent', background: 'white', cursor: 'pointer', padding: 0, transition: 'all 0.2s', boxShadow: '0 1px 6px rgba(28,28,26,0.06)', opacity: fotoActiva === i ? 1 : 0.65 }}>
-                    <img src={foto} alt={`${armazon.nombre} ${i + 1}`} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '6px', boxSizing: 'border-box' }}/>
-                  </button>
-                ))}
-              </div>
-            )}
-
-            <div style={{ flex: 1, position: 'relative' }}>
-              <div
-                style={{ background: 'white', borderRadius: esMobil ? '0' : '16px', overflow: 'hidden', position: 'relative', aspectRatio: '1/1', boxShadow: esMobil ? 'none' : '0 2px 40px rgba(28,28,26,0.05)', cursor: fotos.length > 0 ? (esMobil ? 'pointer' : 'crosshair') : 'default', userSelect: 'none', WebkitUserSelect: 'none' }}
-                onMouseMove={e => { if (esMobil) return; const rect = e.currentTarget.getBoundingClientRect(); setPosZoom({ x: ((e.clientX - rect.left) / rect.width) * 100, y: ((e.clientY - rect.top) / rect.height) * 100 }); setZoomActivo(true); }}
-                onMouseLeave={() => setZoomActivo(false)}
-                onClick={() => { if (!esMobil && fotos.length > 0) setLightboxOpen(true); }}
-                onTouchStart={onTouchStartCarrusel}
-                onTouchMove={onTouchMoveCarrusel}
-                onTouchEnd={onTouchEndCarrusel}
-              >
-                <div style={{ display: 'flex', width: `${fotos.length * 100}%`, height: '100%', transform: `translateX(calc(${-fotoActiva * (100 / fotos.length)}% + ${swipeOffset / fotos.length}px))`, transition: isSwiping ? 'none' : 'transform 0.32s cubic-bezier(0.4,0,0.2,1)', willChange: 'transform' }}>
-                  {fotos.map((foto, i) => (
-                    <div key={i} style={{ width: `${100 / fotos.length}%`, height: '100%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <img src={foto} alt={`${armazon.nombre} ${i + 1}`} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: esMobil ? '1.5rem' : '3rem', boxSizing: 'border-box', transformOrigin: `${posZoom.x}% ${posZoom.y}%`, transform: (!esMobil && i === fotoActiva && zoomActivo) ? 'scale(1.9)' : 'scale(1)', transition: zoomActivo ? 'none' : 'transform 0.4s ease', pointerEvents: 'none' }} draggable={false}/>
-                    </div>
-                  ))}
+      <div className="va-main">
+        {/* Galería */}
+        <div className="va-gal">
+          <div className="va-foto"
+            style={{ cursor: fotos.length > 0 ? (esMobil ? 'pointer' : 'zoom-in') : 'default' }}
+            onMouseMove={e => { if (esMobil) return; const rect = e.currentTarget.getBoundingClientRect(); setPosZoom({ x: ((e.clientX - rect.left) / rect.width) * 100, y: ((e.clientY - rect.top) / rect.height) * 100 }); setZoomActivo(true); }}
+            onMouseLeave={() => setZoomActivo(false)}
+            onClick={() => { if (fotos.length > 0) setLightboxOpen(true); }}
+            onTouchStart={onTouchStartCarrusel}
+            onTouchMove={onTouchMoveCarrusel}
+            onTouchEnd={onTouchEndCarrusel}
+          >
+            {fotos.length === 0 && <div className="va-sinfoto"><LenteSVG color="var(--charcoal)" forma={armazon.forma} size="large" /></div>}
+            <div style={{ display: 'flex', width: `${Math.max(fotos.length, 1) * 100}%`, height: '100%', transform: `translateX(calc(${-fotoActiva * (100 / Math.max(fotos.length, 1))}% + ${swipeOffset / Math.max(fotos.length, 1)}px))`, transition: isSwiping ? 'none' : 'transform 0.32s cubic-bezier(0.4,0,0.2,1)', willChange: 'transform' }}>
+              {fotos.map((foto, i) => (
+                <div key={i} style={{ width: `${100 / fotos.length}%`, height: '100%', flexShrink: 0, overflow: 'hidden' }}>
+                  <img src={foto} alt={`${armazon.nombre} ${i + 1}`} draggable={false}
+                    style={{ transformOrigin: `${posZoom.x}% ${posZoom.y}%`, transform: (!esMobil && i === fotoActiva && zoomActivo) ? 'scale(1.9)' : 'scale(1.06)', transition: zoomActivo ? 'none' : 'transform 0.4s ease' }} />
                 </div>
-
-                {esMobil && fotos.length > 0 && (
-                  <button onClick={() => setLightboxOpen(true)} style={{ position: 'absolute', bottom: '14px', right: '14px', background: 'rgba(247,244,239,0.92)', border: '1px solid var(--border)', borderRadius: '999px', padding: '6px 10px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11px', color: 'var(--warm-gray)', fontFamily: 'var(--font-sans)', fontWeight: 500, backdropFilter: 'blur(4px)' }}>
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
-                    {t('Ampliar', 'Zoom')}
-                  </button>
-                )}
-
-                {esSolar && <div style={{ position: 'absolute', bottom: '16px', left: '16px', fontSize: '0.58rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--sage)', background: 'rgba(74,89,64,0.1)', padding: '4px 10px', borderRadius: '20px', border: '1px solid rgba(74,89,64,0.2)' }}>{t('Graduable', 'Rx Ready')}</div>}
-
-                <button style={{ position: 'absolute', top: '16px', right: '16px', width: '36px', height: '36px', borderRadius: '50%', background: 'white', border: '1px solid var(--border)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(28,28,26,0.06)', zIndex: 2 }}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--warm-gray)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-                </button>
-
-                {!esMobil && fotos.length > 1 && (
-                  <>
-                    <button onClick={e => { e.stopPropagation(); fotoPrev(); }} disabled={fotoActiva === 0} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', background: fotoActiva === 0 ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.92)', border: '1px solid var(--border)', borderRadius: '50%', width: '36px', height: '36px', cursor: fotoActiva === 0 ? 'default' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: fotoActiva === 0 ? 'var(--border)' : 'var(--charcoal)', fontSize: '18px', zIndex: 2, transition: 'all 0.2s' }}>‹</button>
-                    <button onClick={e => { e.stopPropagation(); fotoNext(); }} disabled={fotoActiva === fotos.length - 1} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: fotoActiva === fotos.length - 1 ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.92)', border: '1px solid var(--border)', borderRadius: '50%', width: '36px', height: '36px', cursor: fotoActiva === fotos.length - 1 ? 'default' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: fotoActiva === fotos.length - 1 ? 'var(--border)' : 'var(--charcoal)', fontSize: '18px', zIndex: 2, transition: 'all 0.2s' }}>›</button>
-                  </>
-                )}
-              </div>
-
-              {fotos.length > 1 && esMobil && (
-                <div style={{ display: 'flex', gap: '8px', padding: '12px 1.25rem 0', overflowX: 'auto', scrollbarWidth: 'none' }}>
-                  {fotos.map((foto, i) => (
-                    <button key={i} onClick={() => irFoto(i)} style={{ flexShrink: 0, width: '56px', height: '56px', borderRadius: '999px', overflow: 'hidden', border: fotoActiva === i ? '2px solid var(--charcoal)' : '2px solid transparent', background: 'white', cursor: 'pointer', padding: 0, transition: 'all 0.2s', opacity: fotoActiva === i ? 1 : 0.6 }}>
-                      <img src={foto} alt="" style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '4px', boxSizing: 'border-box' }}/>
-                    </button>
-                  ))}
-                </div>
-              )}
+              ))}
             </div>
+            {fotos.length > 1 && <span className="va-cont">{fotoActiva + 1} / {fotos.length}</span>}
+            {esSolar && <span className="va-tag">{t('Graduable', 'Rx Ready')}</span>}
+            {!esMobil && fotos.length > 1 && (
+              <>
+                <button className="va-nav" style={{ left: 14 }} onClick={e => { e.stopPropagation(); fotoPrev(); }} disabled={fotoActiva === 0} aria-label={t('Anterior', 'Previous')}>‹</button>
+                <button className="va-nav" style={{ right: 14 }} onClick={e => { e.stopPropagation(); fotoNext(); }} disabled={fotoActiva === fotos.length - 1} aria-label={t('Siguiente', 'Next')}>›</button>
+              </>
+            )}
           </div>
+          {fotos.length > 1 && (
+            <div className="va-thumbs">
+              {fotos.map((foto, i) => (
+                <button key={i} onClick={() => irFoto(i)} className={fotoActiva === i ? 'on' : ''} aria-label={`${t('Foto', 'Photo')} ${i + 1}`}>
+                  <img src={foto} alt="" />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
 
-          {/* Info producto */}
-          <div style={{ position: esMobil ? 'relative' : 'sticky', top: esMobil ? 'auto' : '84px', padding: esMobil ? '1.5rem 1.25rem 0' : '0' }}>
-            <div style={{ display: 'flex', gap: '8px', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
-              <span style={{ fontSize: '0.58rem', fontWeight: 600, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--sage)', padding: '5px 12px', border: '1px solid var(--sage)', borderRadius: '2px' }}>
-                {armazon.genero === 'hombre' ? t('Hombre', 'Men') : armazon.genero === 'mujer' ? t('Mujer', 'Women') : 'Unisex'}
-              </span>
-              {armazon.badge && <span style={{ fontSize: '0.58rem', fontWeight: 600, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--warm-gray)', padding: '5px 12px', border: '1px solid var(--border)', borderRadius: '2px' }}>{nombreBadge(armazon.badge, lang)}</span>}
-            </div>
-            <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: esMobil ? '2.8rem' : '4rem', fontWeight: 600, letterSpacing: '-0.03em', margin: '0 0 0.5rem', lineHeight: 1, color: 'var(--charcoal)' }}>{armazon.nombre}</h1>
-            <p style={{ fontSize: '1rem', color: 'var(--warm-gray)', marginBottom: '2rem', letterSpacing: '0.01em', fontWeight: 400 }}>
-              {[nombreMaterial(armazon.material, lang), armazon.forma && `${armazon.forma.charAt(0).toUpperCase() + armazon.forma.slice(1)}`].filter(Boolean).join(' · ')}
-            </p>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginBottom: '0.5rem' }}>
-              <span style={{ fontFamily: 'var(--font-serif)', fontSize: '3rem', fontWeight: 600, letterSpacing: '-0.02em', lineHeight: 1 }}>${armazon.precio}</span>
-              <span style={{ fontSize: '0.85rem', color: 'var(--warm-gray)', fontWeight: 400 }}>USD</span>
-              {!!armazon.descuento && armazon.descuento > 0 && <span style={{ background: 'var(--charcoal)', color: 'white', fontSize: '11px', fontWeight: 700, padding: '3px 8px', borderRadius: '2px' }}>-{armazon.descuento}%</span>}
-            </div>
-            {colores.length > 0 && (
-              <div style={{ marginBottom: '1.75rem' }}>
-                <p style={{ fontSize: '0.8rem', color: 'var(--warm-gray)', margin: '0 0 8px', fontFamily: 'var(--font-sans)' }}>
-                  {t('Color', 'Color')}: <span style={{ color: 'var(--charcoal)', fontWeight: 500 }}>{nombreColor(colorActivo?.color, lang)}</span>
-                </p>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                  {colores.map((c, i) => {
-                    const ag = agotado(c);
-                    return (
-                      <button key={i} onClick={() => { setColorSel(i); setFotoActiva(0); }} title={nombreColor(c.color, lang) + (ag ? ` — ${t('Agotado', 'Sold out')}` : '')}
-                        aria-label={nombreColor(c.color, lang)}
-                        style={{ position: 'relative', width: '32px', height: '32px', borderRadius: '50%', background: swatchColor(c.color, c.hex), cursor: 'pointer', padding: 0, border: i === colorSel ? '2px solid var(--charcoal)' : '1px solid var(--border)', boxShadow: i === colorSel ? '0 0 0 2px white inset' : 'none', transition: 'all 0.2s', opacity: ag ? 0.4 : 1, overflow: 'hidden' }}>
-                        {ag && <span style={{ position: 'absolute', left: '50%', top: '-4px', bottom: '-4px', width: '1.5px', background: 'var(--charcoal)', transform: 'rotate(45deg)' }} />}
-                      </button>
-                    );
-                  })}
-                </div>
-                {colorAgotado && (
-                  <p style={{ fontSize: '0.78rem', color: '#a33', margin: '8px 0 0' }}>{t('Este color está agotado — elige otro', 'This color is sold out — please choose another')}</p>
-                )}
+        {/* Panel de compra */}
+        <div className="va-info">
+          <p className="va-eye">
+            {[armazon.genero === 'hombre' ? t('Hombre', 'Men') : armazon.genero === 'mujer' ? t('Mujer', 'Women') : armazon.genero === 'nino' ? t('Niños', 'Kids') : 'Unisex', nombreMaterial(armazon.material, lang), formaTxt].filter(Boolean).join(' · ')}
+          </p>
+          <h1>{armazon.nombre}</h1>
+          {armazon.badge && <span className="va-badge">{nombreBadge(armazon.badge, lang)}</span>}
+          <div className="va-precio">
+            ${precioArmazon} <small>USD</small>
+            {precioArmazon < Number(armazon.precio) && <s>${armazon.precio}</s>}
+          </div>
+          {descripcion && <p className="va-desc">{descripcion}</p>}
+
+          {colores.length > 0 && (
+            <div className="va-bloque">
+              <p className="va-lbl">{t('Color', 'Color')}: <b>{nombreColor(colorActivo?.color, lang)}</b></p>
+              <div className="va-sws">
+                {colores.map((c, i) => {
+                  const ag = agotado(c);
+                  return (
+                    <button key={i} onClick={() => { setColorSel(i); setFotoActiva(0); }} title={nombreColor(c.color, lang) + (ag ? ` — ${t('Agotado', 'Sold out')}` : '')}
+                      aria-label={nombreColor(c.color, lang)} className={i === colorSel ? 'on' : ''}
+                      style={{ background: swatchColor(c.color, c.hex), opacity: ag ? 0.4 : 1 }}>
+                      {ag && <span className="va-tache" />}
+                    </button>
+                  );
+                })}
               </div>
-            )}
-            <div style={{ marginBottom: '1.75rem' }}>
-              <p style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--charcoal)', margin: '0 0 3px' }}>{t('Graduadas desde $15', 'With lenses from $15')}</p>
-              <p style={{ fontSize: '0.78rem', color: 'var(--warm-gray)', margin: 0 }}>Single Vision · Blue Light · {t('Fotocromático', 'Photochromic')} · {t('Progresivo', 'Progressive')}</p>
+              {colorAgotado && <p className="va-agotado">{t('Este color está agotado, elige otro.', 'This color is sold out, please choose another.')}</p>}
             </div>
-            {/* PAGE CTA → SAGE */}
-            {!esMobil && (
-              <button onClick={abrirDrawer} style={{ display: 'block', width: '100%', textAlign: 'center', background: 'var(--sage)', color: 'white', padding: '20px 32px', borderRadius: '999px', fontSize: '0.78rem', fontWeight: 700, letterSpacing: '0', border: 'none', cursor: 'pointer', marginBottom: '2.5rem', transition: 'all 0.3s ease', fontFamily: 'var(--font-sans)' }}
-                onMouseEnter={e => { (e.currentTarget.style.background = 'var(--charcoal)'); (e.currentTarget.style.transform = 'translateY(-1px)'); }}
-                onMouseLeave={e => { (e.currentTarget.style.background = 'var(--sage)'); (e.currentTarget.style.transform = 'translateY(0)'); }}>
-                {esSolar ? t('Configurar mis lentes →', 'Configure my lenses →') : t('Personaliza tus micas →', 'Customize my lenses →')}
-              </button>
-            )}
-            {/* Qué incluye + entrega estimada + garantías */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '2.5rem' }}>
-              <div style={{ background: 'var(--cream)', borderRadius: '16px', padding: '14px 16px', fontSize: '13px', color: 'var(--warm-gray)', lineHeight: 1.6 }}>
-                <div style={{ color: 'var(--charcoal)', fontWeight: 600, marginBottom: '4px' }}>{t('Incluye', 'What’s included')}</div>
-                {t('Armazón · micas con tu graduación · estuche · paño de microfibra', 'Frame · prescription lenses · case · microfiber cleaning cloth')}
-                <div style={{ marginTop: '8px' }}>
-                  {t('Llega aprox. ', 'Arrives approx. ')}<b style={{ color: 'var(--charcoal)' }}>{entregaEstimada(lang)}</b>
-                </div>
+          )}
+
+          {medidas && (
+            <div className="va-bloque">
+              <p className="va-lbl">{t('Talla', 'Size')}: <b>{medidas.talla}</b> <span>· {armazon.medidas}</span></p>
+            </div>
+          )}
+
+          {!esMobil && (
+            <button onClick={abrirDrawer} className="va-cta" disabled={colorAgotado}>
+              {esSolar ? t('Configurar mis lentes', 'Configure my lenses') : t('Elegir mis micas', 'Choose my lenses')}
+            </button>
+          )}
+
+          <p className="va-micas">
+            {t('Te ayudamos a elegir: visión sencilla, bifocal o progresivo, y filtros como luz azul, fotocromático o antirreflejante.', 'We help you choose: single vision, bifocal or progressive, plus coatings like blue light, photochromic or anti-glare.')}
+          </p>
+
+          <div className="va-incluye">
+            <p>{t('Incluye micas con tu graduación, estuche y paño de microfibra.', 'Includes prescription lenses, a case and a microfiber cloth.')}</p>
+            <p>{t('Llega entre el ', 'Arrives ')}<b>{entregaEstimada(lang)}</b></p>
+          </div>
+          <p className="va-gar">
+            <a href="/warranty">{t(`${GARANTIA_DIAS} días de garantía`, `${GARANTIA_DIAS}-day guarantee`)}</a> · <a href="/returns">{t(`${DEVOLUCION_DIAS} días para devolver`, `${DEVOLUCION_DIAS}-day returns`)}</a> · <a href="/shipping">{t(`Envío gratis desde $${ENVIO_GRATIS_DESDE}`, `Free shipping over $${ENVIO_GRATIS_DESDE}`)}</a>
+          </p>
+
+          <div className="va-acc">
+            <Acordeon titulo={t('Detalles del armazón', 'Frame details')}>
+              <div className="va-det">
+                {armazon.material && <div><span>Material</span><b>{nombreMaterial(armazon.material, lang)}</b></div>}
+                {formaTxt && <div><span>{t('Forma', 'Shape')}</span><b>{formaTxt}</b></div>}
+                {aroTxt && <div><span>{t('Tipo', 'Rim')}</span><b>{aroTxt}</b></div>}
+                {armazon.medidas && <div><span>{t('Medidas', 'Measurements')}</span><b>{armazon.medidas}</b></div>}
               </div>
-              <Garantias variante="compacta" />
-            </div>
-            <div style={{ borderBottom: '1px solid var(--border)' }}>
-              <Acordeon titulo={t('Detalles del armazón', 'Frame details')}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  {armazon.material && <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Material</span><span style={{ fontWeight: 500, color: 'var(--charcoal)' }}>{nombreMaterial(armazon.material, lang)}</span></div>}
-                  {armazon.forma && <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>{t('Forma', 'Shape')}</span><span style={{ fontWeight: 500, color: 'var(--charcoal)', textTransform: 'capitalize' }}>{armazon.forma}</span></div>}
-                  {armazon.medidas && <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>{t('Medidas', 'Measurements')}</span><span style={{ fontWeight: 500, color: 'var(--charcoal)' }}>{armazon.medidas}</span></div>}
-                  {armazon.talla && <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>{t('Talla', 'Size')}</span><span style={{ fontWeight: 500, color: 'var(--charcoal)' }}>{armazon.talla}</span></div>}
-                  {armazon.genero && <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>{t('Género', 'Gender')}</span><span style={{ fontWeight: 500, color: 'var(--charcoal)', textTransform: 'capitalize' }}>{armazon.genero}</span></div>}
-                </div>
-              </Acordeon>
-              <Acordeon titulo={t('¿Cómo medir mi cara?', 'How to measure my face?')}>
-                {t('Mide el ancho de tu cara de sien a sien. Menos de 13cm → S, 13–14cm → M, 14–15cm → L, más de 15cm → XL. La talla de este armazón es', 'Measure from temple to temple. Under 5.1" → S, 5.1–5.5" → M, 5.5–5.9" → L, over 5.9" → XL. This frame is size')} <strong style={{ color: 'var(--charcoal)' }}>{armazon.talla || 'M'}</strong>.
-              </Acordeon>
-              <Acordeon titulo={t('Envío y devoluciones', 'Shipping & returns')}>
-                {t('Hacemos tus micas en 1 a 3 días hábiles y te llegan en 4 a 7 días hábiles más, a todo Estados Unidos.', 'We make your lenses in 1–3 business days, then they arrive in 4–7 business days anywhere in the US.')}
-              </Acordeon>
-              <Acordeon titulo={t('¿Por qué Verly?', 'Why Verly?')}>
-                {t('Armazones de calidad a una fracción del precio de una óptica tradicional. Sin aseguranza, sin citas.', 'Quality frames at a fraction of traditional optical prices. No insurance, no appointments.')}
-              </Acordeon>
-            </div>
+            </Acordeon>
+            <Acordeon titulo={t('¿Cuál es mi talla?', 'What’s my size?')}>
+              {t('Busca tres números en la varilla de tus lentes actuales (ej. 52-18-140). Si se parecen a los de este armazón, te va a quedar igual. Por ancho de cara: S menos de 13 cm, M 13–14 cm, L 14–15 cm, XL más de 15 cm.', 'Look for three numbers on the temple of your current glasses (e.g. 52-18-140). If they are close to this frame’s, it will fit the same. By face width: S under 5.1", M 5.1–5.5", L 5.5–5.9", XL over 5.9".')}
+            </Acordeon>
+            <Acordeon titulo={t('Envío y devoluciones', 'Shipping & returns')}>
+              {t(`Hacemos tus micas en ${DIAS_FABRICACION.min} a ${DIAS_FABRICACION.max} días hábiles y te llegan en ${DIAS_ENVIO.min} a ${DIAS_ENVIO.max} días hábiles más, a todo Estados Unidos. Tienes ${DEVOLUCION_DIAS} días para devolverlos.`, `We make your lenses in ${DIAS_FABRICACION.min}–${DIAS_FABRICACION.max} business days, then they arrive in ${DIAS_ENVIO.min}–${DIAS_ENVIO.max} business days anywhere in the US. You have ${DEVOLUCION_DIAS} days to return them.`)}
+            </Acordeon>
           </div>
         </div>
       </div>
 
       {/* ── MEDIDAS ── */}
-      {armazon.medidas && partesMedidas.length >= 2 && (
-        <div style={{ background: 'var(--cream-dark)', padding: esMobil ? '2.5rem 1.25rem' : '3rem' }}>
-          <div style={{ maxWidth: '1440px', margin: '0 auto', padding: esMobil ? '0' : '0 3rem' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: esMobil ? '1fr' : '200px 1fr', gap: esMobil ? '1.5rem' : '3rem', alignItems: 'center' }}>
-              <div>
-                <p style={{ fontSize: '0.58rem', fontWeight: 700, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--warm-gray)', margin: '0 0 6px' }}>{t('MEDIDAS', 'MEASUREMENTS')}</p>
-                <p style={{ fontFamily: 'var(--font-serif)', fontSize: esMobil ? '1.5rem' : '2rem', fontWeight: 600, color: 'var(--charcoal)', margin: '0 0 4px', lineHeight: 1}}>{t('TALLA', 'SIZE')} {armazon.talla || 'M'}</p>
-                <p style={{ fontSize: '0.78rem', color: 'var(--warm-gray)', margin: '0 0 1.5rem' }}>{t('Para rostros medianos a grandes', 'For medium to large faces')}</p>
-                <button style={{ background: 'var(--charcoal)', color: 'white', border: 'none', borderRadius: '999px', padding: '10px 20px', fontSize: '11px', fontWeight: 600, letterSpacing: '0', cursor: 'pointer', fontFamily: 'var(--font-sans)' }}>{t('Guía de medidas', 'Size guide')}</button>
-              </div>
-              <div style={{ display: 'flex', gap: '0', flexWrap: esMobil ? 'wrap' : 'nowrap' }}>
-                {[
-                  { icon: <svg width="32" height="20" viewBox="0 0 48 30" fill="none"><rect x="2" y="4" width="20" height="22" rx="6" fill="none" stroke="var(--charcoal)" strokeWidth="2"/><rect x="26" y="4" width="20" height="22" rx="6" fill="none" stroke="var(--charcoal)" strokeWidth="2"/><path d="M22 13 C24 10, 24 10, 26 13" stroke="var(--charcoal)" strokeWidth="1.5" fill="none"/></svg>, valor: `${partesMedidas[0]}mm`, label: t('Ancho de lente', 'Lens width') },
-                  { icon: <svg width="32" height="20" viewBox="0 0 48 30" fill="none"><path d="M14 15 L34 15" stroke="var(--charcoal)" strokeWidth="2" strokeLinecap="round"/><path d="M10 10 L10 20" stroke="var(--charcoal)" strokeWidth="1.5" strokeLinecap="round"/><path d="M38 10 L38 20" stroke="var(--charcoal)" strokeWidth="1.5" strokeLinecap="round"/></svg>, valor: `${partesMedidas[1]}mm`, label: t('Puente', 'Bridge') },
-                  { icon: <svg width="32" height="20" viewBox="0 0 48 30" fill="none"><path d="M4 15 L44 15" stroke="var(--charcoal)" strokeWidth="2" strokeLinecap="round"/><path d="M38 8 L44 15 L38 22" stroke="var(--charcoal)" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>, valor: `${partesMedidas[2] || '—'}mm`, label: t('Varilla', 'Temple') },
-                  { icon: <svg width="32" height="20" viewBox="0 0 48 30" fill="none"><rect x="14" y="2" width="20" height="26" rx="4" fill="none" stroke="var(--charcoal)" strokeWidth="2"/></svg>, valor: '51mm', label: t('Alto de lente', 'Lens height') },
-                  { icon: <svg width="32" height="20" viewBox="0 0 48 30" fill="none"><path d="M4 15 L44 15" stroke="var(--charcoal)" strokeWidth="2" strokeLinecap="round"/><path d="M4 8 L4 22" stroke="var(--charcoal)" strokeWidth="1.5" strokeLinecap="round"/><path d="M44 8 L44 22" stroke="var(--charcoal)" strokeWidth="1.5" strokeLinecap="round"/></svg>, valor: '139mm', label: t('Ancho total', 'Total width') },
-                ].map((m, i) => (
-                  <div key={i} style={{ flex: esMobil ? '0 0 calc(33% - 8px)' : 1, minWidth: '80px', padding: esMobil ? '0 0 1rem' : '0 2rem 0 0', borderRight: !esMobil && i < 4 ? '1px solid var(--border)' : 'none', marginRight: !esMobil && i < 4 ? '2rem' : 0 }}>
-                    <div style={{ marginBottom: '0.75rem', opacity: 0.6 }}>{m.icon}</div>
-                    <div style={{ fontFamily: 'var(--font-serif)', fontSize: esMobil ? '1.2rem' : '1.5rem', fontWeight: 600, color: 'var(--charcoal)', marginBottom: '4px'}}>{m.valor}</div>
-                    <div style={{ fontSize: '0.7rem', color: 'var(--warm-gray)' }}>{m.label}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
+      {medidas && (
+        <div className="va-med">
+          <div>
+            <p className="va-eye">{t('Medidas', 'Measurements')}</p>
+            <h2>{t('Talla', 'Size')} {medidas.talla}</h2>
+          </div>
+          <div className="va-med-g">
+            {[
+              { v: medidas.mica, l: t('Ancho de mica', 'Lens width') },
+              { v: medidas.puente, l: t('Puente', 'Bridge') },
+              { v: Number(partesMedidas[2]) || null, l: t('Varilla', 'Temple') },
+              { v: medidas.total, l: t('Ancho total aprox.', 'Approx. total width') },
+            ].filter(m => m.v).map((m, i) => (
+              <div key={i}><b>{m.v}<small>mm</small></b><span>{m.l}</span></div>
+            ))}
           </div>
         </div>
       )}
 
-      {/* ── LIFESTYLE ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: esMobil ? '1fr' : '1fr 1fr 280px', minHeight: esMobil ? 'auto' : '420px' }}>
-        <div style={{ background: 'var(--cream)', padding: esMobil ? '2.5rem 1.25rem' : '4rem 3rem 4rem 4rem', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-          <p style={{ fontSize: '0.58rem', fontWeight: 700, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--warm-gray)', margin: '0 0 1.5rem' }}>Verly Optical</p>
-          <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: esMobil ? '2rem' : '3rem', fontWeight: 600, color: 'var(--charcoal)', margin: '0 0 1rem', lineHeight: 1.15, letterSpacing: '-0.02em' }}>
-            {t('Diseñado para', 'Designed for')}<br/><em style={{ fontStyle: 'italic' }}>{t('tu día a día', 'your daily life')}</em>
-          </h2>
-          <p style={{ fontSize: '0.9rem', color: 'var(--warm-gray)', margin: '0 0 2rem', lineHeight: 1.7 }}>{t('Estilo, comodidad y calidad que se adaptan a ti.', 'Style, comfort and quality that adapt to you.')}</p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '2rem' }}>
-            {[t('Ligero y resistente', 'Light and resistant'), t('Comodidad prolongada', 'Extended comfort')].map((b, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.82rem', color: 'var(--warm-gray)' }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--sage)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                {b}
-              </div>
-            ))}
-          </div>
-          <button onClick={abrirDrawer} style={{ alignSelf: 'flex-start', background: 'var(--charcoal)', color: 'white', border: 'none', borderRadius: '999px', padding: '12px 24px', fontSize: '11px', fontWeight: 700, letterSpacing: '0', cursor: 'pointer', fontFamily: 'var(--font-sans)' }}>
-            {t('Ver en modelo', 'See on model')}
-          </button>
+      {/* ── BANNER DE AMBIENTE (general) ── */}
+      <a href="/lenses" className="va-banner">
+        <img src="/home/metal-banner.jpg" alt="" loading="lazy" />
+        <div>
+          <h3>{t('Tus micas, a tu medida', 'Lenses made for you')}</h3>
+          <p>{t('Visión sencilla, bifocal o progresivo, con filtros de luz azul, fotocromático o antirreflejante.', 'Single vision, bifocal or progressive, with blue light, photochromic or anti-glare coatings.')}</p>
+          <span>{t('Conoce nuestras micas', 'Explore our lenses')} →</span>
         </div>
-        <div style={{ background: 'var(--cream-dark)', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: esMobil ? '280px' : '420px', overflow: 'hidden' }}>
-          {fotoLifestyle ? (
-            <img src={fotoLifestyle} alt={`${armazon.nombre} lifestyle`} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top' }}/>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', opacity: 0.25, padding: '2rem' }}>
-              <LenteSVG color="var(--sage)" forma={armazon.forma} size="large"/>
-              <p style={{ fontSize: '0.68rem', color: 'var(--warm-gray)', letterSpacing: '0.08em', textTransform: 'uppercase', textAlign: 'center' }}>{t('Sube una foto lifestyle desde el admin', 'Upload a lifestyle photo from admin')}</p>
-            </div>
-          )}
-        </div>
-        {!esMobil && (
-          <div style={{ background: 'var(--sage)', padding: '3rem 2rem', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '2rem' }}>
-            {[
-              { icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.65)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>, titulo: t('Calidad accesible', 'Accessible quality'), sub: t('Gafas premium a precios justos.', 'Premium frames at fair prices.') },
-              { icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.65)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/></svg>, titulo: t('Listos para tu receta', 'Ready for your prescription'), sub: t('Micas graduadas para tu estilo de vida.', 'Prescription lenses for your lifestyle.') },
-              { icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.65)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>, titulo: t('Estilo atemporal', 'Timeless style'), sub: t('Diseños modernos que duran.', 'Modern designs that last.') },
-              { icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.65)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4a2 2 0 0 1 2 2v6H16V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>, titulo: t('Envío rápido', 'Fast shipping'), sub: t('Recibe tus lentes en 5 a 10 días hábiles.', 'Get your glasses in 5–10 business days.') },
-            ].map((h, i) => (
-              <div key={i} style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
-                <div style={{ flexShrink: 0, marginTop: '2px' }}>{h.icon}</div>
-                <div>
-                  <div style={{ fontSize: '13px', fontWeight: 600, color: 'white', marginBottom: '3px' }}>{h.titulo}</div>
-                  <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', lineHeight: 1.5 }}>{h.sub}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+      </a>
 
       {/* ── RELACIONADOS ── */}
-      {relacionados.length > 0 && (
-        <div style={{ background: 'var(--cream)', padding: esMobil ? '3rem 0' : '4rem 0' }}>
-          <div style={{ maxWidth: '1440px', margin: '0 auto', padding: esMobil ? '0 1.25rem' : '0 3rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2rem' }}>
-              <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: esMobil ? '1.6rem' : '2rem', fontWeight: 600, color: 'var(--charcoal)', margin: 0}}>{t('También te puede gustar', 'You might also like')}</h2>
-              <a href={esSolar ? '/sunglasses' : '/Tienda'} style={{ fontSize: '0.72rem', color: 'var(--warm-gray)', textDecoration: 'none', letterSpacing: '0.08em', textTransform: 'uppercase', borderBottom: '1px solid var(--border)', paddingBottom: '2px' }}>{t('Ver todos →', 'See all →')}</a>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: esMobil ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', gap: esMobil ? '10px' : '14px' }}>
-              {relacionados.slice(0, 4).map(r => (
-                <a key={r.id} href={`/armazon/${r.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                  <div style={{ background: 'white', borderRadius: '3px', overflow: 'hidden', transition: 'all 0.3s ease', border: '1px solid var(--border)' }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-3px)'; (e.currentTarget as HTMLDivElement).style.boxShadow = '0 12px 40px rgba(28,28,26,0.07)'; }}
-                    onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)'; (e.currentTarget as HTMLDivElement).style.boxShadow = 'none'; }}>
-                    <div style={{ aspectRatio: '4/3', background: 'var(--cream)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-                      {r.imagen_url ? <img src={r.imagen_url} alt={r.nombre} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '1.25rem', boxSizing: 'border-box' }}/> : <div style={{ opacity: 0.25 }}><LenteSVG color="var(--sage)" forma={r.forma} size="small"/></div>}
-                    </div>
-                    <div style={{ padding: '0.85rem 1rem 1rem' }}>
-                      <div style={{ fontFamily: 'var(--font-serif)', fontSize: '1rem', fontWeight: 600, color: 'var(--charcoal)', marginBottom: '4px'}}>{r.nombre}</div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <div style={{ fontSize: '0.85rem', color: 'var(--charcoal)', fontWeight: 500 }}>${r.precio}</div>
-                        <div style={{ fontSize: '0.62rem', color: 'var(--warm-gray)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>USD</div>
-                      </div>
-                    </div>
-                  </div>
-                </a>
-              ))}
-            </div>
+      {relInfo.length > 0 && (
+        <section className="va-rel">
+          <div className="va-rel-h">
+            <h2>{t('También te puede gustar', 'You might also like')}</h2>
+            <a href={esSolar ? '/sunglasses' : '/Tienda'}>{t('Ver todos los armazones', 'View all frames')} →</a>
           </div>
-        </div>
+          <div className="va-rel-g">
+            {relInfo.map(r => (
+              <a key={r.id} href={`/armazon/${r.id}`} className="va-prod">
+                <div className="va-prod-img"><img src={r.foto} alt={r.nombre} loading="lazy" /></div>
+                <b>{r.nombre}</b>
+                <span>${r.precio}</span>
+                <div className="va-prod-sw">{r.colores.slice(0, 5).map((c, i) => <i key={i} style={{ background: swatchColor(c.color, c.hex) }} />)}</div>
+              </a>
+            ))}
+          </div>
+        </section>
       )}
-
-      {/* ── EDITORIAL FINAL ── */}
-      <div style={{ background: 'var(--cream-dark)', padding: esMobil ? '3rem 1.25rem' : '5rem 4rem', display: 'grid', gridTemplateColumns: esMobil ? '1fr' : '1fr 1fr', gap: esMobil ? '2.5rem' : '4rem', alignItems: 'center' }}>
-        <div>
-          <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: esMobil ? '2rem' : '3.5rem', fontWeight: 600, color: 'var(--charcoal)', margin: '0 0 1rem', lineHeight: 1.1, letterSpacing: '-0.02em' }}>
-            Verly Optical<br/><em style={{ fontStyle: 'italic', color: 'var(--warm-gray)' }}>I see the difference.</em>
-          </h2>
-          <p style={{ fontSize: '0.85rem', color: 'var(--warm-gray)', margin: 0 }}>{t('Unos lentes, miles de historias.', 'One pair of glasses, thousands of stories.')}</p>
-        </div>
-        <div style={{ borderBottom: '1px solid var(--border)' }}>
-          <Acordeon titulo={t('Detalles del armazón', 'Frame details')}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {armazon.material && <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Material</span><span style={{ fontWeight: 500, color: 'var(--charcoal)' }}>{nombreMaterial(armazon.material, lang)}</span></div>}
-              {armazon.medidas && <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>{t('Medidas', 'Measurements')}</span><span style={{ fontWeight: 500, color: 'var(--charcoal)' }}>{armazon.medidas}</span></div>}
-            </div>
-          </Acordeon>
-          <Acordeon titulo={t('¿Cómo medir mi cara?', 'How to measure my face?')}>
-            {t('Talla S: menos de 13cm · M: 13–14cm · L: 14–15cm · XL: más de 15cm.', 'Size S: under 5.1" · M: 5.1–5.5" · L: 5.5–5.9" · XL: over 5.9".')}
-          </Acordeon>
-          <Acordeon titulo={t('Envío y devoluciones', 'Shipping & returns')}>
-            {t('Listos en 1–3 días hábiles, en tu casa en 4–7 más. Garantía de 30 días.', 'Ready in 1–3 business days, at your door 4–7 days later. 30-day guarantee.')}
-          </Acordeon>
-          <Acordeon titulo={t('¿Por qué Verly?', 'Why Verly?')}>
-            {t('Calidad premium sin el precio de óptica. Sin aseguranza, sin complicaciones.', 'Premium quality without the optical store price. No insurance, no complications.')}
-          </Acordeon>
-        </div>
-      </div>
 
       {/* ── BOTÓN STICKY MÓVIL (PAGE → SAGE) ── */}
       {esMobil && (
         <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, padding: '1rem 1.25rem', background: 'white', borderTop: '1px solid var(--border)', zIndex: 100, boxShadow: '0 -4px 20px rgba(28,28,26,0.06)' }}>
           <button onClick={abrirDrawer} style={{ display: 'block', width: '100%', textAlign: 'center', background: 'var(--sage)', color: 'white', padding: '18px 32px', borderRadius: '999px', fontSize: '0.78rem', fontWeight: 700, letterSpacing: '0', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-sans)' }}>
-            {esSolar ? t('Configurar mis lentes →', 'Configure my lenses →') : t('Personalizar mis micas →', 'Customize my lenses →')}
+            {esSolar ? t('Configurar mis lentes', 'Configure my lenses') : t('Elegir mis micas', 'Choose my lenses')} · ${precioArmazon}
           </button>
         </div>
       )}
@@ -1475,6 +1372,93 @@ export default function DetalleArmazon() {
       <style>{`
         @keyframes slideUp { from { opacity: 0; transform: translateY(24px) } to { opacity: 1; transform: translateY(0) } }
         ::-webkit-scrollbar { display: none; }
+        .va-crumb{max-width:1320px;margin:72px auto 0;padding:18px 2.5rem 0;font-size:12px;color:var(--warm-gray)}
+        .va-crumb a{color:var(--warm-gray);text-decoration:none}
+        .va-crumb span{margin:0 8px;opacity:.5}
+        .va-crumb b{color:var(--charcoal);font-weight:500}
+        .va-main{max-width:1320px;margin:0 auto;padding:22px 2.5rem 80px;display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:64px;align-items:start}
+        .va-foto{position:relative;aspect-ratio:4/3;background:#F1EEE9;border-radius:6px;overflow:hidden;user-select:none;-webkit-user-select:none}
+        .va-foto img{width:100%;height:100%;object-fit:contain;mix-blend-mode:multiply;pointer-events:none}
+        .va-sinfoto{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:.2}
+        .va-cont{position:absolute;left:16px;bottom:14px;font-size:12px;color:var(--warm-gray)}
+        .va-tag{position:absolute;left:16px;top:14px;font-size:11px;font-weight:600;color:var(--sage)}
+        .va-nav{position:absolute;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;border:1px solid var(--border);background:rgba(247,244,239,.9);font-size:20px;color:var(--charcoal);cursor:pointer;z-index:2}
+        .va-nav:disabled{opacity:.3;cursor:default}
+        .va-thumbs{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:10px}
+        .va-thumbs button{aspect-ratio:4/3;background:#F1EEE9;border:1px solid transparent;border-radius:4px;padding:0;cursor:pointer;overflow:hidden;opacity:.7;transition:opacity .2s}
+        .va-thumbs button.on{border-color:var(--charcoal);opacity:1}
+        .va-thumbs img{width:100%;height:100%;object-fit:contain;mix-blend-mode:multiply}
+        .va-info{position:sticky;top:96px}
+        .va-eye{font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--warm-gray);margin:0 0 10px}
+        .va-info h1{font-size:clamp(2.2rem,3.6vw,3.2rem);font-weight:500;letter-spacing:-.035em;line-height:1;margin:0 0 12px;font-family:var(--font-sans)}
+        .va-badge{display:inline-block;font-size:11px;font-weight:600;color:var(--sage);border:1px solid var(--sage);border-radius:99px;padding:3px 10px;margin-bottom:12px}
+        .va-precio{font-size:22px;font-weight:500;margin-bottom:14px}
+        .va-precio small{font-size:12px;color:var(--warm-gray);font-weight:400}
+        .va-precio s{font-size:15px;color:var(--warm-gray);margin-left:10px;font-weight:400}
+        .va-desc{font-size:14.5px;line-height:1.65;color:#4a463f;margin:0 0 18px;max-width:440px}
+        .va-bloque{border-top:1px solid var(--border);padding:16px 0}
+        .va-lbl{font-size:13px;color:var(--warm-gray);margin:0 0 10px}
+        .va-lbl b{color:var(--charcoal);font-weight:600}
+        .va-sws{display:flex;flex-wrap:wrap;gap:10px}
+        .va-sws button{position:relative;width:30px;height:30px;border-radius:50%;border:1px solid rgba(0,0,0,.12);cursor:pointer;padding:0;overflow:hidden}
+        .va-sws button.on{outline:1.5px solid var(--charcoal);outline-offset:3px}
+        .va-tache{position:absolute;left:50%;top:-4px;bottom:-4px;width:1.5px;background:var(--charcoal);transform:rotate(45deg)}
+        .va-agotado{font-size:12.5px;color:#a33;margin:10px 0 0}
+        .va-cta{display:block;width:100%;background:var(--sage);color:#fff;border:0;border-radius:999px;padding:17px;font-size:15px;font-weight:500;cursor:pointer;font-family:var(--font-sans);margin:6px 0 14px;transition:background .2s}
+        .va-cta:hover{background:var(--sage-light)}
+        .va-cta:disabled{opacity:.4;cursor:default}
+        .va-micas{font-size:13px;line-height:1.6;color:var(--warm-gray);margin:0 0 16px}
+        .va-incluye{background:var(--cream-dark);border-radius:6px;padding:14px 16px;font-size:13px;line-height:1.6;color:#4a463f}
+        .va-incluye p{margin:0}
+        .va-incluye b{color:var(--charcoal)}
+        .va-gar{font-size:12.5px;color:var(--warm-gray);margin:14px 0 18px;line-height:1.7}
+        .va-gar a{color:var(--warm-gray);text-decoration:none;border-bottom:1px solid var(--border)}
+        .va-acc{border-bottom:1px solid var(--border)}
+        .va-det{display:flex;flex-direction:column;gap:10px}
+        .va-det div{display:flex;justify-content:space-between}
+        .va-det b{font-weight:500;color:var(--charcoal)}
+        .va-med{max-width:1320px;margin:0 auto;padding:40px 2.5rem;border-top:1px solid var(--border);border-bottom:1px solid var(--border);display:grid;grid-template-columns:240px 1fr;gap:40px;align-items:center}
+        .va-med h2{font-size:2rem;font-weight:500;letter-spacing:-.03em;margin:0}
+        .va-med-g{display:grid;grid-template-columns:repeat(4,1fr)}
+        .va-med-g div{display:flex;flex-direction:column;gap:4px;padding:0 20px;border-left:1px solid var(--border)}
+        .va-med-g b{font-size:1.9rem;font-weight:500;letter-spacing:-.03em}
+        .va-med-g small{font-size:.45em;color:var(--warm-gray);margin-left:3px}
+        .va-med-g span{font-size:12.5px;color:var(--warm-gray)}
+        .va-banner{position:relative;display:block;margin-top:80px;overflow:hidden;text-decoration:none;color:#fff;background:#1d2a20}
+        .va-banner img{display:block;width:100%;height:clamp(320px,30vw,500px);object-fit:cover;object-position:right center}
+        .va-banner > div{position:absolute;top:50%;transform:translateY(-50%);left:max(2.5rem,calc((100vw - 1320px)/2 + 2.5rem));max-width:380px}
+        .va-banner h3{font-size:clamp(1.8rem,3vw,2.6rem);font-weight:500;letter-spacing:-.03em;line-height:1.05;margin:0 0 12px}
+        .va-banner p{font-size:14px;line-height:1.6;color:rgba(255,255,255,.8);margin:0 0 18px}
+        .va-banner span{font-size:13px;font-weight:500;border-bottom:1px solid #fff;padding-bottom:2px}
+        .va-rel{max-width:1320px;margin:0 auto;padding:80px 2.5rem 110px}
+        .va-rel-h{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-bottom:26px}
+        .va-rel-h h2{font-size:clamp(1.7rem,2.8vw,2.4rem);font-weight:500;letter-spacing:-.03em;margin:0}
+        .va-rel-h a{font-size:13px;font-weight:500;color:var(--charcoal);text-decoration:none;border-bottom:1px solid currentColor;padding-bottom:2px;white-space:nowrap}
+        .va-rel-g{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+        .va-prod{text-decoration:none;color:var(--charcoal);display:flex;flex-direction:column;gap:4px}
+        .va-prod-img{aspect-ratio:4/3;background:#F1EEE9;border-radius:4px;overflow:hidden;margin-bottom:10px}
+        .va-prod-img img{width:100%;height:100%;object-fit:cover;mix-blend-mode:multiply;transform:scale(1.08);transition:transform .5s ease}
+        .va-prod:hover .va-prod-img img{transform:scale(1.13)}
+        .va-prod b{font-size:15px;font-weight:500}
+        .va-prod > span{font-size:13px;color:var(--warm-gray)}
+        .va-prod-sw{display:flex;gap:6px;margin-top:6px}
+        .va-prod-sw i{width:14px;height:14px;border-radius:50%;border:1px solid rgba(0,0,0,.12)}
+        @media (max-width:900px){
+          .va-crumb{padding:14px 1.25rem 0}
+          .va-main{grid-template-columns:1fr;gap:22px;padding:14px 0 40px}
+          .va-foto{border-radius:0}
+          .va-thumbs{padding:0 1.25rem;grid-template-columns:repeat(5,1fr)}
+          .va-info{position:relative;top:auto;padding:0 1.25rem}
+          .va-med{grid-template-columns:1fr;gap:20px;padding:32px 1.25rem}
+          .va-med-g{grid-template-columns:1fr 1fr;gap:18px 0}
+          .va-med-g div:nth-child(odd){border-left:0;padding-left:0}
+          .va-banner{margin-top:48px}
+          .va-banner img{height:400px;object-position:72% center}
+          .va-banner::after{content:'';position:absolute;inset:0;background:linear-gradient(to right,rgba(20,30,22,.78),rgba(20,30,22,0) 80%)}
+          .va-banner > div{left:1.25rem;right:1.25rem;z-index:1}
+          .va-rel{padding:56px 1.25rem 120px}
+          .va-rel-g{grid-template-columns:1fr 1fr;gap:12px}
+        }
       `}</style>
     </main>
   );

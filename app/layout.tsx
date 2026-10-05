@@ -96,6 +96,33 @@ export default function RootLayout({
       <body
         style={{ minHeight: "100%", display: "flex", flexDirection: "column", fontFamily: "var(--font-dm), sans-serif", WebkitFontSmoothing: "antialiased", MozOsxFontSmoothing: "grayscale" }}
       >
+        {/* Datos de la empresa para Google (schema.org) */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@graph": [
+              {
+                "@type": "Organization",
+                "@id": "https://verlyoptical.com/#org",
+                name: "Verly Optical",
+                url: "https://verlyoptical.com",
+                logo: "https://verlyoptical.com/apple-touch-icon.png",
+                email: "support@verlyoptical.com",
+                contactPoint: { "@type": "ContactPoint", contactType: "customer service", email: "support@verlyoptical.com", areaServed: "US", availableLanguage: ["English", "Spanish"] },
+              },
+              {
+                "@type": "WebSite",
+                "@id": "https://verlyoptical.com/#web",
+                name: "Verly Optical",
+                url: "https://verlyoptical.com",
+                inLanguage: ["en-US", "es-US"],
+                publisher: { "@id": "https://verlyoptical.com/#org" },
+              },
+            ],
+          }) }}
+        />
+
         {/* Google Analytics */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-QSNNCVBD50"

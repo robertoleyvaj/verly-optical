@@ -201,6 +201,12 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Preguntas frecuentes para Google (schema.org FAQPage, en inglés) */}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+        '@context': 'https://schema.org', '@type': 'FAQPage',
+        mainEntity: faqs.map(f => ({ '@type': 'Question', name: f.q[1], acceptedAnswer: { '@type': 'Answer', text: f.a[1] } })),
+      }) }} />
+
       {/* Preguntas */}
       <section className="vh-sec vh-faq" id="faq">
         <p className="vh-eye">{t('Preguntas frecuentes', 'FAQ')}</p>

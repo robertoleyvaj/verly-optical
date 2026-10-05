@@ -78,14 +78,13 @@ export function PromoAncho({ clave, margen = '0', enGrid = false, compacto = fal
         .pa p{font-size:14px;line-height:1.55;margin:0 0 14px;opacity:.85}
         .pa-cta{display:inline-block;font-size:13px;font-weight:500;border-bottom:1px solid currentColor;padding-bottom:2px}
         @media (max-width:768px){
-          .pa img{height:360px}
-          .pa-grid .pa-tx{left:1rem;right:1rem}
-          .pa-comp img{height:320px}
-          .pa-comp .pa-tx{max-width:none}
-          .pa::after{content:'';position:absolute;inset:0}
-          .pa-claro::after{background:linear-gradient(to bottom,rgba(247,244,239,.96) 0%,rgba(247,244,239,.85) 40%,rgba(247,244,239,0) 70%)}
-          .pa-oscuro::after{background:linear-gradient(to bottom,rgba(6,28,70,.9) 0%,rgba(6,28,70,.7) 40%,rgba(6,28,70,0) 70%)}
-          .pa-tx{top:22px;transform:none;left:1.25rem;right:1.25rem;z-index:1}
+          /* En celular: imagen arriba y texto abajo (no encima, para no tapar caras ni armazones) */
+          .pa img,.pa-comp img{height:190px}
+          .pa-tx,.pa-grid .pa-tx,.pa-comp .pa-tx{position:static;transform:none;max-width:none;padding:18px 1.25rem 22px}
+          .pa-claro{background:var(--cream-dark)}
+          .pa-oscuro{background:#0b2350}
+          .pa h3,.pa-comp h3{font-size:1.45rem;margin-bottom:8px}
+          .pa p{font-size:13.5px;margin-bottom:12px}
         }
       `}</style>
     </Link>

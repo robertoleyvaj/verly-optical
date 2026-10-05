@@ -134,7 +134,7 @@ export default function Home() {
       )}
 
       {/* Promoción de micas */}
-      <PromoAncho clave="luzAzul" margen="96px 0 0" />
+      <div className="vh-promo"><PromoAncho clave="luzAzul" /></div>
 
       {/* Dos colecciones */}
       <section className="vh-mitades">
@@ -252,7 +252,7 @@ export default function Home() {
         .vh-sws{display:flex;gap:6px;margin-top:6px}
         .vh-sws i{width:14px;height:14px;border-radius:50%;border:1px solid rgba(0,0,0,.12)}
 
-        .vh-mitades{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:96px}
+        .vh-mitades{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}
         .vh-mitad{position:relative;display:block;overflow:hidden;text-decoration:none;color:var(--charcoal)}
         .vh-mitad img{display:block;width:100%;height:clamp(380px,40vw,620px);object-fit:cover;transition:transform .8s ease}
         .vh-mitad:hover img{transform:scale(1.03)}
@@ -260,6 +260,7 @@ export default function Home() {
         .vh-mitad h3,.vh-banner h3{font-size:clamp(1.7rem,2.8vw,2.5rem);font-weight:500;letter-spacing:-.03em;line-height:1.05;margin:0 0 10px}
         .vh-mitad p,.vh-banner p{font-size:14px;line-height:1.55;margin:0 0 18px;color:#3f3b35}
 
+        .vh-promo{margin-top:96px}
         .vh-banner{position:relative;display:block;overflow:hidden;margin-top:6px;text-decoration:none;color:#fff;background:#1d2a20}
         .vh-banner img{display:block;width:100%;height:clamp(340px,34vw,560px);object-fit:cover;object-position:right center}
         .vh-banner > div{position:absolute;top:50%;transform:translateY(-50%);left:max(2.5rem,calc((100vw - 1280px)/2 + 2.5rem));max-width:360px}
@@ -298,14 +299,16 @@ export default function Home() {
         }
         @media (max-width:768px){
           .vh{padding-top:106px}
-          .vh-hero img{height:auto;aspect-ratio:4/5;object-position:center}
-          .vh-hero-tx{justify-content:flex-start;padding:30px 1.25rem 0}
+          .vh-hero{display:flex;flex-direction:column-reverse;background:var(--cream)}
+          .vh-hero img{height:auto;aspect-ratio:5/4;object-position:center 70%}
+          .vh-hero-tx{position:static;padding:26px 1.25rem 24px}
           .vh-hero h1{font-size:2.15rem;margin-bottom:10px}
           .vh-hero p{font-size:14px;margin-bottom:18px;max-width:300px}
           .vh-btn{padding:12px 20px;font-size:13px}
           .vh-sec{padding:64px 1.25rem 0}
           .vh-head{flex-direction:column;align-items:flex-start;margin-bottom:22px}
-          .vh-mitades{grid-template-columns:1fr;margin-top:64px}
+          .vh-mitades{grid-template-columns:1fr;margin-top:6px}
+          .vh-promo{margin-top:64px}
           .vh-mitad img{height:420px}
           .vh-banner img{height:420px;object-position:72% center}
           .vh-banner::after{content:'';position:absolute;inset:0;background:linear-gradient(to right,rgba(20,30,22,.75),rgba(20,30,22,0) 75%)}

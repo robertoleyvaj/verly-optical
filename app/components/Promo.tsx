@@ -47,12 +47,12 @@ const PROMOS: Record<Clave, { img: string; href: string; tono: 'claro' | 'oscuro
 };
 
 // Banner ancho (portada, catálogo, página del armazón)
-export function PromoAncho({ clave, margen = '0' }: { clave: Clave; margen?: string }) {
+export function PromoAncho({ clave, margen = '0', enGrid = false, compacto = false }: { clave: Clave; margen?: string; enGrid?: boolean; compacto?: boolean }) {
   const { lang } = useLang() as any;
   const p = PROMOS[clave];
   const i = lang === 'es' ? 0 : 1;
   return (
-    <Link href={p.href} className={`pa pa-${p.tono}`} style={{ margin: margen }}>
+    <Link href={p.href} className={`pa pa-${p.tono}${enGrid ? ' pa-grid' : ''}${compacto ? ' pa-comp' : ''}`} style={{ margin: margen }}>
       <img src={p.img} alt="" loading="lazy" style={{ objectPosition: p.pos }} />
       <div className="pa-tx">
         <span className="pa-eye">{p.txt.eye[i]}</span>
@@ -62,20 +62,30 @@ export function PromoAncho({ clave, margen = '0' }: { clave: Clave; margen?: str
       </div>
       <style>{`
         .pa{position:relative;display:block;overflow:hidden;text-decoration:none}
-        .pa img{display:block;width:100%;height:clamp(300px,30vw,480px);object-fit:cover}
+        .pa img{display:block;width:100%;height:clamp(220px,19vw,320px);object-fit:cover}
+        .pa-grid{grid-column:1/-1;border-radius:20px;margin:6px 0 !important}
+        .pa-grid .pa-tx{left:40px}
+        .pa-comp{border-radius:6px}
+        .pa-comp img{height:210px}
+        .pa-comp .pa-tx{left:28px;max-width:56%}
+        .pa-comp h3{font-size:1.45rem}
+        .pa-comp p{font-size:13px;margin-bottom:10px}
         .pa-tx{position:absolute;top:50%;transform:translateY(-50%);left:max(2.5rem,calc((100vw - 1280px)/2 + 2.5rem));max-width:400px}
         .pa-claro{color:var(--charcoal)}
         .pa-oscuro{color:#fff}
-        .pa-eye{display:block;font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;margin-bottom:12px;opacity:.75}
-        .pa h3{font-size:clamp(1.8rem,3vw,2.7rem);font-weight:500;letter-spacing:-.03em;line-height:1.05;margin:0 0 12px;color:inherit}
-        .pa p{font-size:14.5px;line-height:1.6;margin:0 0 20px;opacity:.85}
+        .pa-eye{display:block;font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;margin-bottom:8px;opacity:.75}
+        .pa h3{font-size:clamp(1.6rem,2.6vw,2.3rem);font-weight:500;letter-spacing:-.03em;line-height:1.05;margin:0 0 12px;color:inherit}
+        .pa p{font-size:14px;line-height:1.55;margin:0 0 14px;opacity:.85}
         .pa-cta{display:inline-block;font-size:13px;font-weight:500;border-bottom:1px solid currentColor;padding-bottom:2px}
         @media (max-width:768px){
-          .pa img{height:460px}
+          .pa img{height:360px}
+          .pa-grid .pa-tx{left:1rem;right:1rem}
+          .pa-comp img{height:320px}
+          .pa-comp .pa-tx{max-width:none}
           .pa::after{content:'';position:absolute;inset:0}
           .pa-claro::after{background:linear-gradient(to bottom,rgba(247,244,239,.96) 0%,rgba(247,244,239,.85) 40%,rgba(247,244,239,0) 70%)}
           .pa-oscuro::after{background:linear-gradient(to bottom,rgba(6,28,70,.9) 0%,rgba(6,28,70,.7) 40%,rgba(6,28,70,0) 70%)}
-          .pa-tx{top:28px;transform:none;left:1.25rem;right:1.25rem;z-index:1}
+          .pa-tx{top:22px;transform:none;left:1.25rem;right:1.25rem;z-index:1}
         }
       `}</style>
     </Link>

@@ -274,19 +274,8 @@ function TiendaContent() {
         <div className="vt-wrap">
           <p className="vt-kicker">{t('Lentes con graduación', 'Prescription eyeglasses')}</p>
           <h1>{t('Encuentra tu armazón.', 'Find your frame.')}</h1>
-          <p className="vt-sub">
-            {t(`Cada armazón lleva tus micas con graduación. Tus lentes completos desde $${13 + VISION_PRICES.mono}.`,
-               `Every frame comes with your prescription lenses. Complete pairs from $${13 + VISION_PRICES.mono}.`)}
-          </p>
-          <div className="vt-trust">
-            <span>✓ {t('Armazón + micas', 'Frame + lenses')}</span>
-            <span>✓ {t(`Envío gratis en EE.UU. desde $${ENVIO_GRATIS_DESDE}`, `Free US shipping over $${ENVIO_GRATIS_DESDE}`)}</span>
-            <span>✓ {t('No necesitas aseguranza', 'No insurance needed')}</span>
-          </div>
         </div>
       </header>
-
-      <PromoAncho clave="progresivos" />
 
       {/* ── BARRA DE FILTROS (una sola fila) ── */}
       <div className="vt-bar">
@@ -355,6 +344,7 @@ function TiendaContent() {
               <Fragment key={a.id}>
                 <ArmazonCard a={a} t={t} lang={lang} colores={coloresPorModelo[a.id]} />
                 {i === 7 && filtered.length > 10 && <PromoVertical clave="fotocromatico" />}
+                {i === 19 && filtered.length > 24 && <PromoAncho clave="progresivos" enGrid />}
               </Fragment>
             ))}
           </div>
@@ -389,7 +379,7 @@ function TiendaContent() {
         .vt button{font-family:var(--font-sans)}
 
         /* encabezado */
-        .vt-hero{background:var(--cream);padding:calc(72px + 3.5rem) 0 3rem}
+        .vt-hero{background:var(--cream);padding:calc(72px + 2rem) 0 1.25rem}
         .vt-kicker{font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--warm-gray);margin:0 0 .75rem}
         .vt-hero h1{font-size:clamp(2.6rem,5.5vw,4.4rem);font-weight:600;letter-spacing:-.035em;line-height:1.02;margin:0 0 1rem}
         .vt-sub{font-size:1.05rem;line-height:1.55;color:#55555a;max-width:520px;margin:0 0 1.5rem}
@@ -464,7 +454,7 @@ function TiendaContent() {
         @media (max-width:1100px){.vt-grid{grid-template-columns:repeat(3,1fr)}}
         @media (max-width:900px){
           .vt-wrap{padding:0 1rem}
-          .vt-hero{padding:calc(64px + 2rem) 0 2rem}
+          .vt-hero{padding:calc(64px + 1.25rem) 0 1rem}
           .vt-trust{gap:.4rem 1rem;font-size:12.5px}
           .vt-grid{grid-template-columns:repeat(2,1fr);gap:10px}
           .vt-count{display:none}

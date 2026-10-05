@@ -1234,6 +1234,7 @@ export default function DetalleArmazon() {
               ))}
             </div>
           )}
+          <div className="va-promo-desk"><PromoAncho clave="policarbonato" compacto /></div>
         </div>
 
         {/* Panel de compra */}
@@ -1311,28 +1312,8 @@ export default function DetalleArmazon() {
         </div>
       </div>
 
-      {/* ── MEDIDAS ── */}
-      {medidas && (
-        <div className="va-med">
-          <div>
-            <p className="va-eye">{t('Medidas', 'Measurements')}</p>
-            <h2>{t('Talla', 'Size')} {medidas.talla}</h2>
-          </div>
-          <div className="va-med-g">
-            {[
-              { v: medidas.mica, l: t('Ancho de mica', 'Lens width') },
-              { v: medidas.puente, l: t('Puente', 'Bridge') },
-              { v: Number(partesMedidas[2]) || null, l: t('Varilla', 'Temple') },
-              { v: medidas.total, l: t('Ancho total aprox.', 'Approx. total width') },
-            ].filter(m => m.v).map((m, i) => (
-              <div key={i}><b>{m.v}<small>mm</small></b><span>{m.l}</span></div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* ── PROMOCIÓN DE MICAS ── */}
-      <div style={{ marginTop: esMobil ? '48px' : '80px' }}><PromoAncho clave="luzAzul" /></div>
+      {/* ── PROMOCIÓN DE MICAS (celular: después del producto) ── */}
+      <div className="va-promo-mob"><PromoAncho clave="policarbonato" compacto /></div>
 
       {/* ── RELACIONADOS ── */}
       {relInfo.length > 0 && (
@@ -1424,7 +1405,9 @@ export default function DetalleArmazon() {
         .va-banner h3{font-size:clamp(1.8rem,3vw,2.6rem);font-weight:500;letter-spacing:-.03em;line-height:1.05;margin:0 0 12px}
         .va-banner p{font-size:14px;line-height:1.6;color:rgba(255,255,255,.8);margin:0 0 18px}
         .va-banner span{font-size:13px;font-weight:500;border-bottom:1px solid #fff;padding-bottom:2px}
-        .va-rel{max-width:1320px;margin:0 auto;padding:80px 2.5rem 110px}
+        .va-promo-desk{margin-top:18px}
+        .va-promo-mob{display:none}
+        .va-rel{max-width:1320px;margin:0 auto;padding:40px 2.5rem 110px;border-top:1px solid var(--border)}
         .va-rel-h{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-bottom:26px}
         .va-rel-h h2{font-size:clamp(1.7rem,2.8vw,2.4rem);font-weight:500;letter-spacing:-.03em;margin:0}
         .va-rel-h a{font-size:13px;font-weight:500;color:var(--charcoal);text-decoration:none;border-bottom:1px solid currentColor;padding-bottom:2px;white-space:nowrap}
@@ -1450,7 +1433,9 @@ export default function DetalleArmazon() {
           .va-banner img{height:400px;object-position:72% center}
           .va-banner::after{content:'';position:absolute;inset:0;background:linear-gradient(to right,rgba(20,30,22,.78),rgba(20,30,22,0) 80%)}
           .va-banner > div{left:1.25rem;right:1.25rem;z-index:1}
-          .va-rel{padding:56px 1.25rem 120px}
+          .va-promo-desk{display:none}
+          .va-promo-mob{display:block;padding:0 1.25rem}
+          .va-rel{padding:40px 1.25rem 120px;border-top:0}
           .va-rel-g{grid-template-columns:1fr 1fr;gap:12px}
         }
       `}</style>

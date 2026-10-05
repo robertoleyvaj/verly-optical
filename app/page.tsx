@@ -134,7 +134,7 @@ export default function Home() {
       )}
 
       {/* Promoción de micas */}
-      <PromoAncho clave="policarbonato" margen="96px 0 0" />
+      <PromoAncho clave="luzAzul" margen="96px 0 0" />
 
       {/* Dos colecciones */}
       <section className="vh-mitades">

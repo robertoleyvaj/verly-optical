@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Navbar from './components/Navbar';
 import Asistente from './components/Asistente';
+import { PromoAncho } from './components/Promo';
 import { useLang } from './components/LanguageContext';
 import { supabase } from './lib/supabase';
 import { swatchColor, nombreColor } from './lib/colores';
@@ -131,6 +132,9 @@ export default function Home() {
           </div>
         </section>
       )}
+
+      {/* Promoción de micas */}
+      <PromoAncho clave="policarbonato" margen="96px 0 0" />
 
       {/* Dos colecciones */}
       <section className="vh-mitades">

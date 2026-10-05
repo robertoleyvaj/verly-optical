@@ -5,6 +5,7 @@ import { PRECIO_ARMAZON_BASE, VISION_PRICES, MATERIAL_PRICES, FILTRO_PRICES, pre
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import Navbar from '../../components/Navbar';
+import { PromoAncho } from '../../components/Promo';
 import { useLang } from '../../components/LanguageContext';
 import { supabase } from '../../lib/supabase';
 import { fbTrack } from '../../lib/fpixel';
@@ -1330,15 +1331,8 @@ export default function DetalleArmazon() {
         </div>
       )}
 
-      {/* ── BANNER DE AMBIENTE (general) ── */}
-      <a href="/lenses" className="va-banner">
-        <img src="/home/metal-banner.jpg" alt="" loading="lazy" />
-        <div>
-          <h3>{t('Tus micas, a tu medida', 'Lenses made for you')}</h3>
-          <p>{t('Visión sencilla, bifocal o progresivo, con filtros de luz azul, fotocromático o antirreflejante.', 'Single vision, bifocal or progressive, with blue light, photochromic or anti-glare coatings.')}</p>
-          <span>{t('Conoce nuestras micas', 'Explore our lenses')} →</span>
-        </div>
-      </a>
+      {/* ── PROMOCIÓN DE MICAS ── */}
+      <div style={{ marginTop: esMobil ? '48px' : '80px' }}><PromoAncho clave="luzAzul" /></div>
 
       {/* ── RELACIONADOS ── */}
       {relInfo.length > 0 && (

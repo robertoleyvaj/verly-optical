@@ -1,9 +1,10 @@
 // app/Tienda/page.tsx — Catálogo (rediseño: limpio, tarjetas con línea fina, botones píldora)
 'use client';
-import { useState, useEffect, useMemo, Suspense } from 'react';
+import { useState, useEffect, useMemo, Suspense, Fragment } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Navbar from '../components/Navbar';
+import { PromoAncho, PromoVertical } from '../components/Promo';
 import { useLang } from '../components/LanguageContext';
 import { supabase } from '../lib/supabase';
 import { useFavoritos } from '../context/FavoritosContext';
@@ -285,6 +286,8 @@ function TiendaContent() {
         </div>
       </header>
 
+      <PromoAncho clave="progresivos" />
+
       {/* ── BARRA DE FILTROS (una sola fila) ── */}
       <div className="vt-bar">
         <div className="vt-wrap vf-fila">
@@ -348,8 +351,11 @@ function TiendaContent() {
           </div>
         ) : (
           <div className="vt-grid">
-            {filtered.map(a => (
-              <ArmazonCard key={a.id} a={a} t={t} lang={lang} colores={coloresPorModelo[a.id]} />
+            {filtered.map((a, i) => (
+              <Fragment key={a.id}>
+                <ArmazonCard a={a} t={t} lang={lang} colores={coloresPorModelo[a.id]} />
+                {i === 7 && filtered.length > 10 && <PromoVertical clave="fotocromatico" />}
+              </Fragment>
             ))}
           </div>
         )}
@@ -383,7 +389,7 @@ function TiendaContent() {
         .vt button{font-family:var(--font-sans)}
 
         /* encabezado */
-        .vt-hero{background:#f5f5f7;padding:calc(72px + 3.5rem) 0 3rem}
+        .vt-hero{background:var(--cream);padding:calc(72px + 3.5rem) 0 3rem}
         .vt-kicker{font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--warm-gray);margin:0 0 .75rem}
         .vt-hero h1{font-size:clamp(2.6rem,5.5vw,4.4rem);font-weight:600;letter-spacing:-.035em;line-height:1.02;margin:0 0 1rem}
         .vt-sub{font-size:1.05rem;line-height:1.55;color:#55555a;max-width:520px;margin:0 0 1.5rem}
@@ -410,7 +416,7 @@ function TiendaContent() {
 
         /* catálogo */
         .vt-cat{padding-top:2rem;padding-bottom:5rem}
-        .vt-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+        .vt-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;grid-auto-flow:dense}
         .vc-card{display:block;color:inherit;text-decoration:none;border:1px solid #e6e6e9;border-radius:20px;overflow:hidden;background:#fff;transition:border-color .2s,transform .25s}
         .vc-card:hover{border-color:var(--charcoal);transform:translateY(-2px)}
         .vc-img{position:relative;aspect-ratio:4/3;background:#f5f5f7;display:flex;align-items:center;justify-content:center;overflow:hidden}

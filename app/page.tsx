@@ -299,10 +299,11 @@ export default function Home() {
         }
         @media (max-width:768px){
           .vh{padding-top:106px}
-          .vh-hero{display:flex;flex-direction:column-reverse;background:var(--cream)}
-          .vh-hero img{height:auto;aspect-ratio:5/4;object-position:center 70%}
-          .vh-hero-tx{position:static;padding:26px 1.25rem 24px}
-          .vh-hero h1{font-size:2.15rem;margin-bottom:10px}
+          /* Celular: texto encima de la parte clara de la foto, que se funde con el fondo */
+          .vh-hero img{height:auto;aspect-ratio:3/4;object-position:center bottom}
+          .vh-hero::after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(to bottom,var(--cream) 0%,rgba(253,252,250,.88) 28%,rgba(253,252,250,.35) 46%,rgba(253,252,250,0) 60%)}
+          .vh-hero-tx{inset:0 0 auto 0;justify-content:flex-start;padding:26px 1.25rem 0;z-index:1}
+          .vh-hero h1{font-size:2rem;margin-bottom:10px}
           .vh-hero p{font-size:14px;margin-bottom:18px;max-width:300px}
           .vh-btn{padding:12px 20px;font-size:13px}
           .vh-sec{padding:64px 1.25rem 0}

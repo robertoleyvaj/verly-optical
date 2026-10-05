@@ -118,7 +118,7 @@ export default function Lenses() {
                 : 'Choose your vision type, material, and filter. We guide you every step — or use your prescription to recommend automatically.'}
             </p>
             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-              <Link href="/Tienda" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'var(--sage)', color: 'white', padding: '12px 24px', borderRadius: '2px', fontFamily: 'var(--font-sans)', fontSize: '0.68rem', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', textDecoration: 'none' }}>
+              <Link href="/Tienda" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'var(--sage)', color: 'white', padding: '14px 26px', borderRadius: '999px', fontFamily: 'var(--font-sans)', fontSize: '14px', fontWeight: 500, textDecoration: 'none' }}>
                 {lang === 'es' ? 'Ir a Eyeglasses' : 'Shop Eyeglasses'}
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
               </Link>
@@ -164,7 +164,7 @@ export default function Lenses() {
           {visionOpts.map(v => (
             <div key={v.id} style={{ background: 'white', padding: esMobil ? '1.5rem' : '2rem 2rem 2.5rem', position: 'relative' }}>
               {(v.tag_es || v.tag_en) && (
-                <div style={{ position: 'absolute', top: '1.25rem', right: '1.25rem', fontSize: '0.58rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--sage)', background: 'rgba(74,89,64,0.08)', padding: '3px 8px', borderRadius: '2px', border: '1px solid rgba(74,89,64,0.15)' }}>
+                <div style={{ position: 'absolute', top: '1.25rem', right: '1.25rem', fontSize: '0.58rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--sage)', background: 'rgba(74,89,64,0.08)', padding: '3px 8px', borderRadius: '999px', border: '1px solid rgba(74,89,64,0.15)' }}>
                   {lang === 'es' ? v.tag_es : v.tag_en}
                 </div>
               )}
@@ -283,7 +283,7 @@ export default function Lenses() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>
                   <span style={{ fontSize: '0.88rem', fontWeight: 500, color: 'var(--charcoal)' }}>{lang === 'es' ? f.nombre_es : f.nombre_en}</span>
                   {f.tag_es && (
-                    <span style={{ fontSize: '0.58rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--sage)', background: 'rgba(74,89,64,0.08)', padding: '2px 7px', borderRadius: '2px' }}>
+                    <span style={{ fontSize: '0.58rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--sage)', background: 'rgba(74,89,64,0.08)', padding: '2px 8px', borderRadius: '999px' }}>
                       {lang === 'es' ? f.tag_es : f.tag_en}
                     </span>
                   )}
@@ -327,7 +327,7 @@ export default function Lenses() {
                   : 'Upload your prescription and VerlyBot recommends the perfect package. No extra cost.'}
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <Link href="/Tienda" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: 'white', color: 'var(--charcoal)', padding: '12px 20px', borderRadius: '2px', fontFamily: 'var(--font-sans)', fontSize: '0.68rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', textDecoration: 'none' }}>
+                <Link href="/Tienda" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: 'white', color: 'var(--charcoal)', padding: '14px 22px', borderRadius: '999px', fontFamily: 'var(--font-sans)', fontSize: '14px', fontWeight: 500, textDecoration: 'none' }}>
                   {lang === 'es' ? 'Ir a Eyeglasses →' : 'Shop Eyeglasses →'}
                 </Link>
               </div>

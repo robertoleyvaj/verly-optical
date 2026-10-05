@@ -26,7 +26,7 @@ export default function BlueLightGlassesPage() {
       filterTag="blue-light"
       lensHighlights={[
         { icon: "◎", label: "Blocks harmful blue light", desc: "Up to 40% blue light reduction with our Blue Light filter" },
-        { icon: "◈", label: "Anti-reflective coating", desc: "Essential AR included, Premium AR upgrade available" },
+        { icon: "◈", label: "Anti-reflective coating", desc: "Add anti-reflective from $11 more, or Premium AR for better night driving" },
         { icon: "◉", label: "All prescriptions", desc: "Single vision, progressive, and bifocal options" },
         { icon: "◌", label: "From $28 complete", desc: "Frame + lens included, no surprises at checkout" },
       ]}

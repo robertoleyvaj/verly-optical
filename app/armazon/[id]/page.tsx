@@ -44,8 +44,8 @@ type RecetaData = {
 type RecetaEstado = 'sin_receta' | 'manual' | 'foto' | 'despues' | 'sin_graduacion' | 'guardada';
 
 const PRECIO_ARMAZON = PRECIO_ARMAZON_BASE;
-const TURQUESA = '#2BBFB3';
-const TURQUESA_DARK = '#1fa89f';
+const TURQUESA = '#1F3D2C'; // antes turquesa; ahora el verde de la marca
+const TURQUESA_DARK = '#3D5C48';
 
 const visionOpts = [
   { id: 'mono', nombre: 'Monofocal básico', nombre_en: 'Single Vision', desc_es: 'Para ver de lejos o cerca. Ideal para uso diario.', desc_en: 'For distance or near vision. Great for everyday use.', precio: VISION_PRICES['mono'] },

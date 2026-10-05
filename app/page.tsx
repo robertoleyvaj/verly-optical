@@ -4,12 +4,12 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Navbar from './components/Navbar';
 import Asistente from './components/Asistente';
-import Garantias from './components/Garantias';
 import { useLang } from './components/LanguageContext';
 import { supabase } from './lib/supabase';
 import { swatchColor, nombreColor } from './lib/colores';
 import { precioArmazonFinal } from './lib/precios';
-import { DIAS_FABRICACION, DIAS_ENVIO, DEVOLUCION_DIAS } from './lib/marca';
+import { DIAS_FABRICACION, DIAS_ENVIO, DEVOLUCION_DIAS, GARANTIA_DIAS } from './lib/marca';
+import { ENVIO_GRATIS_DESDE } from './lib/envio';
 
 type Destacado = { id: number; nombre: string; precio: number; foto: string; colores: { color: string; hex?: string | null }[] };
 
@@ -53,10 +53,10 @@ export default function Home() {
   ];
 
   const pasos = [
-    { es: 'Elige tu armazón', en: 'Choose your frame', des: 'Filtra por forma, color y talla.', den: 'Filter by shape, color and size.', ico: 'M3 12a4 4 0 1 0 8 0a4 4 0 1 0-8 0M13 12a4 4 0 1 0 8 0a4 4 0 1 0-8 0M11 12h2' },
-    { es: 'Sube tu receta', en: 'Upload your prescription', des: 'Una foto de tu receta o escribe los números.', den: 'A photo of your prescription, or type the numbers.', ico: 'M7 3h7l5 5v13H7zM14 3v5h5M10 13h6M10 17h6' },
-    { es: 'Elige tus micas', en: 'Choose your lenses', des: 'Material y filtros, como luz azul o fotocromático.', den: 'Material and coatings, like blue light or photochromic.', ico: 'M12 4c4.4 0 8 3.6 8 8s-3.6 8-8 8-8-3.6-8-8 3.6-8 8-8zM8 12h8' },
-    { es: 'Recíbelos en casa', en: 'Get them at home', des: `Hacemos tus micas en ${DIAS_FABRICACION.min} a ${DIAS_FABRICACION.max} días y te llegan en ${DIAS_ENVIO.min} a ${DIAS_ENVIO.max} días hábiles.`, den: `We make your lenses in ${DIAS_FABRICACION.min}–${DIAS_FABRICACION.max} days and delivery takes ${DIAS_ENVIO.min}–${DIAS_ENVIO.max} business days.`, ico: 'M3 8l9-5 9 5v8l-9 5-9-5zM3 8l9 5 9-5M12 13v8' },
+    { es: 'Elige tu armazón', en: 'Choose your frame', des: 'Filtra por forma, color y talla.', den: 'Filter by shape, color and size.', img: '/proceso-01.jpg' },
+    { es: 'Sube tu receta', en: 'Upload your prescription', des: 'Una foto de tu receta o escribe los números.', den: 'A photo of your prescription, or type the numbers.', img: '/proceso-02.jpg' },
+    { es: 'Elige tus micas', en: 'Choose your lenses', des: 'Material y filtros, como luz azul o fotocromático.', den: 'Material and coatings, like blue light or photochromic.', img: '/proceso-03.jpg' },
+    { es: 'Recíbelos en casa', en: 'Get them at home', des: `Hacemos tus micas en ${DIAS_FABRICACION.min} a ${DIAS_FABRICACION.max} días y te llegan en ${DIAS_ENVIO.min} a ${DIAS_ENVIO.max} días hábiles.`, den: `We make your lenses in ${DIAS_FABRICACION.min}–${DIAS_FABRICACION.max} days and delivery takes ${DIAS_ENVIO.min}–${DIAS_ENVIO.max} business days.`, img: '/proceso-04.jpg' },
   ];
 
   const faqs = [
@@ -87,8 +87,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      <Garantias />
 
       {/* Formas */}
       <section className="vh-sec">
@@ -171,11 +169,30 @@ export default function Home() {
         <div className="vh-pasos">
           {pasos.map((p, i) => (
             <div key={i} className="vh-paso">
-              <span className="vh-num">{i + 1}</span>
-              <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={p.ico} /></svg>
+              <div className="vh-paso-img"><img src={p.img} alt={t(p.es, p.en)} loading="lazy" /></div>
+              <span className="vh-num">{String(i + 1).padStart(2, '0')}</span>
               <b>{t(p.es, p.en)}</b>
               <span>{t(p.des, p.den)}</span>
             </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Nuestro compromiso: texto, sin íconos */}
+      <section className="vh-sec">
+        <p className="vh-eye">{t('Nuestro compromiso', 'Our promise')}</p>
+        <h2>{t('Compra con confianza', 'Shop with confidence')}</h2>
+        <div className="vh-comp">
+          {[
+            { n: `${GARANTIA_DIAS}`, u: t('días', 'days'), h: t('Garantía en tus micas', 'Lens guarantee'), p: t('Si tu graduación no queda, rehacemos tus micas gratis.', 'If your prescription isn’t right, we remake your lenses free.'), href: '/warranty' },
+            { n: `${DEVOLUCION_DIAS}`, u: t('días', 'days'), h: t('Para devolver', 'To return'), p: t('¿No te convencieron? Te regresamos tu dinero.', 'Not happy? Get a full refund.'), href: '/returns' },
+            { n: `$${ENVIO_GRATIS_DESDE}`, u: '', h: t('Envío gratis desde', 'Free shipping over'), p: t('A todo Estados Unidos, con número de guía.', 'Anywhere in the US, with tracking.'), href: '/shipping' },
+          ].map(c => (
+            <Link key={c.href} href={c.href} className="vh-comp-i">
+              <span className="vh-comp-n">{c.n}<small>{c.u}</small></span>
+              <b>{c.h}</b>
+              <span>{c.p}</span>
+            </Link>
           ))}
         </div>
       </section>
@@ -223,9 +240,9 @@ export default function Home() {
 
         .vh-prods{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
         .vh-prod{text-decoration:none;color:var(--charcoal);display:flex;flex-direction:column;gap:4px}
-        .vh-prod-img{aspect-ratio:1/1;background:#EEECE8;border-radius:4px;overflow:hidden;margin-bottom:10px;display:flex;align-items:center;justify-content:center}
-        .vh-prod-img img{width:100%;height:100%;object-fit:contain;padding:14px;transition:transform .5s ease}
-        .vh-prod:hover .vh-prod-img img{transform:scale(1.04)}
+        .vh-prod-img{aspect-ratio:4/3;background:#F1EEE9;border-radius:4px;overflow:hidden;margin-bottom:12px}
+        .vh-prod-img img{width:100%;height:100%;object-fit:cover;mix-blend-mode:multiply;transform:scale(1.08);transition:transform .5s ease}
+        .vh-prod:hover .vh-prod-img img{transform:scale(1.13)}
         .vh-prod b{font-size:15px;font-weight:500}
         .vh-prod > span{font-size:13px;color:var(--warm-gray)}
         .vh-sws{display:flex;gap:6px;margin-top:6px}
@@ -245,14 +262,21 @@ export default function Home() {
         .vh-banner p{color:rgba(255,255,255,.8)}
         .vh-banner .vh-link{color:#fff}
 
-        .vh-pasos{display:grid;grid-template-columns:repeat(4,1fr);margin-top:40px;border-top:1px solid var(--border)}
-        .vh-paso{display:flex;flex-direction:column;gap:8px;padding:32px 24px 0 0;color:var(--charcoal)}
-        .vh-paso + .vh-paso{padding-left:24px;border-left:1px solid var(--border)}
-        .vh-num{width:26px;height:26px;border-radius:50%;background:var(--cream-dark);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;margin-bottom:6px}
-        .vh-paso svg{color:var(--sage);margin-bottom:6px}
+        .vh-pasos{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-top:36px}
+        .vh-paso{display:flex;flex-direction:column;gap:6px;color:var(--charcoal)}
+        .vh-paso-img{aspect-ratio:4/3;overflow:hidden;border-radius:4px;margin-bottom:12px;background:var(--cream-dark)}
+        .vh-paso-img img{width:100%;height:100%;object-fit:cover}
+                .vh-num{font-size:12px;font-weight:600;letter-spacing:.12em;color:var(--sage)}
         .vh-paso b{font-size:15px;font-weight:600}
         .vh-paso > span:last-child{font-size:13.5px;line-height:1.55;color:var(--warm-gray)}
 
+        .vh-comp{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:36px;border-top:1px solid var(--border);padding-top:32px}
+        .vh-comp-i{display:flex;flex-direction:column;gap:6px;text-decoration:none;color:var(--charcoal)}
+        .vh-comp-i + .vh-comp-i{border-left:1px solid var(--border);padding-left:24px}
+        .vh-comp-n{font-size:clamp(2.4rem,4vw,3.4rem);font-weight:500;letter-spacing:-.04em;line-height:1;color:var(--sage);margin-bottom:8px}
+        .vh-comp-n small{font-size:.38em;letter-spacing:0;margin-left:6px;color:var(--warm-gray);font-weight:500}
+        .vh-comp-i b{font-size:15px;font-weight:600}
+        .vh-comp-i > span:last-child{font-size:13.5px;line-height:1.55;color:var(--warm-gray)}
         .vh-faq{padding-bottom:110px}
         .vh-faq > div{margin-top:28px;border-top:1px solid var(--border)}
         .vh-faq details{border-bottom:1px solid var(--border)}
@@ -264,11 +288,9 @@ export default function Home() {
 
         @media (max-width:900px){
           .vh-formas,.vh-prods{grid-template-columns:1fr 1fr;gap:12px}
-          .vh-pasos{grid-template-columns:1fr 1fr}
-          .vh-paso{padding:24px 16px 24px 0}
-          .vh-paso + .vh-paso{padding-left:16px}
-          .vh-paso:nth-child(3){padding-left:0;border-left:0}
-          .vh-paso:nth-child(n+3){border-top:1px solid var(--border)}
+          .vh-pasos{grid-template-columns:1fr 1fr;gap:24px 12px}
+          .vh-comp{grid-template-columns:1fr}
+          .vh-comp-i + .vh-comp-i{border-left:0;padding-left:0;border-top:1px solid var(--border);padding-top:24px}
         }
         @media (max-width:768px){
           .vh{padding-top:106px}

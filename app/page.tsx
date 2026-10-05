@@ -302,9 +302,10 @@ export default function Home() {
           /* Celular: todo sobre la foto. Título arriba (pared clara), botones abajo (piedra clara) */
           .vh-hero img{height:auto;aspect-ratio:4/5;object-position:center}
           .vh-hero::after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(to bottom,rgba(253,252,250,.85) 0%,rgba(253,252,250,0) 26%,rgba(253,252,250,0) 78%,rgba(253,252,250,.7) 100%)}
-          .vh-hero-tx{inset:0;justify-content:space-between;padding:22px 1.25rem 22px;z-index:1}
+          .vh-hero-tx{inset:0;justify-content:space-between;padding:44px 1.5rem 24px;z-index:1}
           .vh-hero-tx > p{display:none}
-          .vh-hero h1{font-size:1.9rem;margin:0}
+          .vh-hero h1{font-size:2.4rem;line-height:1.02;margin:0}
+          .vh-hero .vh-btn-2{background:rgba(253,252,250,.9);border-color:rgba(28,28,26,.25)}
           .vh-hero p{font-size:14px;margin-bottom:18px;max-width:300px}
           .vh-btn{padding:12px 20px;font-size:13px}
           .vh-sec{padding:64px 1.25rem 0}

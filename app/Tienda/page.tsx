@@ -150,6 +150,10 @@ function TiendaContent() {
   useEffect(() => {
     const g = searchParams.get('genero');
     if (g && g !== 'all') setGenero(g);
+    // Filtros que llegan desde la portada: ?forma=round, ?material=ACETATE, ?color=transparente
+    const lista = (k: string) => (searchParams.get(k) || '').split(',').map(x => x.trim()).filter(Boolean);
+    const forma = lista('forma'), material = lista('material'), color = lista('color'), aro = lista('aro');
+    if (forma.length || material.length || color.length || aro.length) setF({ ...VACIO, forma, material, color, aro });
   }, [searchParams]);
 
   useEffect(() => {

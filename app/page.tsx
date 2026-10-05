@@ -1,458 +1,292 @@
-// app/page.tsx
+// app/page.tsx — Portada (estilo editorial: crema, verde oscuro, fotos grandes)
 'use client';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import Navbar from './components/Navbar';
 import Asistente from './components/Asistente';
 import Garantias from './components/Garantias';
 import { useLang } from './components/LanguageContext';
 import { supabase } from './lib/supabase';
-import { nombreBadge } from './lib/textos';
+import { swatchColor, nombreColor } from './lib/colores';
+import { precioArmazonFinal } from './lib/precios';
+import { DIAS_FABRICACION, DIAS_ENVIO, DEVOLUCION_DIAS } from './lib/marca';
 
-type Armazon = {
-  id: number;
-  nombre: string;
-  forma: string;
-  precio: number;
-  color: string;
-  imagen_url?: string;
-  badge?: string;
-};
+type Destacado = { id: number; nombre: string; precio: number; foto: string; colores: { color: string; hex?: string | null }[] };
 
-function useScrollReveal() {
-  const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setVisible(true); observer.disconnect(); } },
-      { threshold: 0.1 }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-  return { ref, visible };
-}
-
-function Reveal({ children, delay = 0, direction = 'up' }: { children: React.ReactNode; delay?: number; direction?: 'up' | 'left' | 'right' | 'none' }) {
-  const { ref, visible } = useScrollReveal();
-  const transforms: Record<string, string> = { up: 'translateY(32px)', left: 'translateX(-32px)', right: 'translateX(32px)', none: 'none' };
-  return (
-    <div ref={ref} style={{ opacity: visible ? 1 : 0, transform: visible ? 'none' : transforms[direction], transition: `opacity 0.7s ease ${delay}ms, transform 0.7s ease ${delay}ms` }}>
-      {children}
-    </div>
-  );
-}
-
-function QuizModal({ onClose, t, lang }: { onClose: () => void; t: any; lang: string }) {
-  const router = useRouter();
-  const [paso, setPaso] = useState(1);
-  const [tipo, setTipo] = useState('');
-
-  const handleTipo = (val: string) => { setTipo(val); setPaso(2); };
-  const handleGenero = (val: string) => { router.push(`/Tienda?tipo=${tipo}&genero=${val}`); onClose(); };
-
-  const paso1Cards = [
-    { val: 'optico', img: '/quiz-optico.jpg', title: t('Prescription glasses', 'Prescription glasses'), desc: t('Para tu vision diaria', 'For your daily vision'), icon: (<svg width="28" height="16" viewBox="0 0 110 55" fill="none"><rect x="2" y="7" width="44" height="38" rx="8" fill="none" stroke="white" strokeWidth="3"/><rect x="64" y="7" width="44" height="38" rx="8" fill="none" stroke="white" strokeWidth="3"/><path d="M46 22 C50 18, 60 18, 64 22" stroke="white" strokeWidth="2.5" fill="none" strokeLinecap="round"/><line x1="2" y1="22" x2="-5" y2="18" stroke="white" strokeWidth="2.5" strokeLinecap="round"/><line x1="108" y1="22" x2="115" y2="18" stroke="white" strokeWidth="2.5" strokeLinecap="round"/></svg>) },
-    { val: 'solar', img: '/quiz-solar.jpg', title: t('Sunglasses', 'Sunglasses'), desc: t('Proteccion y estilo', 'Protection and style'), icon: (<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>) },
-  ];
-
-  const paso2Cards = [
-    { val: 'hombre', img: tipo === 'solar' ? '/quiz-hombre-solar.jpg' : '/quiz-hombre.jpg', title: t('Hombre', 'Men'), desc: t('Clasicos, comodos y resistentes', 'Classic, comfortable and durable') },
-    { val: 'mujer', img: tipo === 'solar' ? '/quiz-mujer-solar.jpg' : '/quiz-mujer.jpg', title: t('Mujer', 'Women'), desc: t('Modernos, ligeros y versatiles', 'Modern, lightweight and versatile') },
-  ];
-
-  return (
-    <>
-      <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(28,28,26,0.75)', zIndex: 1000, backdropFilter: 'blur(6px)' }}/>
-      <div style={{ position: 'fixed', inset: 0, zIndex: 1001, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '1.5rem', overflowY: 'auto' }}>
-        <div style={{ textAlign: 'center', marginBottom: '2rem', position: 'relative', width: '100%', maxWidth: '700px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem' }}>
-            <img src="/logo-trasparente.png" alt="Verly" style={{ height: '28px', opacity: 0.9, filter: 'brightness(0) invert(1)' }}/>
-          </div>
-          <button onClick={onClose} style={{ position: 'absolute', top: 0, right: 0, width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '18px', backdropFilter: 'blur(4px)' }}>x</button>
-          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)', marginBottom: '0.75rem' }}>
-            {paso === 1 ? t('Paso 1 de 2', 'Step 1 of 2') : t('Paso 2 de 2', 'Step 2 of 2')}
-          </p>
-          <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(1.8rem, 4vw, 2.8rem)', fontWeight: 600, color: 'white', margin: '0 0 0.5rem', lineHeight: 1.1}}>
-            {paso === 1 ? t('Que buscas?', 'What are you looking for?') : t('Para quien?', 'Who is it for?')}
-          </h2>
-          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.7rem', fontWeight: 500, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.45)', margin: 0 }}>
-            {paso === 1 ? t('Elige el tipo de lentes', 'Choose the type of lenses') : t('Personaliza tu experiencia', 'Personalize your experience')}
-          </p>
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem', width: '100%', maxWidth: '700px' }}>
-          {(paso === 1 ? paso1Cards : paso2Cards).map(card => (
-            <button key={card.val} onClick={() => paso === 1 ? handleTipo(card.val) : handleGenero(card.val)}
-              style={{ position: 'relative', height: 'clamp(240px, 35vh, 380px)', borderRadius: '16px', overflow: 'hidden', border: 'none', cursor: 'pointer', padding: 0, background: 'transparent' }}>
-              <img src={(card as any).img} alt={(card as any).title} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: paso === 1 ? 'center bottom' : '50% 20%' }}/>
-              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.05) 100%)' }}/>
-              <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '1.5rem', textAlign: 'left' }}>
-                {paso === 1 && (card as any).icon && <div style={{ marginBottom: '0.75rem', opacity: 0.9 }}>{(card as any).icon}</div>}
-                <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(1.4rem, 3vw, 2rem)', fontWeight: 600, color: 'white', margin: '0 0 0.4rem', lineHeight: 1.1}}>{(card as any).title}</h3>
-                <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.8rem', color: 'rgba(255,255,255,0.7)', margin: '0 0 1.25rem', lineHeight: 1.5 }}>{(card as any).desc}</p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <span style={{ fontFamily: 'var(--font-sans)', fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'white' }}>{t('EXPLORAR', 'EXPLORE')}</span>
-                  <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.4)', maxWidth: '40px' }}/>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
-                </div>
-              </div>
-            </button>
-          ))}
-        </div>
-        {paso === 2 && (
-          <button onClick={() => setPaso(1)} style={{ marginTop: '1.25rem', background: 'none', border: 'none', fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', cursor: 'pointer', fontFamily: 'var(--font-sans)', textDecoration: 'underline' }}>
-            {t('Volver', 'Back')}
-          </button>
-        )}
-      </div>
-    </>
-  );
-}
+const Flecha = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+);
 
 export default function Home() {
   const { t, lang } = useLang() as any;
-  const [esMobil, setEsMobil] = useState(false);
-  const [armazones, setArmazones] = useState<Armazon[]>([]);
   const [quizOpen, setQuizOpen] = useState(false);
-  const carruselRef = useRef<HTMLDivElement>(null);
+  const [destacados, setDestacados] = useState<Destacado[]>([]);
 
+  // Armazones reales de OptiOS: los primeros 4 publicados que ya tienen foto
   useEffect(() => {
-    const check = () => setEsMobil(window.innerWidth <= 768);
-    check();
-    window.addEventListener('resize', check);
-    return () => window.removeEventListener('resize', check);
+    (async () => {
+      const { data: arms } = await supabase.from('armazones').select('*')
+        .eq('activo', true).eq('publicar_verly', true).eq('tipo', 'optico').order('id', { ascending: false }).limit(40);
+      const lista = arms || [];
+      if (!lista.length) return;
+      const { data: cols } = await supabase.from('armazon_colores').select('armazon_id, color, hex, imagen_url, orden')
+        .in('armazon_id', lista.map((a: any) => a.id)).eq('publicar_verly', true).order('orden');
+      const porModelo: Record<number, any[]> = {};
+      for (const c of cols || []) (porModelo[c.armazon_id] ||= []).push(c);
+      const out: Destacado[] = [];
+      for (const a of lista as any[]) {
+        const cs = porModelo[a.id] || [];
+        const foto = a.imagen_url || cs.find(c => c.imagen_url)?.imagen_url;
+        if (!foto) continue;
+        out.push({ id: a.id, nombre: a.nombre, precio: precioArmazonFinal(a.precio, a.descuento_verly), foto, colores: cs.length ? cs : [{ color: a.color || '' }] });
+        if (out.length === 4) break;
+      }
+      setDestacados(out);
+    })();
   }, []);
 
-  useEffect(() => {
-    async function cargar() {
-      const { data } = await supabase.from('armazones').select('*').eq('activo', true).eq('publicar_verly', true).order('id').limit(8);
-      setArmazones(data || []);
-    }
-    cargar();
-  }, []);
+  const formas = [
+    { img: '/home/forma-redondos.jpg', es: 'Redondos', en: 'Round', href: '/Tienda?forma=round' },
+    { img: '/home/forma-rectangulares.jpg', es: 'Rectangulares', en: 'Rectangular', href: '/Tienda?forma=rectangle,square' },
+    { img: '/home/forma-cateye.jpg', es: 'Cat-eye', en: 'Cat-eye', href: '/Tienda?forma=cat-eye' },
+    { img: '/home/forma-metal.jpg', es: 'De metal', en: 'Metal', href: '/Tienda?material=METAL' },
+  ];
 
-  if (esMobil) {
-    return (
-      <main style={{ fontFamily: 'var(--font-sans)', margin: 0, padding: 0, background: 'var(--cream)', color: 'var(--charcoal)', overflowX: 'hidden' }}>
-        <Navbar />
-        {quizOpen && <Asistente onClose={() => setQuizOpen(false)} t={t} lang={lang} />}
+  const pasos = [
+    { es: 'Elige tu armazón', en: 'Choose your frame', des: 'Filtra por forma, color y talla.', den: 'Filter by shape, color and size.', ico: 'M3 12a4 4 0 1 0 8 0a4 4 0 1 0-8 0M13 12a4 4 0 1 0 8 0a4 4 0 1 0-8 0M11 12h2' },
+    { es: 'Sube tu receta', en: 'Upload your prescription', des: 'Una foto de tu receta o escribe los números.', den: 'A photo of your prescription, or type the numbers.', ico: 'M7 3h7l5 5v13H7zM14 3v5h5M10 13h6M10 17h6' },
+    { es: 'Elige tus micas', en: 'Choose your lenses', des: 'Material y filtros, como luz azul o fotocromático.', den: 'Material and coatings, like blue light or photochromic.', ico: 'M12 4c4.4 0 8 3.6 8 8s-3.6 8-8 8-8-3.6-8-8 3.6-8 8-8zM8 12h8' },
+    { es: 'Recíbelos en casa', en: 'Get them at home', des: `Hacemos tus micas en ${DIAS_FABRICACION.min} a ${DIAS_FABRICACION.max} días y te llegan en ${DIAS_ENVIO.min} a ${DIAS_ENVIO.max} días hábiles.`, den: `We make your lenses in ${DIAS_FABRICACION.min}–${DIAS_FABRICACION.max} days and delivery takes ${DIAS_ENVIO.min}–${DIAS_ENVIO.max} business days.`, ico: 'M3 8l9-5 9 5v8l-9 5-9-5zM3 8l9 5 9-5M12 13v8' },
+  ];
 
-        <section style={{ paddingTop: '80px', paddingBottom: '2rem' }}>
-          <div style={{ padding: '0 1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '1rem' }}>
-            <div>
-              <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.62rem', fontWeight: 500, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--warm-gray)', marginBottom: '4px' }}>{t('Esta semana', 'This week')}</p>
-              <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', fontWeight: 600, color: 'var(--charcoal)', margin: 0, lineHeight: 1.1}}>{t('Armazones destacados', 'Featured frames')}</h2>
-            </div>
-            <Link href="/Tienda" style={{ fontFamily: 'var(--font-sans)', fontSize: '0.7rem', color: 'var(--warm-gray)', textDecoration: 'none', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>{t('Ver todos', 'View all')}</Link>
-          </div>
-          <div ref={carruselRef} style={{ display: 'flex', gap: '0.75rem', overflowX: 'auto', paddingLeft: '1.25rem', paddingRight: '1.25rem', paddingBottom: '0.5rem', scrollSnapType: 'x mandatory', WebkitOverflowScrolling: 'touch', msOverflowStyle: 'none', scrollbarWidth: 'none' }}>
-            {armazones.map(a => (
-              <Link key={a.id} href={`/armazon/${a.id}`} style={{ textDecoration: 'none', color: 'inherit', flexShrink: 0, scrollSnapAlign: 'start' }}>
-                <div style={{ width: '160px' }}>
-                  <div style={{ width: '160px', height: '140px', background: a.color ? `${a.color}12` : 'var(--cream-dark)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.6rem', overflow: 'hidden', position: 'relative' }}>
-                    {a.imagen_url
-                      ? <img src={a.imagen_url} alt={a.nombre} style={{ width: '100%', height: '100%', objectFit: 'cover' }}/>
-                      : (
-                        <svg width="90" height="48" viewBox="0 0 160 90" fill="none">
-                          <rect x="4" y="12" width="64" height="66" rx="14" fill="none" stroke={a.color || 'var(--charcoal)'} strokeWidth="3.5"/>
-                          <rect x="92" y="12" width="64" height="66" rx="14" fill="none" stroke={a.color || 'var(--charcoal)'} strokeWidth="3.5"/>
-                          <path d="M68 38 C72 32, 88 32, 92 38" stroke={a.color || 'var(--charcoal)'} strokeWidth="2.5" fill="none" strokeLinecap="round"/>
-                        </svg>
-                      )}
-                    {a.badge && <div style={{ position: 'absolute', top: '8px', left: '8px', fontFamily: 'var(--font-sans)', fontSize: '0.6rem', fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--charcoal)', background: 'var(--cream)', padding: '3px 7px', border: '1px solid var(--border)', borderRadius: '2px' }}>{nombreBadge(a.badge, lang)}</div>}
-                  </div>
-                  <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.6rem', fontWeight: 400, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--warm-gray)', margin: '0 0 2px' }}>{a.forma}</p>
-                  <p style={{ fontFamily: 'var(--font-serif)', fontSize: '0.95rem', fontWeight: 600, color: 'var(--charcoal)', margin: '0 0 4px', lineHeight: 1.2}}>{a.nombre}</p>
-                  <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.82rem', fontWeight: 500, color: 'var(--charcoal)', margin: 0 }}>${a.precio} <span style={{ fontWeight: 400, color: 'var(--warm-gray)', fontSize: '0.7rem' }}>USD</span></p>
-                </div>
-              </Link>
-            ))}
-          </div>
-          <div style={{ padding: '1rem 1.25rem 0' }}>
-            <Link href="/Tienda" style={{ display: 'block', textAlign: 'center', fontFamily: 'var(--font-sans)', fontSize: '0.72rem', fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--charcoal)', border: '1px solid var(--border)', padding: '0.85rem', borderRadius: '3px', textDecoration: 'none' }}>{t('Ver mas armazones', 'View more frames')}</Link>
-          </div>
-        </section>
-
-        <section style={{ margin: '0 1.25rem 2rem', borderRadius: '10px', overflow: 'hidden', position: 'relative', height: '340px' }}>
-          <img src="/hero-mobile.jpg" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top' }}/>
-          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(28,28,26,0.72) 0%, rgba(28,28,26,0.3) 55%, rgba(28,28,26,0.0) 100%)' }}/>
-          <div style={{ position: 'absolute', bottom: '1.75rem', left: '1.5rem', right: '40%' }}>
-            <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.6rem', fontWeight: 600, color: 'white', lineHeight: 1.15, margin: '0 0 0.5rem', letterSpacing: '-0.01em' }}>
-              {lang === 'es'
-                ? <>Tus lentes con graduación,<br />desde <em style={{ fontStyle: 'normal', color: 'rgba(255,255,255,0.85)' }}>$28.</em></>
-                : <>Prescription glasses,<br />complete, from <em style={{ fontStyle: 'normal', color: 'rgba(255,255,255,0.85)' }}>$28.</em></>}
-            </h1>
-            <Link href="/Tienda?tipo=optico" style={{ display: 'inline-block', fontFamily: 'var(--font-sans)', fontSize: '0.68rem', fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--charcoal)', background: 'white', padding: '0.65rem 1.1rem', borderRadius: '2px', textDecoration: 'none' }}>
-              {t('Ver lentes graduados', 'Shop eyeglasses')}
-            </Link>
-          </div>
-        </section>
-        <Garantias />
-
-        <section style={{ margin: '0 1.25rem 2rem' }}>
-          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.62rem', fontWeight: 500, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--warm-gray)', marginBottom: '0.75rem' }}>
-            {t('Colecciones', 'Collections')}
-          </p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            {[
-              { img: '/hero-hombre.jpg', titulo_es: 'Para el', titulo_en: 'For him', sub_es: 'Clasicos y duraderos', sub_en: 'Classic and durable', href: '/Tienda?tipo=optico&genero=hombre', pos: 'center 30%' },
-              { img: '/hero-mujer.jpg', titulo_es: 'Para ella', titulo_en: 'For her', sub_es: 'Modernos y versatiles', sub_en: 'Modern and versatile', href: '/Tienda?tipo=optico&genero=mujer', pos: 'center 20%' },
-            ].map((c, i) => (
-              <Link key={i} href={c.href} style={{ textDecoration: 'none', display: 'block' }}>
-                <div style={{ position: 'relative', height: '200px', borderRadius: '10px', overflow: 'hidden' }}>
-                  <img src={c.img} alt={lang === 'es' ? c.titulo_es : c.titulo_en} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: c.pos, display: 'block' }}/>
-                  <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(0,0,0,0.62) 0%, rgba(0,0,0,0.25) 50%, rgba(0,0,0,0.0) 100%)' }}/>
-                  <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0 1.5rem' }}>
-                    <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.6rem', fontWeight: 600, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)', margin: '0 0 0.35rem' }}>
-                      {lang === 'es' ? c.sub_es : c.sub_en}
-                    </p>
-                    <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '2rem', fontWeight: 600, color: 'white', margin: '0 0 0.75rem', lineHeight: 1, letterSpacing: '-0.02em' }}>
-                      {lang === 'es' ? c.titulo_es : c.titulo_en}
-                    </h3>
-                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-                      <span style={{ fontFamily: 'var(--font-sans)', fontSize: '0.62rem', fontWeight: 600, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.85)' }}>{t('Explorar', 'Explore')}</span>
-                      <div style={{ width: '20px', height: '1px', background: 'rgba(255,255,255,0.5)' }}/>
-                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" strokeWidth="2" strokeLinecap="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
-
-        <section style={{ margin: '0 1.25rem 2.5rem', background: 'var(--charcoal)', borderRadius: '10px', padding: '2rem 1.5rem', position: 'relative', overflow: 'hidden' }}>
-          <div style={{ position: 'absolute', top: '-40px', right: '-40px', width: '160px', height: '160px', borderRadius: '50%', background: 'rgba(74,89,64,0.15)', pointerEvents: 'none' }}/>
-          <div style={{ position: 'relative', zIndex: 1 }}>
-            <p style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', fontWeight: 600, color: 'white', lineHeight: 1.15, margin: '0 0 0.4rem'}}>{t('Tu primer par.', 'Your first pair.')}</p>
-            <p style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', fontWeight: 600, fontStyle: 'italic', color: 'rgba(255,255,255,0.55)', margin: '0 0 1rem', lineHeight: 1.15}}>{t('Nuestro mejor precio.', 'Our best price.')}</p>
-            <button onClick={() => setQuizOpen(true)} style={{ display: 'inline-block', fontFamily: 'var(--font-sans)', fontSize: '0.68rem', fontWeight: 500, letterSpacing: '0', color: 'var(--charcoal)', background: 'white', padding: '0.75rem 1.5rem', borderRadius: '999px', border: 'none', cursor: 'pointer' }}>
-              {t('Encontrar mi par', 'Find my frames')}
-            </button>
-          </div>
-        </section>
-
-        <style>{`div::-webkit-scrollbar { display: none; }`}</style>
-      </main>
-    );
-  }
+  const faqs = [
+    { q: ['¿Necesito aseguranza?', 'Do I need insurance?'], a: ['No. Nos compras directo, sin aseguranza.', 'No. You buy directly from us, no insurance needed.'] },
+    { q: ['¿Cómo envío mi receta?', 'How do I send my prescription?'], a: ['Al comprar puedes subir una foto de tu receta o escribir los números.', 'At checkout you can upload a photo of your prescription or type the numbers.'] },
+    { q: ['¿Cuánto tarda en llegar?', 'How long does delivery take?'], a: [`Hacemos tus micas en ${DIAS_FABRICACION.min} a ${DIAS_FABRICACION.max} días hábiles y te llegan en ${DIAS_ENVIO.min} a ${DIAS_ENVIO.max} días hábiles más.`, `We make your lenses in ${DIAS_FABRICACION.min}–${DIAS_FABRICACION.max} business days, then delivery takes ${DIAS_ENVIO.min}–${DIAS_ENVIO.max} business days.`] },
+    { q: ['¿Puedo devolver mis lentes?', 'Can I return my glasses?'], a: [`Sí, tienes ${DEVOLUCION_DIAS} días para devolverlos y te regresamos tu dinero.`, `Yes, you have ${DEVOLUCION_DIAS} days to return them for a full refund.`] },
+    { q: ['¿Cómo puedo pagar?', 'How can I pay?'], a: ['Con tarjeta de crédito o débito, Apple Pay o Google Pay.', 'With credit or debit card, Apple Pay or Google Pay.'] },
+  ];
 
   return (
-    <main style={{ fontFamily: 'var(--font-sans)', margin: 0, padding: 0, background: 'var(--cream)', color: 'var(--charcoal)', overflowX: 'hidden' }}>
+    <main className="vh">
       <Navbar />
       {quizOpen && <Asistente onClose={() => setQuizOpen(false)} t={t} lang={lang} />}
 
-      <section style={{ position: 'relative', width: '100%', minHeight: '100vh', overflow: 'hidden', display: 'flex', alignItems: 'center' }}>
-        <img src="/hero-man.jpg" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top' }}/>
-        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.08)' }}/>
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(247,244,239,0.98) 0%, rgba(247,244,239,0.88) 38%, rgba(247,244,239,0.0) 65%)' }}/>
-        <div style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: '1180px', margin: '0 auto', padding: '0 2rem' }}>
-          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '11px', fontWeight: 500, letterSpacing: '2.5px', textTransform: 'uppercase', color: 'var(--sage)', marginBottom: '1.25rem' }}>
-            {t('No necesitas aseguranza', 'No insurance needed')}
-          </p>
-          <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(3.5rem, 5.5vw, 5rem)', fontWeight: 600, lineHeight: 1.05, letterSpacing: '-0.02em', color: 'var(--charcoal)', marginBottom: '1.25rem', maxWidth: '580px' }}>
-            {lang === 'es'
-              ? <>Tus lentes con graduación,<br />desde <em style={{ fontStyle: 'normal', color: 'var(--sage)' }}>$28.</em></>
-              : <>Prescription glasses,<br />complete, from <em style={{ fontStyle: 'normal', color: 'var(--sage)' }}>$28.</em></>}
-          </h1>
-          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '15px', color: 'var(--warm-gray)', lineHeight: 1.8, marginBottom: '2.5rem', maxWidth: '360px', fontWeight: 400 }}>
-            {t('Armazón y micas con tu graduación, completos. Sube una foto de tu receta y nosotros hacemos lo demás.', 'Frame and prescription lenses, complete. Upload a photo of your prescription and we do the rest.')}
-          </p>
-          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-            <Link href="/Tienda?tipo=optico" style={{ background: 'var(--sage)', color: 'white', padding: '15px 36px', borderRadius: '999px', fontFamily: 'var(--font-sans)', fontSize: '12px', fontWeight: 500, letterSpacing: '0', textDecoration: 'none', display: 'inline-block', cursor: 'pointer' }}>
-              {t('Ver lentes graduados', 'Shop eyeglasses')}
-            </Link>
-            <button onClick={() => setQuizOpen(true)} style={{ background: 'rgba(255,255,255,0.8)', color: 'var(--charcoal)', padding: '14px 28px', borderRadius: '999px', fontFamily: 'var(--font-sans)', fontSize: '12px', fontWeight: 500, letterSpacing: '0', border: '1px solid var(--border)', cursor: 'pointer', backdropFilter: 'blur(8px)' }}>
-              {t('Encontrar mi par', 'Find my frames')}
-            </button>
+      {/* Portada */}
+      <section className="vh-hero">
+        <picture>
+          <source media="(max-width: 768px)" srcSet="/home/hero-movil.jpg" />
+          <img src="/home/hero.jpg" alt={t('Armazones sobre pedestales de piedra', 'Frames on stone pedestals')} />
+        </picture>
+        <div className="vh-hero-tx">
+          <h1>{lang === 'es' ? <>Lentes con tu graduación,<br />desde $28.</> : <>Prescription glasses,<br />from $28.</>}</h1>
+          <p>{t('Armazón y micas con tu graduación. Sube una foto de tu receta y nosotros hacemos lo demás.', 'Frame and prescription lenses. Upload a photo of your prescription and we do the rest.')}</p>
+          <div className="vh-btns">
+            <Link href="/Tienda" className="vh-btn">{t('Ver armazones', 'Shop frames')} <Flecha /></Link>
+            <button onClick={() => setQuizOpen(true)} className="vh-btn vh-btn-2">{t('Encontrar mi par', 'Find my pair')}</button>
           </div>
         </div>
-        <div style={{ position: 'absolute', bottom: '2rem', left: '50%', transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', opacity: 0.4 }}>
-          <div style={{ width: '1px', height: '48px', background: 'var(--charcoal)' }}/>
-          <svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="var(--charcoal)" strokeWidth="1.2" strokeLinecap="round"/></svg>
-        </div>
       </section>
+
       <Garantias />
 
-      <Reveal>
-        <section style={{ background: 'var(--cream)', padding: '8rem 2rem', overflow: 'hidden' }}>
-          <style>{`
-            .how-editorial-wrap { max-width: 1180px; margin: 0 auto; }
-            .how-editorial-header { text-align: center; margin-bottom: 5.5rem; }
-            .how-eyebrow { font-family: var(--font-sans); font-size: 10px; font-weight: 600; letter-spacing: .26em; text-transform: uppercase; color: var(--warm-gray); margin-bottom: 1.2rem; }
-            .how-title { font-family: var(--font-serif); font-size: clamp(3rem, 5vw, 5.2rem); font-weight: 400; line-height: .95; letter-spacing: -.045em; color: var(--charcoal); margin: 0 0 1.5rem; }
-            .how-subline { display: flex; justify-content: center; align-items: center; gap: 1rem; }
-            .how-subline span { width: 52px; height: 1px; background: var(--warm-gray); opacity: .35; }
-            .how-subline p { font-family: var(--font-sans); font-size: 13px; color: var(--warm-gray); margin: 0; }
-            .how-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2rem; }
-            .how-card { position: relative; background: var(--cream-dark); border: 1px solid rgba(80,70,58,.07); border-radius: 18px; overflow: hidden; box-shadow: 0 24px 70px rgba(56,43,30,.06); }
-            .how-card:nth-child(2), .how-card:nth-child(4) { transform: translateY(2.2rem); }
-            .how-image { position: relative; height: 255px; overflow: hidden; }
-            .how-image img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; transition: transform .9s ease; }
-            .how-card:hover .how-image img { transform: scale(1.035); }
-            .how-content { position: relative; padding: 2.1rem 2rem 2.2rem; }
-            .how-number-row { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
-            .how-number { font-family: var(--font-serif); font-size: clamp(4.2rem, 7vw, 6.5rem); font-weight: 300; line-height: .75; letter-spacing: -.06em; color: var(--sage); opacity: 0.7; }
-            .how-line { flex: 1; height: 1px; background: var(--warm-gray); opacity: .35; margin-top: .8rem; }
-            .how-step-title { font-family: var(--font-serif); font-size: clamp(1.6rem, 2.2vw, 2rem); font-weight: 400; line-height: 1.05; letter-spacing: -.025em; color: var(--charcoal); margin: 0 0 .8rem; }
-            .how-step-text { font-family: var(--font-sans); font-size: 13px; line-height: 1.75; color: var(--warm-gray); max-width: 360px; margin: 0; }
-            @media (max-width: 900px) {
-              .how-grid { grid-template-columns: 1fr; gap: 2rem; }
-              .how-card:nth-child(2), .how-card:nth-child(4) { transform: none; }
-              .how-image { height: 220px; }
-              .how-content { padding: 1.8rem 1.5rem 2rem; }
-            }
-          `}</style>
-          <div className="how-editorial-wrap">
-            <Reveal>
-              <div className="how-editorial-header">
-                <p className="how-eyebrow">{t('Como funciona', 'How it works')}</p>
-                <h2 className="how-title">
-                  {lang === 'es' ? <>Cuatro pasos simples.<br/>Mejor vision.</> : <>Four simple steps.<br/>Better vision.</>}
-                </h2>
-                <div className="how-subline">
-                  <span/><p>{t('De tu receta a tu puerta.', 'From your prescription to your door.')}</p><span/>
-                </div>
-              </div>
-            </Reveal>
-            <div className="how-grid">
-              {[
-                { num: '01', title_es: 'Elige tu armazon', title_en: 'Choose your frame', desc_es: 'Explora nuestra coleccion y encuentra el estilo perfecto para ti.', desc_en: 'Explore our collection and find the perfect style for you.', img: '/proceso-01.jpg', delay: 0 },
-                { num: '02', title_es: 'Sube tu receta', title_en: 'Upload your Rx', desc_es: 'Toma una foto de tu receta o escribe los numeros manualmente.', desc_en: 'Upload a photo of your prescription or type the numbers manually.', img: '/proceso-02.jpg', delay: 100 },
-                { num: '03', title_es: 'Fabricamos tus lentes', title_en: 'We craft your lenses', desc_es: 'Micas hechas con precision segun tu graduacion, material y filtros.', desc_en: 'Precision lenses made for your prescription, material and filters.', img: '/proceso-03.jpg', delay: 160 },
-                { num: '04', title_es: 'Recibelos en casa', title_en: 'Delivered to your door', desc_es: 'Envio rapido y seguro. Porque ver bien deberia ser sencillo.', desc_en: 'Fast, secure shipping. Because great vision should feel effortless.', img: '/proceso-04.jpg', delay: 220 },
-              ].map((step, i) => (
-                <Reveal key={i} delay={step.delay} direction="up">
-                  <article className="how-card">
-                    <div className="how-image">
-                      <img src={step.img} alt={lang === 'es' ? step.title_es : step.title_en}/>
-                    </div>
-                    <div className="how-content">
-                      <div className="how-number-row">
-                        <span className="how-number">{step.num}</span>
-                        <span className="how-line"/>
-                      </div>
-                      <h3 className="how-step-title">{lang === 'es' ? step.title_es : step.title_en}</h3>
-                      <p className="how-step-text">{lang === 'es' ? step.desc_es : step.desc_en}</p>
-                    </div>
-                  </article>
-                </Reveal>
-              ))}
+      {/* Formas */}
+      <section className="vh-sec">
+        <div className="vh-head">
+          <div>
+            <p className="vh-eye">{t('Nuestra colección', 'Our collection')}</p>
+            <h2>{t('Encuentra tu forma', 'Find your shape')}</h2>
+          </div>
+          <p className="vh-side">{t('Todos los armazones incluyen micas con tu graduación, estuche y paño.', 'Every frame includes prescription lenses, a case and a cleaning cloth.')}</p>
+        </div>
+        <div className="vh-formas">
+          {formas.map(f => (
+            <Link key={f.href} href={f.href} className="vh-forma">
+              <img src={f.img} alt={t(f.es, f.en)} loading="lazy" />
+              <span>{t(f.es, f.en)} <Flecha /></span>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* Destacados (productos reales) */}
+      {destacados.length > 0 && (
+        <section className="vh-sec">
+          <div className="vh-head">
+            <div>
+              <p className="vh-eye">{t('Destacados', 'Featured')}</p>
+              <h2>{t('Armazones destacados', 'Featured frames')}</h2>
             </div>
+            <Link href="/Tienda" className="vh-link">{t('Ver todos los armazones', 'View all frames')} <Flecha /></Link>
+          </div>
+          <div className="vh-prods">
+            {destacados.map(d => (
+              <Link key={d.id} href={`/armazon/${d.id}`} className="vh-prod">
+                <div className="vh-prod-img"><img src={d.foto} alt={d.nombre} loading="lazy" /></div>
+                <b>{d.nombre}</b>
+                <span>{t('Desde', 'From')} ${d.precio}</span>
+                <div className="vh-sws">
+                  {d.colores.slice(0, 5).map((c, i) => <i key={i} title={nombreColor(c.color, lang)} style={{ background: swatchColor(c.color, c.hex) }} />)}
+                </div>
+              </Link>
+            ))}
           </div>
         </section>
-      </Reveal>
+      )}
 
-      <section style={{ padding: '5rem 2rem', maxWidth: '1180px', margin: '0 auto' }}>
-        <Reveal>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2.5rem' }}>
-            <div>
-              <p style={{ fontFamily: 'var(--font-sans)', fontSize: '10px', fontWeight: 600, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--sage)', margin: '0 0 6px' }}>{t('Best sellers', 'Best sellers')}</p>
-              <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(1.8rem, 3vw, 2.4rem)', fontWeight: 600, color: 'var(--charcoal)', margin: 0}}>{t('Los mas populares', 'Most popular')}</h2>
+      {/* Dos colecciones */}
+      <section className="vh-mitades">
+        <Link href="/Tienda?material=ACETATE" className="vh-mitad">
+          <img src="/home/acetato.jpg" alt={t('Armazón de acetato carey', 'Tortoise acetate frame')} loading="lazy" />
+          <div>
+            <h3>{t('Acetato clásico', 'Classic acetate')}</h3>
+            <p>{t('Armazones de acetato en carey, negro y colores.', 'Acetate frames in tortoise, black and colors.')}</p>
+            <span className="vh-link">{t('Ver colección', 'Shop the collection')} <Flecha /></span>
+          </div>
+        </Link>
+        <Link href="/Tienda?color=transparente" className="vh-mitad">
+          <img src="/home/transparentes.jpg" alt={t('Armazón transparente', 'Clear frame')} loading="lazy" />
+          <div>
+            <h3>{t('Transparentes', 'Clear frames')}</h3>
+            <p>{t('Ligeros y fáciles de combinar con todo.', 'Light and easy to wear with anything.')}</p>
+            <span className="vh-link">{t('Ver colección', 'Shop the collection')} <Flecha /></span>
+          </div>
+        </Link>
+      </section>
+
+      {/* Banner ancho */}
+      <Link href="/Tienda?material=METAL" className="vh-banner">
+        <img src="/home/metal-banner.jpg" alt={t('Armazón de metal dorado', 'Gold metal frame')} loading="lazy" />
+        <div>
+          <h3>{t('Armazones de metal', 'Metal frames')}</h3>
+          <p>{t('Delgados y ligeros, en dorado y plateado.', 'Thin and light, in gold and silver.')}</p>
+          <span className="vh-link">{t('Ver colección', 'Shop the collection')} <Flecha /></span>
+        </div>
+      </Link>
+
+      {/* Cómo funciona */}
+      <section className="vh-sec" id="como-funciona">
+        <p className="vh-eye">{t('Cómo funciona', 'How it works')}</p>
+        <h2>{t('Tus lentes en 4 pasos', 'Your glasses in 4 steps')}</h2>
+        <div className="vh-pasos">
+          {pasos.map((p, i) => (
+            <div key={i} className="vh-paso">
+              <span className="vh-num">{i + 1}</span>
+              <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={p.ico} /></svg>
+              <b>{t(p.es, p.en)}</b>
+              <span>{t(p.des, p.den)}</span>
             </div>
-            <Link href="/Tienda" style={{ fontFamily: 'var(--font-sans)', fontSize: '12px', color: 'var(--warm-gray)', textDecoration: 'none', letterSpacing: '0.06em', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              {t('Ver todos', 'View all')} <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
-            </Link>
-          </div>
-        </Reveal>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.25rem' }}>
-          {armazones.slice(0, 4).map((a, i) => (
-            <Reveal key={a.id} delay={i * 80} direction="up">
-              <Link href={`/armazon/${a.id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
-                <div style={{ background: 'white', borderRadius: '12px', overflow: 'hidden', border: '1px solid rgba(0,0,0,0.04)', transition: 'all 0.35s ease', cursor: 'pointer' }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-6px)'; (e.currentTarget as HTMLDivElement).style.boxShadow = '0 20px 60px rgba(0,0,0,0.09)'; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = 'none'; (e.currentTarget as HTMLDivElement).style.boxShadow = 'none'; }}
-                >
-                  <div style={{ aspectRatio: '4/3', background: '#f5f2ed', overflow: 'hidden', position: 'relative' }}>
-                    {a.imagen_url
-                      ? <img src={a.imagen_url} alt={a.nombre} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '12px', boxSizing: 'border-box' }}/>
-                      : (
-                        <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <svg width="70" height="38" viewBox="0 0 160 90" fill="none" style={{ opacity: 0.12 }}>
-                            <rect x="4" y="12" width="64" height="66" rx="14" stroke="#1d1d1d" strokeWidth="3"/>
-                            <rect x="92" y="12" width="64" height="66" rx="14" stroke="#1d1d1d" strokeWidth="3"/>
-                            <path d="M68 38 C72 32, 88 32, 92 38" stroke="#1d1d1d" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
-                          </svg>
-                        </div>
-                      )}
-                    {a.badge && <div style={{ position: 'absolute', top: '10px', left: '10px', fontSize: '0.55rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', padding: '3px 8px', borderRadius: '3px', background: '#1d1d1d', color: 'white' }}>{nombreBadge(a.badge, lang)}</div>}
-                  </div>
-                  <div style={{ padding: '1rem 1.1rem 1.1rem' }}>
-                    <div style={{ fontFamily: 'var(--font-serif)', fontSize: '1.05rem', fontWeight: 600, color: '#1d1d1d', marginBottom: '6px'}}>{a.nombre}</div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <div style={{ fontSize: '0.88rem', fontWeight: 600, color: '#1d1d1d' }}>${a.precio}</div>
-                      <div style={{ fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--sage)' }}>{t('Ver', 'View')}</div>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            </Reveal>
           ))}
         </div>
       </section>
 
-      <section style={{ padding: '0 2rem 6rem', maxWidth: '1180px', margin: '0 auto' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
-          {[
-            { img: '/hero-hombre.jpg', titulo_es: 'Para el', titulo_en: 'For him', href: '/Tienda?tipo=optico&genero=hombre' },
-            { img: '/hero-mujer.jpg', titulo_es: 'Para ella', titulo_en: 'For her', href: '/Tienda?tipo=optico&genero=mujer' },
-          ].map((c, i) => (
-            <Reveal key={i} delay={i * 150} direction={i === 0 ? 'left' : 'right'}>
-              <Link href={c.href} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
-                <div style={{ position: 'relative', height: '420px', borderRadius: '12px', overflow: 'hidden', cursor: 'pointer' }}
-                  onMouseEnter={e => { (e.currentTarget.querySelector('img') as HTMLImageElement).style.transform = 'scale(1.05)'; }}
-                  onMouseLeave={e => { (e.currentTarget.querySelector('img') as HTMLImageElement).style.transform = 'scale(1)'; }}
-                >
-                  <img src={c.img} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 20%', transition: 'transform 0.7s ease' }}/>
-                  <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.0) 55%)' }}/>
-                  <div style={{ position: 'absolute', bottom: '2rem', left: '2rem' }}>
-                    <div style={{ fontFamily: 'var(--font-serif)', fontSize: '2.2rem', fontWeight: 600, color: 'white', lineHeight: 1, marginBottom: '0.6rem'}}>
-                      {lang === 'es' ? c.titulo_es : c.titulo_en}
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span style={{ fontFamily: 'var(--font-sans)', fontSize: '0.7rem', fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)' }}>{t('Explorar', 'Explore')}</span>
-                      <div style={{ width: '24px', height: '1px', background: 'rgba(255,255,255,0.5)' }}/>
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="1.5" strokeLinecap="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            </Reveal>
-          ))}
-        </div>
-      </section>
-
-      <section id="faq" style={{ padding: '6rem 2rem', maxWidth: '640px', margin: '0 auto' }}>
-        <Reveal>
-          <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-            <p style={{ fontFamily: 'var(--font-sans)', fontSize: '10px', fontWeight: 600, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--sage)', marginBottom: '0.75rem' }}>FAQ</p>
-            <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(1.8rem, 3vw, 2.4rem)', fontWeight: 600, color: 'var(--charcoal)', margin: 0}}>{t('Preguntas frecuentes', 'Common questions')}</h2>
-          </div>
-        </Reveal>
-        {[
-          { q_es: 'Necesito aseguranza medica?', q_en: 'Do I need health insurance?', a_es: 'No. Vendemos directamente al cliente, sin necesidad de seguro medico.', a_en: 'No. We sell directly to you, no insurance needed.' },
-          { q_es: 'Cuanto tarda la entrega?', q_en: 'How long does delivery take?', a_es: 'Hacemos tus micas en 1 a 3 días hábiles y te llegan en 4 a 7 días hábiles más.', a_en: 'We make your lenses in 1–3 business days, then delivery takes 4–7 business days.' },
-          { q_es: 'Como ingreso mi graduacion?', q_en: 'How do I enter my prescription?', a_es: 'Puedes escribir los numeros o subir una foto de tu receta.', a_en: 'You can enter the numbers manually or upload a photo.' },
-          { q_es: 'Puedo devolver mis lentes?', q_en: 'Can I return my glasses?', a_es: 'Si, tienes 30 dias para hacer una devolucion sin complicaciones.', a_en: 'Yes, you have 30 days for a hassle-free return.' },
-          { q_es: 'Que metodos de pago aceptan?', q_en: 'What payment methods do you accept?', a_es: 'Aceptamos todas las tarjetas de credito y debito.', a_en: 'We accept all major credit and debit cards.' },
-        ].map((f, i) => (
-          <Reveal key={i} delay={i * 60}>
-            <details style={{ borderBottom: '1px solid var(--border)', overflow: 'hidden' }}>
-              <summary style={{ padding: '1.25rem 0', fontFamily: 'var(--font-sans)', fontSize: '14px', fontWeight: 500, color: 'var(--charcoal)', cursor: 'pointer', listStyle: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                {t(f.q_es, f.q_en)}
-                <span style={{ color: 'var(--sage)', fontSize: '20px', fontWeight: 300, flexShrink: 0, marginLeft: '1rem', lineHeight: 1 }}>+</span>
-              </summary>
-              <div style={{ padding: '0 0 1.25rem', fontFamily: 'var(--font-sans)', fontSize: '13px', color: 'var(--warm-gray)', lineHeight: 1.8 }}>
-                {t(f.a_es, f.a_en)}
-              </div>
+      {/* Preguntas */}
+      <section className="vh-sec vh-faq" id="faq">
+        <p className="vh-eye">{t('Preguntas frecuentes', 'FAQ')}</p>
+        <h2>{t('Antes de comprar', 'Before you buy')}</h2>
+        <div>
+          {faqs.map((f, i) => (
+            <details key={i}>
+              <summary>{t(f.q[0], f.q[1])}<span aria-hidden="true">+</span></summary>
+              <p>{t(f.a[0], f.a[1])}</p>
             </details>
-          </Reveal>
-        ))}
+          ))}
+        </div>
       </section>
 
+      <style>{`
+        .vh{background:var(--cream);color:var(--charcoal);overflow-x:hidden;padding-top:106px}
+        .vh h2{font-size:clamp(1.9rem,3.4vw,2.9rem);font-weight:500;letter-spacing:-.03em;line-height:1.05;margin:0}
+        .vh-eye{font-size:11px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--warm-gray);margin:0 0 10px}
+        .vh-link{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:500;color:var(--charcoal);text-decoration:none;border-bottom:1px solid currentColor;padding-bottom:2px;white-space:nowrap}
+        .vh-btn{display:inline-flex;align-items:center;gap:10px;background:var(--sage);color:#fff;padding:15px 28px;border-radius:999px;font-size:14px;font-weight:500;text-decoration:none;border:0;cursor:pointer;font-family:var(--font-sans);transition:background .2s}
+        .vh-btn:hover{background:var(--sage-light)}
+        .vh-btn-2{background:transparent;color:var(--charcoal);border:1px solid var(--charcoal)}
+        .vh-btn-2:hover{background:rgba(0,0,0,.04)}
+
+        .vh-hero{position:relative;overflow:hidden;background:var(--cream-dark)}
+        .vh-hero img{display:block;width:100%;height:clamp(460px,46vw,760px);object-fit:cover;object-position:right center}
+        .vh-hero-tx{position:absolute;inset:0;max-width:1280px;margin:0 auto;padding:0 2.5rem;display:flex;flex-direction:column;justify-content:center}
+        .vh-hero h1{font-size:clamp(2.6rem,4.6vw,4.4rem);font-weight:500;letter-spacing:-.035em;line-height:1.02;margin:0 0 18px;max-width:560px}
+        .vh-hero p{font-size:16px;line-height:1.65;color:#4a463f;max-width:400px;margin:0 0 30px}
+        .vh-btns{display:flex;gap:12px;flex-wrap:wrap}
+
+        .vh-sec{max-width:1280px;margin:0 auto;padding:96px 2.5rem 0}
+        .vh-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:32px}
+        .vh-side{max-width:300px;font-size:14px;line-height:1.6;color:var(--warm-gray);margin:0}
+
+        .vh-formas{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+        .vh-forma{position:relative;display:block;aspect-ratio:8/9;overflow:hidden;border-radius:4px;text-decoration:none;color:var(--charcoal)}
+        .vh-forma img{width:100%;height:100%;object-fit:cover;transition:transform .8s ease}
+        .vh-forma:hover img{transform:scale(1.04)}
+        .vh-forma span{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:space-between;align-items:center;padding:16px 18px;font-size:16px;font-weight:500;background:linear-gradient(to top,rgba(247,244,239,.9),rgba(247,244,239,0))}
+
+        .vh-prods{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+        .vh-prod{text-decoration:none;color:var(--charcoal);display:flex;flex-direction:column;gap:4px}
+        .vh-prod-img{aspect-ratio:1/1;background:#EEECE8;border-radius:4px;overflow:hidden;margin-bottom:10px;display:flex;align-items:center;justify-content:center}
+        .vh-prod-img img{width:100%;height:100%;object-fit:contain;padding:14px;transition:transform .5s ease}
+        .vh-prod:hover .vh-prod-img img{transform:scale(1.04)}
+        .vh-prod b{font-size:15px;font-weight:500}
+        .vh-prod > span{font-size:13px;color:var(--warm-gray)}
+        .vh-sws{display:flex;gap:6px;margin-top:6px}
+        .vh-sws i{width:14px;height:14px;border-radius:50%;border:1px solid rgba(0,0,0,.12)}
+
+        .vh-mitades{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:96px}
+        .vh-mitad{position:relative;display:block;overflow:hidden;text-decoration:none;color:var(--charcoal)}
+        .vh-mitad img{display:block;width:100%;height:clamp(380px,40vw,620px);object-fit:cover;transition:transform .8s ease}
+        .vh-mitad:hover img{transform:scale(1.03)}
+        .vh-mitad > div{position:absolute;left:clamp(24px,4vw,56px);bottom:clamp(28px,4vw,56px);max-width:320px}
+        .vh-mitad h3,.vh-banner h3{font-size:clamp(1.7rem,2.8vw,2.5rem);font-weight:500;letter-spacing:-.03em;line-height:1.05;margin:0 0 10px}
+        .vh-mitad p,.vh-banner p{font-size:14px;line-height:1.55;margin:0 0 18px;color:#3f3b35}
+
+        .vh-banner{position:relative;display:block;overflow:hidden;margin-top:6px;text-decoration:none;color:#fff;background:#1d2a20}
+        .vh-banner img{display:block;width:100%;height:clamp(340px,34vw,560px);object-fit:cover;object-position:right center}
+        .vh-banner > div{position:absolute;top:50%;transform:translateY(-50%);left:max(2.5rem,calc((100vw - 1280px)/2 + 2.5rem));max-width:360px}
+        .vh-banner p{color:rgba(255,255,255,.8)}
+        .vh-banner .vh-link{color:#fff}
+
+        .vh-pasos{display:grid;grid-template-columns:repeat(4,1fr);margin-top:40px;border-top:1px solid var(--border)}
+        .vh-paso{display:flex;flex-direction:column;gap:8px;padding:32px 24px 0 0;color:var(--charcoal)}
+        .vh-paso + .vh-paso{padding-left:24px;border-left:1px solid var(--border)}
+        .vh-num{width:26px;height:26px;border-radius:50%;background:var(--cream-dark);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;margin-bottom:6px}
+        .vh-paso svg{color:var(--sage);margin-bottom:6px}
+        .vh-paso b{font-size:15px;font-weight:600}
+        .vh-paso > span:last-child{font-size:13.5px;line-height:1.55;color:var(--warm-gray)}
+
+        .vh-faq{padding-bottom:110px}
+        .vh-faq > div{margin-top:28px;border-top:1px solid var(--border)}
+        .vh-faq details{border-bottom:1px solid var(--border)}
+        .vh-faq summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:16px;padding:20px 0;font-size:15.5px;font-weight:500}
+        .vh-faq summary::-webkit-details-marker{display:none}
+        .vh-faq summary span{font-size:22px;font-weight:300;color:var(--sage);transition:transform .2s}
+        .vh-faq details[open] summary span{transform:rotate(45deg)}
+        .vh-faq details p{margin:0 0 20px;font-size:14px;line-height:1.7;color:var(--warm-gray);max-width:680px}
+
+        @media (max-width:900px){
+          .vh-formas,.vh-prods{grid-template-columns:1fr 1fr;gap:12px}
+          .vh-pasos{grid-template-columns:1fr 1fr}
+          .vh-paso{padding:24px 16px 24px 0}
+          .vh-paso + .vh-paso{padding-left:16px}
+          .vh-paso:nth-child(3){padding-left:0;border-left:0}
+          .vh-paso:nth-child(n+3){border-top:1px solid var(--border)}
+        }
+        @media (max-width:768px){
+          .vh{padding-top:106px}
+          .vh-hero img{height:auto;aspect-ratio:4/5;object-position:center}
+          .vh-hero-tx{justify-content:flex-start;padding:30px 1.25rem 0}
+          .vh-hero h1{font-size:2.15rem;margin-bottom:10px}
+          .vh-hero p{font-size:14px;margin-bottom:18px;max-width:300px}
+          .vh-btn{padding:12px 20px;font-size:13px}
+          .vh-sec{padding:64px 1.25rem 0}
+          .vh-head{flex-direction:column;align-items:flex-start;margin-bottom:22px}
+          .vh-mitades{grid-template-columns:1fr;margin-top:64px}
+          .vh-mitad img{height:420px}
+          .vh-banner img{height:420px;object-position:72% center}
+          .vh-banner::after{content:'';position:absolute;inset:0;background:linear-gradient(to right,rgba(20,30,22,.75),rgba(20,30,22,0) 75%)}
+          .vh-banner > div{left:1.25rem;right:1.25rem;z-index:1}
+          .vh-faq{padding-bottom:80px}
+        }
+      `}</style>
     </main>
   );
 }

@@ -41,18 +41,18 @@ export default function Garantias({ variante = 'franja' }: { variante?: 'franja'
         {items.map(i => (
           <Link key={i.h} href={i.href} className="vg-i">
             <span className="vg-ico"><Ico d={i.ico} /></span>
-            <b>{i.h}</b>
-            <span>{i.p}</span>
+            <span className="vg-tx"><b>{i.h}</b><span>{i.p}</span></span>
           </Link>
         ))}
       </div>
       <style>{`
-        .vg-f{background:#fff;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+        .vg-f{background:var(--cream-dark);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
         .vg-wrap{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr)}
-        .vg-i{display:flex;flex-direction:column;gap:6px;padding:28px 24px;text-decoration:none;color:var(--warm-gray);font-size:13.5px;line-height:1.5;border-right:1px solid var(--border);transition:background .2s}
+        .vg-i{display:flex;flex-direction:row;align-items:center;gap:14px;padding:24px 24px;text-decoration:none;color:var(--warm-gray);font-size:13.5px;line-height:1.5;border-right:1px solid var(--border);transition:background .2s}
         .vg-i:last-child{border-right:0}
-        .vg-i:hover{background:#fafafa}
-        .vg-i b{color:var(--charcoal);font-size:15px;font-weight:600}
+        .vg-i:hover{background:rgba(255,255,255,.45)}
+        .vg-tx{display:flex;flex-direction:column;gap:2px;font-size:12.5px}
+        .vg-i b{color:var(--charcoal);font-size:14px;font-weight:600}
         .vg-ico{color:var(--sage)}
         @media (max-width:900px){.vg-wrap{grid-template-columns:1fr 1fr}.vg-i{padding:20px 16px;border-bottom:1px solid var(--border)}.vg-i:nth-child(2n){border-right:0}}
       `}</style>

@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useLang } from './LanguageContext';
+import Logo from './Logo';
 import { SOPORTE_EMAIL, HORARIO, whatsappLink } from '../lib/marca';
 
 export default function Footer() {
@@ -22,7 +23,7 @@ export default function Footer() {
     <footer className="vft">
       <div className="vft-wrap">
         <div className="vft-marca">
-          <img src="/logo-trasparente.png" alt="Verly Optical" />
+          <div className="vft-logo"><Logo color="#fff" size={22} /></div>
           <p>{t('Lentes con graduación a precio justo, hechos por ópticos de verdad.', 'Prescription glasses at a fair price, made by real opticians.')}</p>
           <div className="vft-contacto">
             <a href={`mailto:${SOPORTE_EMAIL}`}>{SOPORTE_EMAIL}</a>
@@ -53,9 +54,9 @@ export default function Footer() {
         </div>
       </div>
       <style>{`
-        .vft{background:#111;color:rgba(255,255,255,.55);font-size:13.5px}
+        .vft{background:#1C1C1A;color:rgba(255,255,255,.55);font-size:13.5px}
         .vft-wrap{max-width:1280px;margin:0 auto;padding:56px 2rem 36px;display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:32px}
-        .vft-marca img{height:30px;width:auto;filter:brightness(0) invert(1);opacity:.9;margin-bottom:14px}
+        .vft-logo{margin-bottom:18px}
         .vft-marca p{max-width:300px;line-height:1.6;margin:0 0 16px}
         .vft-contacto{display:flex;flex-direction:column;gap:6px}
         .vft-contacto a{color:#fff;text-decoration:none}

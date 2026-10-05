@@ -5,14 +5,15 @@
 }
 
 :root {
-  --cream: #F5F5F7;
-  --cream-dark: #ECECEF;
-  --sage: #4A5940;
-  --sage-light: #6B7A5E;
+  /* Estilo editorial: crema cálido + verde oscuro */
+  --cream: #F7F4EF;
+  --cream-dark: #EFEAE2;
+  --sage: #1F3D2C;
+  --sage-light: #3D5C48;
   --charcoal: #1C1C1A;
-  --warm-gray: #6E6E73;
-  --warm-gray-light: #C7C7CC;
-  --border: #E6E6E9;
+  --warm-gray: #6F6A62;
+  --warm-gray-light: #C9C3B8;
+  --border: #E6E0D6;
   --white: #FFFFFF;
   --accent: #3BA89E;
 

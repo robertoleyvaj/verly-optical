@@ -1,5 +1,6 @@
 'use client';
 
+import Logo from './Logo';
 import { useState, useEffect, type CSSProperties } from 'react';
 import Link from 'next/link';
 import { supabase } from '../lib/supabase';
@@ -142,7 +143,7 @@ export default function Asistente({ onClose, t, lang }: { onClose: () => void; t
 
           {/* Header */}
           <div style={{ textAlign: 'center', position: 'relative', marginBottom: '1.5rem' }}>
-            <img src="/logo-trasparente.png" alt="Verly" style={{ height: '26px', opacity: 0.9, filter: 'brightness(0) invert(1)', marginBottom: '1rem' }}/>
+            <Logo color="#fff" size={20} />
             <button onClick={onClose} style={{ position: 'absolute', top: 0, right: 0, width: '34px', height: '34px', borderRadius: '50%', background: 'rgba(255,255,255,0.14)', border: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer', color: 'white', fontSize: '17px' }}>×</button>
             {/* progreso */}
             <div style={{ display: 'flex', gap: '5px', justifyContent: 'center', marginBottom: '1rem' }}>

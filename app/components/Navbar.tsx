@@ -9,6 +9,8 @@ import { useCart } from "../context/CartContext";
 import { useFavoritos } from "../context/FavoritosContext";
 import CartDrawer from "./CartDrawer";
 import FavoritosDrawer from "./FavoritosDrawer";
+import Logo from "./Logo";
+import { ENVIO_GRATIS_DESDE } from "../lib/envio";
 
 function LangSwitcher() {
   const { lang, setLang } = useLang();
@@ -157,15 +159,20 @@ function CartIcon() {
   );
 }
 
-const navLinks = [
-  { href: "/Tienda", label: "Eyeglasses" },
-  { href: "/lenses", label: "Lenses" },
+const NAV = [
+  { href: "/Tienda", es: "Armazones", en: "Frames" },
+  { href: "/lenses", es: "Micas", en: "Lenses" },
+  { href: "/#como-funciona", es: "Cómo comprar", en: "How it works" },
 ];
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const pathname = usePathname();
+  const { t } = useLang() as any;
+  const navLinks = NAV.map(n => ({ href: n.href, label: t(n.es, n.en) }));
+  // Barra de aviso arriba: solo en la portada y mientras no se haga scroll
+  const barra = pathname === "/" && !scrolled;
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -192,19 +199,23 @@ export default function Navbar() {
       <CartDrawer />
       <FavoritosDrawer />
 
+      {pathname === "/" && (
+        <div style={{ position: "fixed", top: 0, left: 0, right: 0, height: "34px", zIndex: 101, background: "var(--sage)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-sans)", fontSize: "12.5px", letterSpacing: "0.01em", padding: "0 1rem", textAlign: "center", transform: barra ? "none" : "translateY(-100%)", transition: "transform 0.4s ease" }}>
+          {t(`Lentes con tu graduación desde $28 · Envío gratis desde $${ENVIO_GRATIS_DESDE}`, `Prescription glasses from $28 · Free shipping over $${ENVIO_GRATIS_DESDE}`)}
+        </div>
+      )}
+
       {/* ── Main Header ── */}
       <header
         style={{
           position: "fixed",
-          top: 0,
+          top: barra ? "34px" : 0,
           left: 0,
           right: 0,
           zIndex: 100,
-          transition: "background 0.4s ease, box-shadow 0.4s ease, height 0.4s ease",
-          background: scrolled ? "rgba(247, 244, 239, 0.95)" : "transparent",
-          backdropFilter: scrolled ? "blur(16px)" : "none",
-          WebkitBackdropFilter: scrolled ? "blur(16px)" : "none",
-          boxShadow: scrolled ? "0 1px 0 var(--border)" : "none",
+          transition: "top 0.4s ease, box-shadow 0.4s ease",
+          background: "var(--cream)",
+          boxShadow: "0 1px 0 var(--border)",
         }}
       >
         <div
@@ -229,16 +240,7 @@ export default function Navbar() {
               flexShrink: 0,
             }}
           >
-            <img
-              src="/logo-trasparente.png"
-              alt="Verly Optical"
-              style={{
-                height: scrolled ? "30px" : "36px",
-                width: "auto",
-                transition: "height 0.4s ease",
-                objectFit: "contain",
-              }}
-            />
+            <Logo size={scrolled ? 18 : 21} />
           </Link>
 
           {/* Desktop Nav */}
@@ -260,10 +262,9 @@ export default function Navbar() {
                 className="nav-link"
                 style={{
                   fontFamily: "var(--font-sans)",
-                  fontSize: "0.72rem",
+                  fontSize: "0.82rem",
                   fontWeight: 400,
-                  letterSpacing: "0.12em",
-                  textTransform: "uppercase",
+                  letterSpacing: "0.01em",
                   color: isActive(href) ? "var(--sage)" : "var(--charcoal)",
                   textDecoration: "none",
                   position: "relative",
@@ -424,7 +425,7 @@ export default function Navbar() {
             color: "var(--warm-gray)",
           }}
         >
-          Verly Optical — Est. 2024
+          Verly Optical
         </p>
       </div>
 

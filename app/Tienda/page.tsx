@@ -519,7 +519,8 @@ function TiendaContent() {
         .vf-total{margin-left:auto;font-size:12.5px;color:var(--warm-gray)}
         @media (max-width:1100px){.vf-fila{flex-wrap:wrap}.vf-botones{overflow-x:auto;scrollbar-width:none;padding-bottom:2px}.vf-botones::-webkit-scrollbar{display:none}}
         @media (max-width:900px){
-          .vf-fila{flex-direction:column;align-items:stretch;gap:10px}
+          .vf-fila{flex-direction:column;align-items:stretch;gap:10px;flex-wrap:nowrap}
+          .vf-botones{width:100%;max-width:100%}
           .vt-seg{align-self:flex-start;max-width:100%}
           .vf-orden{margin-left:0}
           .vf-item{position:static}

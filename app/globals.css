@@ -6,8 +6,9 @@
 
 :root {
   /* Estilo editorial: crema cálido + verde oscuro */
-  --cream: #F7F4EF;
-  --cream-dark: #EFEAE2;
+  /* Prueba: fondo casi blanco (antes #F7F4EF / #EFEAE2) */
+  --cream: #FDFCFA;
+  --cream-dark: #F4F1EB;
   --sage: #1F3D2C;
   --sage-light: #3D5C48;
   --charcoal: #1C1C1A;

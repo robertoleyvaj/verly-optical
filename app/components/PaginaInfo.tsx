@@ -36,14 +36,14 @@ function contenido(slug: SlugInfo, es: boolean): Doc {
       titulo: 'Devoluciones', intro: `Queremos que te encanten tus lentes. Si no es así, tienes ${DEVOLUCION_DIAS} días desde que los recibes para devolverlos.`,
       secciones: [
         { h: 'Reembolso completo', p: [`Dentro de los ${DEVOLUCION_DIAS} días te regresamos el precio de tus lentes al mismo método de pago.`, 'El costo del envío original no es reembolsable.'] },
-        { h: 'Cómo devolver', p: [`Escríbenos a ${correo} con tu número de pedido. Te mandamos las instrucciones para el envío de regreso.`, 'Los lentes deben venir completos y en buen estado.'] },
+        { h: 'Cómo devolver', p: [`Escríbenos a ${correo} con tu número de pedido. Te mandamos por correo una guía prepagada de USPS: el envío de regreso es gratis para ti.`, 'Los lentes deben venir completos y en buen estado.'] },
         { h: '¿Prefieres cambiarlos?', p: ['También puedes cambiarlos por otro armazón; te ayudamos a escoger.'] },
       ],
     } : {
       titulo: 'Returns', intro: `We want you to love your glasses. If you don’t, you have ${DEVOLUCION_DIAS} days from delivery to return them.`,
       secciones: [
         { h: 'Full refund', p: [`Within ${DEVOLUCION_DIAS} days we refund the price of your glasses to your original payment method.`, 'Original shipping costs are non-refundable.'] },
-        { h: 'How to return', p: [`Email us at ${correo} with your order number. We’ll send you return shipping instructions.`, 'Glasses must be complete and in good condition.'] },
+        { h: 'How to return', p: [`Email us at ${correo} with your order number. We’ll email you a prepaid USPS return label, so returning is free for you.`, 'Glasses must be complete and in good condition.'] },
         { h: 'Prefer an exchange?', p: ['You can also exchange them for another frame — we’ll help you choose.'] },
       ],
     },

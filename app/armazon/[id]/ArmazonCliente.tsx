@@ -463,7 +463,7 @@ export default function DetalleArmazon() {
   const [loading, setLoading] = useState(true);
   type ColorPub = {
     id?: number; sku?: string | null; color: string; hex?: string | null;
-    imagen_url?: string | null; imagen2_url?: string | null; imagen3_url?: string | null; precio?: number | null;
+    imagen_url?: string | null; imagen2_url?: string | null; imagen3_url?: string | null; imagen4_url?: string | null; portada_url?: string | null; precio?: number | null;
     stock_baja?: number | null; stock_mayo?: number | null; stock_plaza?: number | null; stock_online?: number | null; bodega?: number | null;
   };
   const [colores, setColores] = useState<ColorPub[]>([]);
@@ -747,7 +747,9 @@ export default function DetalleArmazon() {
   const coloresDisponibles = getColoresDisponibles(vision, material);
   const filtrosActivos = esSolar ? filtroOptsSolar : filtroOpts;
   const colorActivo = colores[colorSel] || null;
-  const fotosColor = colorActivo ? [colorActivo.imagen_url, colorActivo.imagen2_url, colorActivo.imagen3_url].filter(Boolean) as string[] : [];
+  // Fotos del color: las 4 del armazón y al final la de ambiente (si tiene)
+  const ambiente = colorActivo?.portada_url || null;
+  const fotosColor = colorActivo ? [colorActivo.imagen_url, colorActivo.imagen2_url, colorActivo.imagen3_url, colorActivo.imagen4_url, ambiente].filter(Boolean) as string[] : [];
   const fotos = (fotosColor.length > 0
     ? fotosColor
     : [armazon?.imagen_url, armazon?.imagen2_url, armazon?.imagen3_url, armazon?.imagen4_url].filter(Boolean)) as string[];
@@ -1212,7 +1214,7 @@ export default function DetalleArmazon() {
               {fotos.map((foto, i) => (
                 <div key={i} style={{ width: `${100 / fotos.length}%`, height: '100%', flexShrink: 0, overflow: 'hidden' }}>
                   <img src={foto} alt={`${armazon.nombre} ${i + 1}`} draggable={false}
-                    style={{ transformOrigin: `${posZoom.x}% ${posZoom.y}%`, transform: (!esMobil && i === fotoActiva && zoomActivo) ? 'scale(1.9)' : 'scale(1.06)', transition: zoomActivo ? 'none' : 'transform 0.4s ease' }} />
+                    style={{ transformOrigin: `${posZoom.x}% ${posZoom.y}%`, transform: (!esMobil && i === fotoActiva && zoomActivo) ? 'scale(1.9)' : (foto === ambiente ? 'none' : 'scale(1.06)'), transition: zoomActivo ? 'none' : 'transform 0.4s ease', ...(foto === ambiente ? { objectFit: 'cover', mixBlendMode: 'normal' } : {}) }} />
                 </div>
               ))}
             </div>
@@ -1229,7 +1231,7 @@ export default function DetalleArmazon() {
             <div className="va-thumbs">
               {fotos.map((foto, i) => (
                 <button key={i} onClick={() => irFoto(i)} className={fotoActiva === i ? 'on' : ''} aria-label={`${t('Foto', 'Photo')} ${i + 1}`}>
-                  <img src={foto} alt="" />
+                  <img src={foto} alt="" style={foto === ambiente ? { objectFit: 'cover', mixBlendMode: 'normal' } : undefined} />
                 </button>
               ))}
             </div>

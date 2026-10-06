@@ -21,7 +21,7 @@ type Armazon = {
   color1?: string; descuento?: number; descuento_verly?: number;
 };
 
-type ColorCard = { armazon_id: number; sku: string | null; color: string; hex?: string | null; imagen_url?: string | null };
+type ColorCard = { armazon_id: number; sku: string | null; color: string; hex?: string | null; imagen_url?: string | null; portada_url?: string | null };
 
 // ── CARD ────────────────────────────────────────────────
 function ArmazonCard({
@@ -37,6 +37,8 @@ function ArmazonCard({
   const [colorIdx, setColorIdx] = useState(0);
   const colorSel = colores[colorIdx];
   const imagen = colorSel?.imagen_url || a.imagen_url;
+  // Foto de ambiente (opcional): se muestra en la tarjeta y al pasar el mouse aparece la del armazón
+  const ambiente = colorSel?.portada_url || null;
   const href = `/armazon/${a.id}${colorIdx > 0 && colorSel?.sku ? `?color=${encodeURIComponent(colorSel.sku)}` : ''}`;
   const MAX_DOTS = 5;
   const dv = a.descuento_verly || 0;
@@ -46,6 +48,7 @@ function ArmazonCard({
     <Link href={href} className="vc-card">
       {/* Foto */}
       <div className="vc-img">
+        {ambiente && <img className="vc-amb" src={ambiente} alt={a.nombre || a.modelo || ''} loading="lazy" />}
         {imagen ? (
           <img src={imagen} alt={a.nombre || a.modelo || ''} loading="lazy" />
         ) : (
@@ -409,11 +412,13 @@ function TiendaContent() {
         .vc-img{position:relative;aspect-ratio:4/3;background:#F1EEE9;border-radius:4px;display:flex;align-items:center;justify-content:center;overflow:hidden}
         .vc-img img{width:100%;height:100%;object-fit:cover;mix-blend-mode:multiply;display:block;transform:scale(1.08);transition:transform .6s ease}
         .vc-card:hover .vc-img img{transform:scale(1.13)}
-        .vc-tags{position:absolute;top:12px;left:12px;display:flex;gap:6px}
+        .vc-img img.vc-amb{position:absolute;inset:0;z-index:1;mix-blend-mode:normal;transform:none;transition:opacity .35s ease}
+        .vc-card:hover .vc-img img.vc-amb{opacity:0;transform:none}
+        .vc-tags{position:absolute;top:12px;left:12px;display:flex;gap:6px;z-index:2}
         .vc-tag{font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;background:var(--cream);color:var(--charcoal);border-radius:999px;padding:4px 10px}
         .vc-tag-new{background:var(--sage);color:#fff}
         .vc-tag-dark{background:var(--sage);color:#fff}
-        .vc-fav{position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:50%;background:rgba(253,252,250,.9);border:0;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .2s}
+        .vc-fav{position:absolute;z-index:2;top:10px;right:10px;width:34px;height:34px;border-radius:50%;background:rgba(253,252,250,.9);border:0;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .2s}
         .vc-fav:hover,.vc-fav.on{transform:scale(1.1)}
         .vc-body{padding:12px 2px 6px}
         .vc-row{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}

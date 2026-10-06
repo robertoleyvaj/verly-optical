@@ -43,7 +43,8 @@ export async function GET() {
     // Variantes: cada color publicado; si no hay colores, el modelo solo
     const variantes = (porModelo[a.id] ?? []).length ? porModelo[a.id] : [null];
     for (const c of variantes) {
-      const fotos = [c?.imagen_url, c?.imagen2_url, c?.imagen3_url, a.imagen_url, a.imagen2_url, a.imagen3_url].filter(Boolean) as string[];
+      // La primera debe ser foto de producto (fondo liso); la de ambiente va como adicional
+      const fotos = [c?.imagen_url, c?.imagen2_url, c?.imagen3_url, c?.imagen4_url, a.imagen_url, a.imagen2_url, a.imagen3_url, c?.portada_url].filter(Boolean) as string[];
       if (!fotos.length) continue; // Google y Meta exigen foto
       const color = c ? nombreColor(c.color, 'en') : '';
       const hay = !inventarioNuevo || !c || STOCK.reduce((s, k) => s + (Number(c[k]) || 0), 0) > 0;

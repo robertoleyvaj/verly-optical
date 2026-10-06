@@ -31,7 +31,7 @@ function datos(a: any, cols: any[]) {
   const fk = normForma(a.forma);
   const forma = fk ? FORMAS.find(f => f.v === fk)?.en ?? '' : '';
   const fotos = [
-    ...cols.flatMap(c => [c.imagen_url, c.imagen2_url, c.imagen3_url]),
+    ...cols.flatMap(c => [c.imagen_url, c.imagen2_url, c.imagen3_url, c.imagen4_url, c.portada_url]),
     a.imagen_url, a.imagen2_url, a.imagen3_url, a.imagen4_url,
   ].filter(Boolean) as string[];
   const unicas = [...new Set(fotos)];

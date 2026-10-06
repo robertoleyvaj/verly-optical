@@ -37,7 +37,7 @@ export default function CheckoutPage() {
       initRef.current = true;
       fbTrack('InitiateCheckout', {
         content_ids: items.map(i => String(i.armazon_id)),
-        content_type: 'product',
+        content_type: 'product_group',
         value: totalPrecio,
         currency: 'USD',
         num_items: items.length,

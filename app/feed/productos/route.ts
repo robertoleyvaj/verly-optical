@@ -1,6 +1,7 @@
 // Feed de productos para Google Merchant Center y el Catálogo de Meta (mismo formato RSS con g:).
 // URL: https://verlyoptical.com/feed/productos
-// Una entrada por COLOR publicado (variantes agrupadas por modelo con item_group_id).
+// Una entrada por COLOR publicado. item_group_id = id del armazón, el mismo que manda el Pixel
+// de Meta (content_type 'product_group'), para que los anuncios dinámicos reconozcan cada modelo.
 import { supabaseServidor } from '../../lib/supabase-server';
 import { precioArmazonFinal } from '../../lib/precios';
 import { nombreMaterial, } from '../../lib/textos';
@@ -51,7 +52,7 @@ export async function GET() {
       const titulo = `${a.nombre} ${[forma, material].filter(Boolean).join(' ')} Prescription Eyeglasses${color ? ` - ${color}` : ''}`.replace(/\s+/g, ' ');
       items.push(`    <item>
       <g:id>${esc(id)}</g:id>
-      <g:item_group_id>${esc(a.sku || `VRL-${a.id}`)}</g:item_group_id>
+      <g:item_group_id>${a.id}</g:item_group_id>
       <g:title>${esc(titulo.slice(0, 150))}</g:title>
       <g:description>${esc(descBase.slice(0, 5000))}</g:description>
       <g:link>${esc(link)}</g:link>

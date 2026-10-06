@@ -32,7 +32,7 @@ export default function Gracias() {
           localStorage.setItem(key, '1');
           fbTrack('Purchase', {
             content_ids: d.content_ids || [],
-            content_type: 'product',
+            content_type: 'product_group',
             value: d.value,
             currency: d.currency || 'USD',
           });

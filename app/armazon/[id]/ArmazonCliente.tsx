@@ -551,7 +551,7 @@ export default function DetalleArmazon() {
       viewContentRef.current = String(armazon.id);
       fbTrack('ViewContent', {
         content_ids: [String(armazon.id)],
-        content_type: 'product',
+        content_type: 'product_group',
         content_name: armazon.nombre,
         value: armazon.precio,
         currency: 'USD',
@@ -677,7 +677,7 @@ export default function DetalleArmazon() {
     // Meta Pixel · AddToCart (tras agregar correctamente)
     fbTrack('AddToCart', {
       content_ids: [String(armazon!.id)],
-      content_type: 'product',
+      content_type: 'product_group',
       content_name: armazon!.nombre,
       value: total,
       currency: 'USD',

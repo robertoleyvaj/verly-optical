@@ -250,7 +250,7 @@ export default function Home() {
 
         .vh-prods{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
         .vh-prod{text-decoration:none;color:var(--charcoal);display:flex;flex-direction:column;gap:4px}
-        .vh-prod-img{aspect-ratio:4/3;background:#F1EEE9;border-radius:4px;overflow:hidden;margin-bottom:12px}
+        .vh-prod-img{aspect-ratio:4/3;background:var(--foto-bg);border-radius:4px;overflow:hidden;margin-bottom:12px}
         .vh-prod-img img{width:100%;height:100%;object-fit:cover;mix-blend-mode:multiply;transform:scale(1.08);transition:transform .5s ease}
         .vh-prod:hover .vh-prod-img img{transform:scale(1.13)}
         .vh-prod b{font-size:15px;font-weight:500}

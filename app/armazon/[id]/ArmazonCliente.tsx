@@ -1354,7 +1354,7 @@ export default function DetalleArmazon() {
         .va-crumb span{margin:0 8px;opacity:.5}
         .va-crumb b{color:var(--charcoal);font-weight:500}
         .va-main{max-width:1320px;margin:0 auto;padding:22px 2.5rem 80px;display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:64px;align-items:start}
-        .va-foto{position:relative;aspect-ratio:4/3;background:#F1EEE9;border-radius:6px;overflow:hidden;user-select:none;-webkit-user-select:none}
+        .va-foto{position:relative;aspect-ratio:4/3;background:var(--foto-bg);border-radius:6px;overflow:hidden;user-select:none;-webkit-user-select:none}
         .va-foto img{width:100%;height:100%;object-fit:contain;mix-blend-mode:multiply;pointer-events:none}
         .va-sinfoto{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:.2}
         .va-cont{position:absolute;left:16px;bottom:14px;font-size:12px;color:var(--warm-gray)}
@@ -1362,7 +1362,7 @@ export default function DetalleArmazon() {
         .va-nav{position:absolute;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;border:1px solid var(--border);background:rgba(247,244,239,.9);font-size:20px;color:var(--charcoal);cursor:pointer;z-index:2}
         .va-nav:disabled{opacity:.3;cursor:default}
         .va-thumbs{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:10px}
-        .va-thumbs button{aspect-ratio:4/3;background:#F1EEE9;border:1px solid transparent;border-radius:4px;padding:0;cursor:pointer;overflow:hidden;opacity:.7;transition:opacity .2s}
+        .va-thumbs button{aspect-ratio:4/3;background:var(--foto-bg);border:1px solid transparent;border-radius:4px;padding:0;cursor:pointer;overflow:hidden;opacity:.7;transition:opacity .2s}
         .va-thumbs button.on{border-color:var(--charcoal);opacity:1}
         .va-thumbs img{width:100%;height:100%;object-fit:contain;mix-blend-mode:multiply}
         .va-info{position:sticky;top:96px}
@@ -1415,7 +1415,7 @@ export default function DetalleArmazon() {
         .va-rel-h a{font-size:13px;font-weight:500;color:var(--charcoal);text-decoration:none;border-bottom:1px solid currentColor;padding-bottom:2px;white-space:nowrap}
         .va-rel-g{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
         .va-prod{text-decoration:none;color:var(--charcoal);display:flex;flex-direction:column;gap:4px}
-        .va-prod-img{aspect-ratio:4/3;background:#F1EEE9;border-radius:4px;overflow:hidden;margin-bottom:10px}
+        .va-prod-img{aspect-ratio:4/3;background:var(--foto-bg);border-radius:4px;overflow:hidden;margin-bottom:10px}
         .va-prod-img img{width:100%;height:100%;object-fit:cover;mix-blend-mode:multiply;transform:scale(1.08);transition:transform .5s ease}
         .va-prod:hover .va-prod-img img{transform:scale(1.13)}
         .va-prod b{font-size:15px;font-weight:500}

@@ -409,7 +409,7 @@ function TiendaContent() {
         .vt-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;grid-auto-flow:dense}
         .vc-card{display:block;color:inherit;text-decoration:none}
         
-        .vc-img{position:relative;aspect-ratio:4/3;background:#F1EEE9;border-radius:4px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+        .vc-img{position:relative;aspect-ratio:4/3;background:var(--foto-bg);border-radius:4px;display:flex;align-items:center;justify-content:center;overflow:hidden}
         .vc-img img{width:100%;height:100%;object-fit:cover;mix-blend-mode:multiply;display:block;transform:scale(1.08);transition:transform .6s ease}
         .vc-card:hover .vc-img img{transform:scale(1.13)}
         .vc-img img.vc-amb{position:absolute;inset:0;z-index:1;mix-blend-mode:normal;transform:none;transition:opacity .35s ease}
@@ -433,7 +433,7 @@ function TiendaContent() {
         .vc-foot{display:flex;justify-content:space-between;align-items:center;border-top:1px solid #efeff1;padding-top:12px;font-size:12.5px;color:#6e6e73}
         .vc-foot b{color:var(--charcoal)}
         .vc-go{font-weight:600;color:var(--sage)}
-        .vc-skel{aspect-ratio:3/3.3;border-radius:4px;background:linear-gradient(90deg,#F1EEE9 0%,#F7F5F1 50%,#F1EEE9 100%);background-size:200% 100%;animation:vcsk 1.2s infinite}
+        .vc-skel{aspect-ratio:3/3.3;border-radius:4px;background:linear-gradient(90deg,var(--foto-bg) 0%,#F7F5F1 50%,var(--foto-bg) 100%);background-size:200% 100%;animation:vcsk 1.2s infinite}
         @keyframes vcsk{to{background-position:-200% 0}}
         .vt-empty{text-align:center;padding:5rem 1rem}
         .vt-empty h3{font-size:1.6rem;font-weight:600;margin:0 0 .5rem}

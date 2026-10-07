@@ -174,7 +174,7 @@ export default async function CollectionPage({
         .vc-link{font-size:13px;font-weight:500;color:var(--charcoal);text-decoration:none;border-bottom:1px solid currentColor;padding-bottom:2px;white-space:nowrap}
         .vc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
         .vc-prod{text-decoration:none;color:var(--charcoal);display:flex;flex-direction:column;gap:4px}
-        .vc-prod-img{aspect-ratio:4/3;background:#F1EEE9;border-radius:4px;overflow:hidden;margin-bottom:10px;display:flex;align-items:center;justify-content:center}
+        .vc-prod-img{aspect-ratio:4/3;background:var(--foto-bg);border-radius:4px;overflow:hidden;margin-bottom:10px;display:flex;align-items:center;justify-content:center}
         .vc-prod-img img{width:100%;height:100%;object-fit:cover;mix-blend-mode:multiply;transform:scale(1.08);transition:transform .5s ease}
         .vc-prod:hover .vc-prod-img img{transform:scale(1.13)}
         .vc-prod b{font-size:15px;font-weight:500}

@@ -5,42 +5,44 @@ import { useLang } from './LanguageContext';
 import { VISION_PRICES, MATERIAL_PRICES, FILTRO_PRICES } from '../lib/precios';
 
 type Clave = 'luzAzul' | 'progresivos' | 'fotocromatico' | 'policarbonato';
+// Nombres iguales a los del configurador de micas (Thin & Durable, Blue Light Comfort…)
 type Txt = { eye: [string, string]; h: [string, string]; p: [string, string]; cta: [string, string] };
+type Promo = { img: string; href: string; tono: 'claro' | 'oscuro'; pos: string; precio: number; desde?: boolean; txt: Txt };
 
-const PROMOS: Record<Clave, { img: string; href: string; tono: 'claro' | 'oscuro'; pos: string; txt: Txt }> = {
+const PROMOS: Record<Clave, Promo> = {
   luzAzul: {
-    img: '/promo/luz-azul.jpg', href: '/blue-light-glasses', tono: 'oscuro', pos: '78% center',
+    img: '/promo/luz-azul.jpg', href: '/blue-light-glasses', tono: 'oscuro', pos: '78% center', precio: FILTRO_PRICES.blue,
     txt: {
-      eye: ['Filtro de luz azul', 'Blue light filter'],
+      eye: ['Blue Light Comfort', 'Blue Light Comfort'],
       h: ['Descansa tus ojos frente a la pantalla', 'Give your eyes a break from screens'],
-      p: [`Agrégalo a cualquier armazón por $${FILTRO_PRICES.blue} más.`, `Add it to any frame for $${FILTRO_PRICES.blue} more.`],
+      p: ['Filtro de luz azul para computadora y celular, en cualquier armazón.', 'Blue light filter for computer and phone, on any frame.'],
       cta: ['Conocer más', 'Learn more'],
     },
   },
   progresivos: {
-    img: '/promo/progresivos.jpg', href: '/progressive-glasses', tono: 'claro', pos: '80% center',
+    img: '/promo/progresivos.jpg', href: '/progressive-glasses', tono: 'claro', pos: '80% center', precio: VISION_PRICES.prog,
     txt: {
-      eye: ['Lentes progresivos', 'Progressive lenses'],
+      eye: ['Progresivo', 'Progressive'],
       h: ['De cerca y de lejos, en un solo lente', 'Near and far, in one lens'],
-      p: [`Sin cambiar de lentes en todo el día. Desde $${VISION_PRICES.prog} más el armazón.`, `No more switching glasses. From $${VISION_PRICES.prog} plus the frame.`],
+      p: ['Sin cambiar de lentes en todo el día. Más el armazón que elijas.', 'No more switching glasses. Plus the frame you choose.'],
       cta: ['Conocer más', 'Learn more'],
     },
   },
   fotocromatico: {
-    img: '/promo/fotocromatico.jpg', href: '/photochromic-glasses', tono: 'claro', pos: 'center',
+    img: '/promo/fotocromatico.jpg', href: '/photochromic-glasses', tono: 'claro', pos: 'center', precio: FILTRO_PRICES.foto,
     txt: {
       eye: ['Fotocromático', 'Photochromic'],
       h: ['Claros adentro, oscuros al sol', 'Clear inside, dark in the sun'],
-      p: [`$${FILTRO_PRICES.foto} más en cualquier armazón.`, `$${FILTRO_PRICES.foto} more on any frame.`],
+      p: ['en cualquier armazón', 'on any frame'],
       cta: ['Conocer más', 'Learn more'],
     },
   },
   policarbonato: {
-    img: '/promo/policarbonato.jpg', href: '/lenses', tono: 'claro', pos: '82% center',
+    img: '/promo/policarbonato.jpg', href: '/lenses', tono: 'claro', pos: '82% center', precio: MATERIAL_PRICES.poly,
     txt: {
-      eye: ['Micas de policarbonato', 'Polycarbonate lenses'],
+      eye: ['Thin & Durable', 'Thin & Durable'],
       h: ['Más ligeras y resistentes', 'Lighter and stronger'],
-      p: [`Más delgadas que la mica estándar. Ideales para niños, deporte y graduaciones altas. $${MATERIAL_PRICES.poly} más.`, `Thinner than standard lenses. Great for kids, sports and stronger prescriptions. $${MATERIAL_PRICES.poly} more.`],
+      p: ['Micas de policarbonato, más delgadas que la estándar. Ideales para niños, deporte y graduaciones altas.', 'Polycarbonate lenses, thinner than standard. Great for kids, sports and stronger prescriptions.'],
       cta: ['Conocer más', 'Learn more'],
     },
   },
@@ -57,6 +59,7 @@ export function PromoAncho({ clave, margen = '0', enGrid = false, compacto = fal
       <div className="pa-tx">
         <span className="pa-eye">{p.txt.eye[i]}</span>
         <h3>{p.txt.h[i]}</h3>
+        <div className="pa-precio"><small>+</small>${p.precio}</div>
         <p>{p.txt.p[i]}</p>
         <span className="pa-cta">{p.txt.cta[i]} →</span>
       </div>
@@ -73,7 +76,12 @@ export function PromoAncho({ clave, margen = '0', enGrid = false, compacto = fal
         .pa-tx{position:absolute;top:50%;transform:translateY(-50%);left:max(2.5rem,calc((100vw - 1280px)/2 + 2.5rem));max-width:400px}
         .pa-claro{color:var(--charcoal)}
         .pa-oscuro{color:#fff}
-        .pa-eye{display:block;font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;margin-bottom:8px;opacity:.75}
+        .pa-eye{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#fff;background:var(--sage);border-radius:99px;padding:5px 12px;margin-bottom:12px}
+        .pa-oscuro .pa-eye{background:#fff;color:#0b2350}
+        .pa-precio{font-size:2.4rem;font-weight:600;letter-spacing:-.04em;line-height:1;margin:2px 0 8px;color:var(--sage)}
+        .pa-oscuro .pa-precio{color:#fff}
+        .pa-precio small{font-size:.5em;font-weight:500;vertical-align:.5em;margin-right:2px}
+        .pa-comp .pa-precio{font-size:1.9rem}
         .pa h3{font-size:clamp(1.6rem,2.6vw,2.3rem);font-weight:500;letter-spacing:-.03em;line-height:1.05;margin:0 0 12px;color:inherit}
         .pa p{font-size:14px;line-height:1.55;margin:0 0 14px;opacity:.85}
         .pa-cta{display:inline-block;font-size:13px;font-weight:500;border-bottom:1px solid currentColor;padding-bottom:2px}
@@ -96,31 +104,30 @@ export function PromoVertical({ clave }: { clave: Clave }) {
   const { lang } = useLang() as any;
   const p = PROMOS[clave];
   const i = lang === 'es' ? 0 : 1;
-  // Precio grande: se toma del texto (ej. "$49 más…") para no repetir la lista de precios
-  const precio = (p.txt.p[i].match(/\$\d+/) || [''])[0];
   return (
     <Link href={p.href} className="pv">
       <img src={p.img} alt="" loading="lazy" />
       <div className="pv-tx">
         <span className="pv-eye">{p.txt.eye[i]}</span>
         <h3>{p.txt.h[i]}</h3>
-        {precio && <div className="pv-precio"><small>+</small>{precio}</div>}
-        <p>{i === 0 ? 'en cualquier armazón' : 'on any frame'}</p>
+        <div className="pv-precio"><small>+</small>${p.precio}</div>
+        <p>{p.txt.p[i]}</p>
         <span className="pv-cta">{p.txt.cta[i]} →</span>
       </div>
       <style>{`
         .pv{position:relative;display:flex;align-items:center;justify-content:center;grid-row:span 2;border-radius:4px;overflow:hidden;text-decoration:none;color:var(--charcoal);min-height:420px}
         .pv img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .8s ease}
         .pv:hover img{transform:scale(1.03)}
-        /* Tarjeta centrada entre los dos armazones de la foto */
-        .pv-tx{position:relative;z-index:1;width:calc(100% - 36px);max-width:290px;text-align:center;background:rgba(253,252,250,.92);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border-radius:14px;padding:20px 18px 18px;box-shadow:0 10px 30px rgba(0,0,0,.08)}
-        .pv-eye{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#fff;background:var(--sage);border-radius:99px;padding:5px 12px;margin-bottom:12px}
-        .pv h3{font-size:1.35rem;font-weight:500;letter-spacing:-.03em;line-height:1.12;margin:0 0 10px;color:inherit}
-        .pv-precio{font-size:2.4rem;font-weight:600;letter-spacing:-.04em;line-height:1;color:var(--sage)}
-        .pv-precio small{font-size:.55em;font-weight:500;vertical-align:.45em;margin-right:2px}
-        .pv p{font-size:12.5px;margin:4px 0 14px;color:var(--warm-gray)}
-        .pv-cta{display:inline-block;font-size:12.5px;font-weight:600;color:#fff;background:var(--charcoal);border-radius:99px;padding:9px 18px}
-        @media (max-width:900px){.pv-tx{width:calc(100% - 16px);padding:14px 10px 12px;border-radius:12px}.pv-eye{font-size:9px;padding:4px 9px;letter-spacing:.1em}.pv h3{font-size:1rem}.pv-precio{font-size:1.8rem}.pv p{font-size:11px;margin-bottom:10px}.pv-cta{font-size:11px;padding:7px 12px}}
+        /* Texto directo sobre la foto, centrado entre los dos armazones, con un halo suave (sin caja) */
+        .pv-tx{position:relative;z-index:1;width:100%;padding:0 16px;text-align:center}
+        .pv-tx::before{content:'';position:absolute;z-index:-1;left:50%;top:50%;width:150%;height:150%;transform:translate(-50%,-50%);background:radial-gradient(ellipse at center,rgba(253,252,250,.92) 0%,rgba(253,252,250,.7) 38%,rgba(253,252,250,0) 68%);pointer-events:none}
+        .pv-eye{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#fff;background:var(--sage);border-radius:99px;padding:5px 12px;margin-bottom:10px}
+        .pv h3{font-size:1.3rem;font-weight:500;letter-spacing:-.03em;line-height:1.12;margin:0 0 6px;color:inherit}
+        .pv-precio{font-size:2.6rem;font-weight:600;letter-spacing:-.04em;line-height:1;color:var(--sage)}
+        .pv-precio small{font-size:.5em;font-weight:500;vertical-align:.5em;margin-right:2px}
+        .pv p{font-size:12.5px;margin:4px 0 10px;color:#4a463f}
+        .pv-cta{display:inline-block;font-size:12.5px;font-weight:600;border-bottom:1.5px solid currentColor;padding-bottom:2px}
+        @media (max-width:900px){.pv-tx{padding:0 8px}.pv-eye{font-size:9px;padding:4px 9px;letter-spacing:.1em}.pv h3{font-size:1rem}.pv-precio{font-size:1.9rem}.pv p{font-size:11px}.pv-cta{font-size:11px}}
       `}</style>
     </Link>
   );

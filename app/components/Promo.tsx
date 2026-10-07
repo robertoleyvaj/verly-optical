@@ -119,11 +119,11 @@ export function PromoVertical({ clave }: { clave: Clave }) {
         .pv img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .8s ease}
         .pv:hover img{transform:scale(1.03)}
         /* Texto directo sobre la foto, centrado entre los dos armazones, con un halo suave (sin caja) */
-        .pv-tx{position:relative;z-index:1;width:100%;padding:0 16px;text-align:center}
-        .pv-tx::before{content:'';position:absolute;z-index:-1;left:50%;top:50%;width:150%;height:150%;transform:translate(-50%,-50%);background:radial-gradient(ellipse at center,rgba(253,252,250,.92) 0%,rgba(253,252,250,.7) 38%,rgba(253,252,250,0) 68%);pointer-events:none}
+        .pv-tx{position:absolute;z-index:1;left:0;right:0;top:60%;transform:translateY(-50%);padding:0 18px;text-align:center}
+        .pv-tx::before{content:'';position:absolute;z-index:-1;left:50%;top:50%;width:125%;height:135%;transform:translate(-50%,-50%);background:radial-gradient(ellipse at center,rgba(253,252,250,.88) 0%,rgba(253,252,250,.6) 42%,rgba(253,252,250,0) 70%);pointer-events:none}
         .pv-eye{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#fff;background:var(--sage);border-radius:99px;padding:5px 12px;margin-bottom:10px}
-        .pv h3{font-size:1.3rem;font-weight:500;letter-spacing:-.03em;line-height:1.12;margin:0 0 6px;color:inherit}
-        .pv-precio{font-size:2.6rem;font-weight:600;letter-spacing:-.04em;line-height:1;color:var(--sage)}
+        .pv h3{font-size:1.15rem;font-weight:500;letter-spacing:-.02em;line-height:1.15;margin:0 auto 4px;max-width:200px;color:inherit}
+        .pv-precio{font-size:2.3rem;font-weight:600;letter-spacing:-.04em;line-height:1;color:var(--sage)}
         .pv-precio small{font-size:.5em;font-weight:500;vertical-align:.5em;margin-right:2px}
         .pv p{font-size:12.5px;margin:4px 0 10px;color:#4a463f}
         .pv-cta{display:inline-block;font-size:12.5px;font-weight:600;border-bottom:1.5px solid currentColor;padding-bottom:2px}

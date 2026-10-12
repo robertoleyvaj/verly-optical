@@ -4,6 +4,21 @@
 export const SOPORTE_EMAIL = 'support@verlyoptical.com'
 // WhatsApp de atención: con lada internacional, solo números (ej. '16195551234'). Vacío = no se muestra.
 export const WHATSAPP = ''
+// Redes sociales (salen en el pie de página y en los datos para Google)
+export const INSTAGRAM = 'https://www.instagram.com/verlyoptical'
+
+// Videos de ayuda (página /help). Pega aquí el link cuando estén listos:
+//   - archivo en la carpeta public/ayuda (ej. '/ayuda/comprar.mp4'), o
+//   - link de YouTube (ej. 'https://youtu.be/XXXX').
+// Vacío = se muestran solo los pasos escritos.
+export const VIDEOS_AYUDA = {
+  comprar: '',
+  tratamientos: '',
+  receta: '',
+  garantias: '',
+  bifocales: '',
+}
+
 export const HORARIO = { es: 'Lunes a sábado, 9 a.m. a 6 p.m. (hora del Pacífico)', en: 'Monday to Saturday, 9 a.m. to 6 p.m. (Pacific Time)' }
 
 export const GARANTIA_DIAS = 30        // rehacer micas gratis si la graduación no queda

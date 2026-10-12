@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useLang } from './LanguageContext';
 import Logo from './Logo';
-import { SOPORTE_EMAIL, HORARIO, whatsappLink } from '../lib/marca';
+import { SOPORTE_EMAIL, HORARIO, INSTAGRAM, whatsappLink } from '../lib/marca';
 
 export default function Footer() {
   const { t, lang } = useLang() as any;
@@ -28,6 +28,10 @@ export default function Footer() {
           <div className="vft-contacto">
             <a href={`mailto:${SOPORTE_EMAIL}`}>{SOPORTE_EMAIL}</a>
             {wa && <a href={wa} target="_blank" rel="noopener noreferrer">WhatsApp</a>}
+            <a href={INSTAGRAM} target="_blank" rel="noopener noreferrer" className="vft-ig" aria-label="Instagram">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+              @verlyoptical
+            </a>
             <span>{lang === 'es' ? HORARIO.es : HORARIO.en}</span>
           </div>
         </div>
@@ -37,6 +41,7 @@ export default function Footer() {
           { href: '/about', label: t('Nosotros', 'About us') },
         ])}
         {col(t('Ayuda', 'Help'), [
+          { href: '/help', label: t('Cómo comprar', 'How to buy') },
           { href: '/shipping', label: t('Envíos', 'Shipping') },
           { href: '/returns', label: t('Devoluciones', 'Returns') },
           { href: '/warranty', label: t('Garantía', 'Warranty') },
@@ -60,6 +65,7 @@ export default function Footer() {
         .vft-marca p{max-width:300px;line-height:1.6;margin:0 0 16px}
         .vft-contacto{display:flex;flex-direction:column;gap:6px}
         .vft-contacto a{color:#fff;text-decoration:none}
+        .vft-ig{display:inline-flex;align-items:center;gap:8px;margin-top:4px}
         .vft-contacto span{font-size:12px;color:rgba(255,255,255,.4)}
         .vft h4{color:#fff;font-size:13px;font-weight:600;margin:0 0 14px;font-family:var(--font-sans);letter-spacing:0}
         .vft-wrap > div:not(.vft-marca){display:flex;flex-direction:column;gap:10px}

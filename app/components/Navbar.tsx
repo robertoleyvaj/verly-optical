@@ -162,7 +162,7 @@ function CartIcon() {
 const NAV = [
   { href: "/Tienda", es: "Armazones", en: "Frames" },
   { href: "/lenses", es: "Micas", en: "Lenses" },
-  { href: "/#como-funciona", es: "Cómo comprar", en: "How it works" },
+  { href: "/help", es: "Cómo comprar", en: "How to buy" },
 ];
 
 export default function Navbar() {

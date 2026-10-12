@@ -109,6 +109,7 @@ export default function RootLayout({
                 url: "https://verlyoptical.com",
                 logo: "https://verlyoptical.com/apple-touch-icon.png",
                 email: "support@verlyoptical.com",
+                sameAs: ["https://www.instagram.com/verlyoptical"],
                 contactPoint: { "@type": "ContactPoint", contactType: "customer service", email: "support@verlyoptical.com", areaServed: "US", availableLanguage: ["English", "Spanish"] },
               },
               {

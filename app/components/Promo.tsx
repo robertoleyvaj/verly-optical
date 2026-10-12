@@ -6,7 +6,8 @@ import { VISION_PRICES, MATERIAL_PRICES, FILTRO_PRICES } from '../lib/precios';
 
 type Clave = 'luzAzul' | 'progresivos' | 'fotocromatico' | 'policarbonato';
 // Nombres iguales a los del configurador de micas (Thin & Durable, Blue Light Comfort…)
-type Txt = { eye: [string, string]; h: [string, string]; p: [string, string]; cta: [string, string] };
+// frase: deja claro que el precio es ADICIONAL al de los lentes (regla de publicidad): "Agrégalo por $18 más"
+type Txt = { eye: [string, string]; h: [string, string]; p: [string, string]; cta: [string, string]; frase: [string, string] };
 type Promo = { img: string; href: string; tono: 'claro' | 'oscuro'; pos: string; precio: number; desde?: boolean; txt: Txt };
 
 const PROMOS: Record<Clave, Promo> = {
@@ -16,6 +17,7 @@ const PROMOS: Record<Clave, Promo> = {
       eye: ['Blue Light Comfort', 'Blue Light Comfort'],
       h: ['Descansa tus ojos frente a la pantalla', 'Give your eyes a break from screens'],
       p: ['Filtro de luz azul para computadora y celular, en cualquier armazón.', 'Blue light filter for computer and phone, on any frame.'],
+      frase: ['Agrégalo a tus lentes por', 'Add it to your glasses for'],
       cta: ['Conocer más', 'Learn more'],
     },
   },
@@ -24,7 +26,8 @@ const PROMOS: Record<Clave, Promo> = {
     txt: {
       eye: ['Progresivo', 'Progressive'],
       h: ['De cerca y de lejos, en un solo lente', 'Near and far, in one lens'],
-      p: ['Sin cambiar de lentes en todo el día. Más el armazón que elijas.', 'No more switching glasses. Plus the frame you choose.'],
+      p: ['Ve de cerca y de lejos sin cambiar de lentes en todo el día.', 'See near and far without switching glasses all day.'],
+      frase: ['Convierte tus lentes en progresivos por', 'Make your glasses progressive for'],
       cta: ['Conocer más', 'Learn more'],
     },
   },
@@ -34,6 +37,7 @@ const PROMOS: Record<Clave, Promo> = {
       eye: ['Fotocromático', 'Photochromic'],
       h: ['Claros adentro, oscuros al sol', 'Clear inside, dark in the sun'],
       p: ['en cualquier armazón', 'on any frame'],
+      frase: ['Hazlos fotocromáticos por', 'Make them photochromic for'],
       cta: ['Conocer más', 'Learn more'],
     },
   },
@@ -43,6 +47,7 @@ const PROMOS: Record<Clave, Promo> = {
       eye: ['Thin & Durable', 'Thin & Durable'],
       h: ['Más ligeras y resistentes', 'Lighter and stronger'],
       p: ['Micas de policarbonato, más delgadas que la estándar. Ideales para niños, deporte y graduaciones altas.', 'Polycarbonate lenses, thinner than standard. Great for kids, sports and stronger prescriptions.'],
+      frase: ['Mejora tus micas por', 'Upgrade your lenses for'],
       cta: ['Conocer más', 'Learn more'],
     },
   },
@@ -59,7 +64,8 @@ export function PromoAncho({ clave, margen = '0', enGrid = false, compacto = fal
       <div className="pa-tx">
         <span className="pa-eye">{p.txt.eye[i]}</span>
         <h3>{p.txt.h[i]}</h3>
-        <div className="pa-precio"><small>+</small>${p.precio}</div>
+        <div className="pa-frase">{p.txt.frase[i]}</div>
+        <div className="pa-precio">${p.precio} <small>{i === 0 ? 'USD más' : 'more'}</small></div>
         <p>{p.txt.p[i]}</p>
         <span className="pa-cta">{p.txt.cta[i]} →</span>
       </div>
@@ -80,7 +86,8 @@ export function PromoAncho({ clave, margen = '0', enGrid = false, compacto = fal
         .pa-oscuro .pa-eye{background:#fff;color:#0b2350}
         .pa-precio{font-size:2.4rem;font-weight:600;letter-spacing:-.04em;line-height:1;margin:2px 0 8px;color:var(--sage)}
         .pa-oscuro .pa-precio{color:#fff}
-        .pa-precio small{font-size:.5em;font-weight:500;vertical-align:.5em;margin-right:2px}
+        .pa-precio small{font-size:.42em;font-weight:500;letter-spacing:0}
+        .pa-frase{font-size:13px;font-weight:500;opacity:.85;margin-top:2px}
         .pa-comp .pa-precio{font-size:1.9rem}
         .pa h3{font-size:clamp(1.6rem,2.6vw,2.3rem);font-weight:500;letter-spacing:-.03em;line-height:1.05;margin:0 0 12px;color:inherit}
         .pa p{font-size:14px;line-height:1.55;margin:0 0 14px;opacity:.85}
@@ -110,7 +117,8 @@ export function PromoVertical({ clave }: { clave: Clave }) {
       <div className="pv-tx">
         <span className="pv-eye">{p.txt.eye[i]}</span>
         <h3>{p.txt.h[i]}</h3>
-        <div className="pv-precio"><small>+</small>${p.precio}</div>
+        <div className="pv-frase">{p.txt.frase[i]}</div>
+        <div className="pv-precio">${p.precio} <small>{i === 0 ? 'más' : 'more'}</small></div>
         <p>{p.txt.p[i]}</p>
         <span className="pv-cta">{p.txt.cta[i]} →</span>
       </div>
@@ -124,7 +132,8 @@ export function PromoVertical({ clave }: { clave: Clave }) {
         .pv-eye{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#fff;background:var(--sage);border-radius:99px;padding:5px 12px;margin-bottom:10px}
         .pv h3{font-size:1.15rem;font-weight:500;letter-spacing:-.02em;line-height:1.15;margin:0 auto 4px;max-width:200px;color:inherit}
         .pv-precio{font-size:2.3rem;font-weight:600;letter-spacing:-.04em;line-height:1;color:var(--sage)}
-        .pv-precio small{font-size:.5em;font-weight:500;vertical-align:.5em;margin-right:2px}
+        .pv-precio small{font-size:.4em;font-weight:500;letter-spacing:0}
+        .pv-frase{font-size:12px;font-weight:500;color:#4a463f;margin-top:2px}
         .pv p{font-size:12.5px;margin:4px 0 10px;color:#4a463f}
         .pv-cta{display:inline-block;font-size:12.5px;font-weight:600;border-bottom:1.5px solid currentColor;padding-bottom:2px}
         @media (max-width:900px){.pv-tx{padding:0 8px}.pv-eye{font-size:9px;padding:4px 9px;letter-spacing:.1em}.pv h3{font-size:1rem}.pv-precio{font-size:1.9rem}.pv p{font-size:11px}.pv-cta{font-size:11px}}

@@ -22,6 +22,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     fija("/mens-glasses", 0.7, "monthly"),
     fija("/womens-glasses", 0.7, "monthly"),
     fija("/collections/glasses-from-28", 0.6, "monthly"),
+    fija("/help", 0.6, "monthly"),
     fija("/about", 0.4, "yearly"),
     fija("/shipping", 0.4, "yearly"),
     fija("/returns", 0.4, "yearly"),

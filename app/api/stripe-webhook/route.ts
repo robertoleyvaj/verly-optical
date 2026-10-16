@@ -43,9 +43,13 @@ export async function POST(req: NextRequest) {
     // Teléfono opcional (campo propio del checkout) o el que Stripe tenga del cliente
     const telCampo = (session.custom_fields || []).find(f => f.key === 'telefono')?.numeric?.value || '';
     const telefono = String(telCampo || session.customer_details?.phone || '').trim();
-    const ship    = (session as any).shipping_details?.address || (session as any).shipping?.address;
+    // En las versiones nuevas de la API de Stripe la dirección vive en collected_information.shipping_details
+    const ses = session as any;
+    const envio = ses.collected_information?.shipping_details || ses.shipping_details || ses.shipping || null;
+    const ship  = envio?.address || session.customer_details?.address || null;
+    const nombreEnvio = envio?.name ? String(envio.name) : '';
     const direccion = ship
-      ? `${ship.line1}${ship.line2 ? ', ' + ship.line2 : ''}, ${ship.city}, ${ship.state} ${ship.postal_code}, ${ship.country}`
+      ? `${nombreEnvio ? nombreEnvio + ' — ' : ''}${ship.line1}${ship.line2 ? ', ' + ship.line2 : ''}, ${ship.city}, ${ship.state} ${ship.postal_code}, ${ship.country}`
       : '';
 
     // Upsert cliente

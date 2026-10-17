@@ -47,10 +47,10 @@ export default function Home() {
   }, []);
 
   const formas = [
-    { img: '/home/forma-redondos.jpg', es: 'Redondos', en: 'Round', href: '/Tienda?forma=round' },
-    { img: '/home/forma-rectangulares.jpg', es: 'Rectangulares', en: 'Rectangular', href: '/Tienda?forma=rectangle,square' },
-    { img: '/home/forma-cateye.jpg', es: 'Cat-eye', en: 'Cat-eye', href: '/Tienda?forma=cat-eye' },
-    { img: '/home/forma-metal.jpg', es: 'De metal', en: 'Metal', href: '/Tienda?material=METAL' },
+    { img: '/home/gon-forma-redondo.jpg', es: 'Redondos', en: 'Round', href: '/Tienda?forma=round' },
+    { img: '/home/gon-forma-cuadrado.jpg', es: 'Rectangulares', en: 'Rectangular', href: '/Tienda?forma=rectangle,square' },
+    { img: '/home/gon-forma-cat.jpg', es: 'Cat-eye', en: 'Cat-eye', href: '/Tienda?forma=cat-eye' },
+    { img: '/home/gon-forma-metal.jpg', es: 'De metal', en: 'Metal', href: '/Tienda?material=METAL' },
   ];
 
   const pasos = [

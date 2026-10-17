@@ -1,6 +1,7 @@
 // app/sitemap.ts — mapa del sitio para Google: páginas fijas + cada armazón publicado
 import { MetadataRoute } from "next";
 import { createClient } from "@supabase/supabase-js";
+import { GUIAS } from "./lib/guias";
 
 export const revalidate = 3600; // se actualiza cada hora
 
@@ -23,6 +24,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     fija("/womens-glasses", 0.7, "monthly"),
     fija("/collections/glasses-from-28", 0.6, "monthly"),
     fija("/help", 0.6, "monthly"),
+    fija("/guides", 0.7, "weekly"),
+    fija("/es/guias", 0.7, "weekly"),
+    ...GUIAS.flatMap(g => [fija(`/guides/${g.slug}`, 0.6, "monthly"), fija(`/es/guias/${g.slugEs}`, 0.6, "monthly")]),
     fija("/about", 0.4, "yearly"),
     fija("/shipping", 0.4, "yearly"),
     fija("/returns", 0.4, "yearly"),

@@ -42,6 +42,7 @@ export default function Footer() {
         ])}
         {col(t('Ayuda', 'Help'), [
           { href: '/help', label: t('Cómo comprar', 'How to buy') },
+          { href: lang === 'es' ? '/es/guias' : '/guides', label: t('Guías', 'Guides') },
           { href: '/shipping', label: t('Envíos', 'Shipping') },
           { href: '/returns', label: t('Devoluciones', 'Returns') },
           { href: '/warranty', label: t('Garantía', 'Warranty') },

@@ -1,6 +1,7 @@
 // app/lib/emails.ts
 import { Resend } from 'resend';
 import { createClient } from '@supabase/supabase-js';
+import { GARANTIA_DIAS, DEVOLUCION_DIAS } from './marca';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const supabase = createClient(
@@ -249,6 +250,7 @@ export async function enviarEmailEnviado(order_id: number, cliente_email: string
           <p class="value">${paqueteria}</p>
           <p class="label">Tracking number</p>
           <p class="value"><span class="code">${tracking}</span></p>
+          <p style="margin:18px 0 6px;"><a href="${urlRastreo(tracking, paqueteria)}" class="btn btn-sage">Track your package</a></p>
           <hr class="divider"/>
           <p class="text" style="margin:0;">Need help? <a href="mailto:support@verlyoptical.com" style="color:#4A5940;">Contact us</a></p>
         </div>
@@ -271,6 +273,16 @@ export async function enviarEmailEnviado(order_id: number, cliente_email: string
   }
 }
 
+// Link de rastreo según la paquetería (si no la reconoce, usa USPS, que es la que usamos)
+export function urlRastreo(tracking: string, paqueteria: string): string {
+  const t = encodeURIComponent(tracking.replace(/\s+/g, ''));
+  const p = (paqueteria || '').toLowerCase();
+  if (p.includes('ups')) return `https://www.ups.com/track?tracknum=${t}`;
+  if (p.includes('fedex')) return `https://www.fedex.com/fedextrack/?trknbr=${t}`;
+  if (p.includes('dhl')) return `https://www.dhl.com/us-en/home/tracking.html?tracking-id=${t}`;
+  return `https://tools.usps.com/go/TrackConfirmAction?tLabels=${t}`;
+}
+
 // ── 4. DELIVERED ──────────────────────────────────────────────────────────
 export async function enviarEmailEntregado(order_id: number, cliente_email: string, cliente_nombre: string) {
   if (await yaEnviado(order_id, 'entregado')) return;
@@ -284,7 +296,7 @@ export async function enviarEmailEntregado(order_id: number, cliente_email: stri
         <div class="header">${logoTexto}</div>
         <div class="body">
           <p class="title">Your order<br/>has been delivered!</p>
-          <p class="text">Hi ${cliente_nombre.split(' ')[0]}, we hope you love your new glasses! Remember you have a 90-day warranty and 30-day hassle-free returns.</p>
+          <p class="text">Hi ${cliente_nombre.split(' ')[0]}, we hope you love your new glasses! Remember you have a ${GARANTIA_DIAS}-day lens guarantee and ${DEVOLUCION_DIAS}-day hassle-free returns.</p>
           <hr class="divider"/>
           <p class="label">Order number</p>
           <p class="value"><span class="code">${code}</span></p>

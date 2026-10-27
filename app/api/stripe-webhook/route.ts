@@ -9,6 +9,36 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
+// Descuenta 1 pieza del color vendido en el inventario de OptiOS (misma base de datos).
+// Sale de la primera ubicación con piezas: bodega → Baja Visión → 5 de Mayo → Plaza Laureles.
+// Usa inv_mover, que deja el movimiento en la bitácora con el número de pedido.
+// Nunca tumba el pedido: si algo falla, regresa un aviso para dejarlo en las notas.
+const UBIC_WEB: [string, string, string][] = [
+  ['bodega', 'bodega', 'Bodega'],
+  ['baja', 'stock_baja', 'Baja Visión'],
+  ['mayo', 'stock_mayo', '5 de Mayo'],
+  ['plaza', 'stock_plaza', 'Plaza Laureles'],
+];
+async function descontarInventario(colorId: number | null, sku: string | null, referencia: string): Promise<string> {
+  try {
+    if (!colorId && !sku) return '⚠ Inventario: el pedido no trae color, descuéntalo a mano.';
+    const q = supabase.from('armazon_colores').select('id, sku, bodega, stock_baja, stock_mayo, stock_plaza');
+    const { data: c } = colorId ? await q.eq('id', colorId).maybeSingle() : await q.eq('sku', String(sku).toUpperCase()).maybeSingle();
+    if (!c) return `⚠ Inventario: no encontré el color ${sku ?? colorId}, descuéntalo a mano.`;
+    const fila = c as Record<string, any>;
+    const ub = UBIC_WEB.find(([, col]) => Number(fila[col] ?? 0) > 0);
+    if (!ub) return `⚠ Inventario: ${fila.sku} no tiene piezas en ninguna ubicación, revísalo.`;
+    const { error } = await supabase.rpc('inv_mover', {
+      p_color_id: fila.id, p_ubicacion: ub[0], p_cantidad: -1, p_tipo: 'venta',
+      p_referencia: referencia, p_usuario: 'Verly (web)', p_notas: 'Venta en verlyoptical.com',
+    });
+    if (error) return `⚠ Inventario: no se pudo descontar ${fila.sku} (${error.message}).`;
+    return `Inventario: −1 ${fila.sku} de ${ub[2]}.`;
+  } catch (e: any) {
+    return `⚠ Inventario: error al descontar (${e?.message ?? 'desconocido'}).`;
+  }
+}
+
 export async function POST(req: NextRequest) {
   const body = await req.text();
   const sig  = req.headers.get('stripe-signature');
@@ -121,6 +151,14 @@ export async function POST(req: NextRequest) {
       }).select().single();
 
       if (!pedido) continue;
+
+      // Descontar el armazón vendido del inventario y dejar el resultado en las notas internas
+      const avisoInv = await descontarInventario(
+        item.armazon_color?.id ? Number(item.armazon_color.id) : null,
+        item.armazon_color?.sku ?? null,
+        `VRL-${2846 + Number(pedido.id)}`,
+      );
+      await supabase.from('pedidos').update({ notas_admin: avisoInv }).eq('id', pedido.id);
 
       lineasCorreo.push({
         order_id: pedido.id,

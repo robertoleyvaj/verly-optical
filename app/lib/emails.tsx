@@ -348,7 +348,7 @@ export async function enviarEmailSeguimiento(order_id: number, cliente_email: st
           <p class="text" style="margin-bottom:24px;">Your feedback means a lot to us and helps us improve. It only takes 2 minutes.</p>
           <a href="${encuesta_url}" class="btn">Leave a review</a>
           <hr class="divider"/>
-          <p class="text" style="margin:0; font-size:13px;">Something wrong with your lenses? <a href="mailto:support@verlyoptical.com" style="color:#4A5940;">Contact us</a> — we offer a 90-day warranty.</p>
+          <p class="text" style="margin:0; font-size:13px;">Something wrong with your lenses? <a href="mailto:support@verlyoptical.com" style="color:#4A5940;">Contact us</a> — we offer a ${GARANTIA_DIAS}-day lens guarantee.</p>
         </div>
         ${footer()}
       </div>

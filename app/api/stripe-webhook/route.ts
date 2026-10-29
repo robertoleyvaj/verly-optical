@@ -57,6 +57,8 @@ export async function POST(req: NextRequest) {
     const session = event.data.object as Stripe.Checkout.Session;
     const csId = session.metadata?.checkout_session_id;
     if (!csId) return NextResponse.json({ received: true });
+    // Los pagos de gonmx.com usan la misma cuenta de Stripe: esos los procesa gonmx, no Verly
+    if (session.metadata?.tienda === 'gon') return NextResponse.json({ received: true });
 
     // Obtener los items guardados
     const { data: cs } = await supabase

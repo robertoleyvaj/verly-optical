@@ -259,7 +259,8 @@ export default function CartDrawer() {
   const router = useRouter();
 
   const handleCheckout = async () => {
-  const sinNombre = items.filter(i => !i.paciente?.trim());
+  // El nombre solo hace falta para distinguir pares cuando hay más de uno
+  const sinNombre = items.length > 1 ? items.filter(i => !i.paciente?.trim()) : [];
   if (sinNombre.length > 0) {
     alert(t(
       `Por favor agrega un nombre a ${sinNombre.length === 1 ? 'tu par de lentes' : 'todos los pares'} antes de continuar.`,
